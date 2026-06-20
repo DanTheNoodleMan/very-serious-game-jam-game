@@ -1,0 +1,36 @@
+[gd_scene format=3 uid="uid://twq2fsikmerm"]
+
+[ext_resource type="Script" uid="uid://bu3efq2okptmm" path="res://slot_machine_logic.gd" id="1_agdmm"]
+[ext_resource type="Script" uid="uid://bldxdnh3jccb4" path="res://slot_machine.gd" id="1_nmlme"]
+[ext_resource type="Script" uid="uid://b6y6l2gtrmxlo" path="res://resources/symbol_data.gd" id="3_knkoj"]
+[ext_resource type="Resource" uid="uid://btwdm18mru06b" path="res://resources/symbols/roi.tres" id="4_842tv"]
+
+[node name="SlotMachine" type="Control" unique_id=798385911]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_nmlme")
+
+[node name="SlotMachineLogic" type="Node" parent="." unique_id=669746294]
+script = ExtResource("1_agdmm")
+shared_pool = Array[ExtResource("3_knkoj")]([ExtResource("4_842tv"), ExtResource("4_842tv"), ExtResource("4_842tv")])
+
+[node name="SlotMachineSprite" type="Sprite2D" parent="." unique_id=1014798497]
+
+[node name="MarginContainer" type="MarginContainer" parent="." unique_id=953763250]
+custom_minimum_size = Vector2(200, 64)
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+mouse_filter = 2
+theme_override_constants/margin_left = 8
+theme_override_constants/margin_top = 8
+theme_override_constants/margin_right = 8
+theme_override_constants/margin_bottom = 8
+
+[node name="Reels" type="HBoxContainer" parent="MarginContainer" unique_id=1738039473]
+layout_mode = 2
+mouse_filter = 2
