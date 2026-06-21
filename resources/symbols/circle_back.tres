@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="SymbolData" format=3 uid="uid://sxeq0y40puh6"]
+
+[ext_resource type="Script" uid="uid://b6y6l2gtrmxlo" path="res://resources/symbol_data.gd" id="1_6aiea"]
+[ext_resource type="Texture2D" uid="uid://bwcdopbxkhshs" path="res://assets/symbols/circle_back.png" id="1_ktewh"]
+
+[resource]
+script = ExtResource("1_6aiea")
+id = "circle_back"
+symbol_name = "Circle Back"
+icon = ExtResource("1_ktewh")
+base_value = 4
+effect_type = 1
+metadata/_custom_type_script = "uid://b6y6l2gtrmxlo"

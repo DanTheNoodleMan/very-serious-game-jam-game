@@ -3,9 +3,15 @@ class_name SlotMachine
 extends Control
 
 signal spin_finished(results: Array[SymbolData])
+signal spin_start
 
 @onready var logic: SlotMachineLogic = $SlotMachineLogic
 @onready var reels_box: HBoxContainer = $MarginContainer/Reels
+@onready var info_labels: Array[RichTextLabel] = [
+	$SymbolInfoRow/InfoLabel0,
+	$SymbolInfoRow/InfoLabel1,
+	$SymbolInfoRow/InfoLabel2,
+]
 
 const SPIN_DURATIONS := [0.6, 1.0, 1.4]
 var _reels: Array[SlotReel] = []
@@ -29,18 +35,37 @@ func _build_reels() -> void:
 		var reel := SlotReel.new()
 		reels_box.add_child(reel)
 		reel.initialise(logic.shared_pool)
-		reel.reel_stopped.connect(_on_reel_stopped)
+		reel.reel_stopped.connect(_on_reel_stopped.bind(i))
 		reel.reel_clicked.connect(_on_reel_clicked.bind(i))
 		_reels.append(reel)
-
+		
+		# Make sure labels pivot from their center for the pop animation
+		info_labels[i].pivot_offset = info_labels[i].size * 0.5
 
 # Called by BattleManager to start the process
 func trigger_spin() -> void:
 	if is_spinning: return
+	spin_start.emit()
 	is_spinning = true
 	interactible = false # locked during spin
 	_stopped_count = 0
+	for label in info_labels:
+		label.text = ""
 	logic.trigger_spin() # Tells logic to pick 3 symbols
+
+#func _update_symbol_info() -> void:
+	#for i in 3:
+		#if _last_results[i] != null:
+			#info_labels[i].text = ComboDictionary.describe_symbol(_last_results[i])
+
+
+func get_reel_global_centers() -> Array[Vector2]:
+	var positions: Array[Vector2] = []
+	for reel in _reels:
+		positions.append(reel.global_position + Vector2(reel.custom_minimum_size.x, reel.custom_minimum_size.y) * 0.5)
+	return positions
+
+
 
 # Triggered when logic finishes picking symbols
 func _on_spin_calculated(results: Array[SymbolData]) -> void:
@@ -49,12 +74,35 @@ func _on_spin_calculated(results: Array[SymbolData]) -> void:
 	for i in 3:
 		_reels[i].spin_to(results[i], SPIN_DURATIONS[i])
 
-func _on_reel_stopped() -> void:
+func _on_reel_stopped(index: int) -> void:
 	_stopped_count += 1
+	
+	var label = info_labels[index]
+	var symbol = _last_results[index]
+	
+	if symbol != null:
+		# 1. Update the text immediately
+		label.text = ComboDictionary.describe_symbol(symbol)
+		
+		# 2. Reset the pivot offset in case the text size changed
+		label.pivot_offset = label.size * 0.5
+		
+		# 3. The "Thump" Animation
+		label.scale = Vector2(0.5, 0.5)
+		label.modulate.a = 0.0
+		
+		var t := create_tween()
+		t.tween_property(label, "scale", Vector2(1.2, 1.2), 0.08).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+		t.parallel().tween_property(label, "modulate:a", 1.0, 0.08)
+		t.chain().tween_property(label, "scale", Vector2(1.0, 1.0), 0.06).set_trans(Tween.TRANS_SINE)
+		
+		# 4. THE SOUND TRIGGER
+		# SFXManager.play(preload("res://assets/sfx/reel_thump.wav"), 0.1, 0.05, 2.0)
+
+	# If this was the last reel, finish the spin
 	if _stopped_count == 3:
 		is_spinning = false
-		# interactable stays false. BattleManager sets it to true in _on_spin_finished
-		spin_finished.emit(_last_results) # Tell BattleManager we are done
+		spin_finished.emit(_last_results)
 
 func _on_reel_clicked(index: int) -> void:
 	print("clicked : ", index)
@@ -62,6 +110,7 @@ func _on_reel_clicked(index: int) -> void:
 	print("reel inde: ", index)
 	var is_now_held = logic.toggle_hold(index)
 	_reels[index].set_held(is_now_held)
+	
 
 # --- HOLD LOGIC ---
 func _input(event: InputEvent) -> void:

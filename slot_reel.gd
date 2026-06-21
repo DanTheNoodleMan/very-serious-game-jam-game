@@ -4,7 +4,7 @@ extends Control
 signal reel_stopped
 signal reel_clicked
 
-@export var sym_size := 48
+@export var sym_size := 64
 
 var _pool: Array = []
 var _flash_rect: ColorRect
@@ -20,13 +20,13 @@ var _next_rect: TextureRect # the second texture for the scrolling illusion
 
 func _ready() -> void:
 	clip_contents = true
-	custom_minimum_size = Vector2(sym_size+8, sym_size +8)
-	pivot_offset = Vector2((sym_size+8) * 0.5, (sym_size+8) * 0.5)
+	custom_minimum_size = Vector2(sym_size, sym_size)
 	mouse_filter = Control.MOUSE_FILTER_STOP
+	mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
 
 	# ── Main symbol display ───────────────────────────────────
 	_symbol_rect = TextureRect.new()
-	_symbol_rect.size = Vector2(sym_size+4, sym_size)
+	_symbol_rect.size = Vector2(sym_size, sym_size)
 	_symbol_rect.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	_symbol_rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 	_symbol_rect.mouse_filter = Control.MOUSE_FILTER_PASS
@@ -117,7 +117,7 @@ func _spin_cycle(result_symbol: SymbolData, fast_time: float, decel_time: float)
 func _make_overlay(col: Color) -> ColorRect:
 	var r := ColorRect.new()
 	r.color = col
-	r.size = Vector2(sym_size +8, sym_size)
+	r.size = Vector2(sym_size , sym_size)
 	r.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	
 	var mat := CanvasItemMaterial.new()
@@ -126,9 +126,6 @@ func _make_overlay(col: Color) -> ColorRect:
 	
 	add_child(r)
 	return r
-
-
-
 
 
 # ── Public API ────────────────────────────────────────────────────────

@@ -69,7 +69,7 @@ animations = [{
 
 [resource]
 script = ExtResource("1_j3ll6")
-boss_name = "Salaryman Extraordinare"
+boss_name = "Salaryman"
 attack_pattern = Array[int]([8, 10, 6, 15])
 animations = SubResource("SpriteFrames_j3ll6")
 metadata/_custom_type_script = "uid://c48xf5y2x8myd"

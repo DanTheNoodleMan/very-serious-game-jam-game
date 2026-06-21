@@ -4,6 +4,9 @@
 [ext_resource type="Script" uid="uid://bldxdnh3jccb4" path="res://slot_machine.gd" id="1_nmlme"]
 [ext_resource type="Script" uid="uid://b6y6l2gtrmxlo" path="res://resources/symbol_data.gd" id="3_knkoj"]
 [ext_resource type="Resource" uid="uid://btwdm18mru06b" path="res://resources/symbols/roi.tres" id="4_842tv"]
+[ext_resource type="FontFile" uid="uid://csmid407kor44" path="res://assets/fonts/Stacked pixel.ttf" id="6_7abct"]
+[ext_resource type="Resource" uid="uid://sxeq0y40puh6" path="res://resources/symbols/circle_back.tres" id="6_jfulg"]
+[ext_resource type="Resource" uid="uid://dnyn4iruiaydi" path="res://resources/symbols/pizza_party.tres" id="6_kpwbf"]
 
 [node name="SlotMachine" type="Control" unique_id=798385911]
 layout_mode = 3
@@ -16,9 +19,51 @@ script = ExtResource("1_nmlme")
 
 [node name="SlotMachineLogic" type="Node" parent="." unique_id=669746294]
 script = ExtResource("1_agdmm")
-shared_pool = Array[ExtResource("3_knkoj")]([ExtResource("4_842tv"), ExtResource("4_842tv"), ExtResource("4_842tv")])
+shared_pool = Array[ExtResource("3_knkoj")]([ExtResource("4_842tv"), ExtResource("4_842tv"), ExtResource("6_kpwbf"), ExtResource("6_jfulg")])
 
 [node name="SlotMachineSprite" type="Sprite2D" parent="." unique_id=1014798497]
+
+[node name="SymbolInfoRow" type="HBoxContainer" parent="." unique_id=712919289]
+layout_mode = 0
+offset_left = 12.0
+offset_top = 62.0
+offset_right = 212.0
+offset_bottom = 110.0
+theme_override_constants/separation = 12
+alignment = 1
+
+[node name="InfoLabel0" type="RichTextLabel" parent="SymbolInfoRow" unique_id=447872875]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_fonts/normal_font = ExtResource("6_7abct")
+theme_override_fonts/bold_font = ExtResource("6_7abct")
+theme_override_font_sizes/normal_font_size = 8
+theme_override_font_sizes/bold_font_size = 14
+bbcode_enabled = true
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="InfoLabel1" type="RichTextLabel" parent="SymbolInfoRow" unique_id=1337671776]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_fonts/normal_font = ExtResource("6_7abct")
+theme_override_fonts/bold_font = ExtResource("6_7abct")
+theme_override_font_sizes/normal_font_size = 8
+theme_override_font_sizes/bold_font_size = 14
+bbcode_enabled = true
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="InfoLabel2" type="RichTextLabel" parent="SymbolInfoRow" unique_id=251538967]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_fonts/normal_font = ExtResource("6_7abct")
+theme_override_fonts/bold_font = ExtResource("6_7abct")
+theme_override_font_sizes/normal_font_size = 8
+theme_override_font_sizes/bold_font_size = 14
+bbcode_enabled = true
+horizontal_alignment = 1
+vertical_alignment = 1
 
 [node name="MarginContainer" type="MarginContainer" parent="." unique_id=953763250]
 custom_minimum_size = Vector2(200, 64)
@@ -34,3 +79,4 @@ theme_override_constants/margin_bottom = 8
 [node name="Reels" type="HBoxContainer" parent="MarginContainer" unique_id=1738039473]
 layout_mode = 2
 mouse_filter = 2
+theme_override_constants/separation = 8

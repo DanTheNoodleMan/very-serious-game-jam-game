@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="SymbolData" format=3 uid="uid://b5rqdu7o1qnng"]
+
+[ext_resource type="Script" uid="uid://b6y6l2gtrmxlo" path="res://resources/symbol_data.gd" id="1_081dw"]
+[ext_resource type="Texture2D" uid="uid://ckmgbpn3rucwr" path="res://assets/symbols/pain_point.png" id="1_i05pc"]
+
+[resource]
+script = ExtResource("1_081dw")
+id = "pain_point"
+symbol_name = "Pain Point"
+icon = ExtResource("1_i05pc")
+base_value = 5
+metadata/_custom_type_script = "uid://b6y6l2gtrmxlo"
