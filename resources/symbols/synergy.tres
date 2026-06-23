@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="SymbolData" format=3 uid="uid://bonah5v6eua36"]
+
+[ext_resource type="Script" uid="uid://b6y6l2gtrmxlo" path="res://resources/symbol_data.gd" id="1_nm6ts"]
+[ext_resource type="Texture2D" uid="uid://cew4n0qt753la" path="res://assets/symbols/synergy_pixelt.png" id="1_of0xb"]
+
+[resource]
+script = ExtResource("1_nm6ts")
+id = "synergy"
+symbol_name = "Synergy"
+icon = ExtResource("1_of0xb")
+effect_type = 1
+metadata/_custom_type_script = "uid://b6y6l2gtrmxlo"

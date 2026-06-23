@@ -1,0 +1,13 @@
+[gd_scene format=3 uid="uid://cjble715oj7rd"]
+
+[ext_resource type="Script" uid="uid://wtk4rfls6fv6" path="res://scripts/autoload/combo_dictionary.gd" id="1_umm07"]
+[ext_resource type="Script" uid="uid://b6y6l2gtrmxlo" path="res://resources/symbol_data.gd" id="2_eepqi"]
+[ext_resource type="Resource" uid="uid://bonah5v6eua36" path="res://resources/symbols/synergy.tres" id="3_w2d8j"]
+[ext_resource type="Resource" uid="uid://b5rqdu7o1qnng" path="res://resources/symbols/pain_point.tres" id="4_8grjo"]
+[ext_resource type="Resource" uid="uid://sxeq0y40puh6" path="res://resources/symbols/circle_back.tres" id="5_iwfcf"]
+[ext_resource type="Resource" uid="uid://dnyn4iruiaydi" path="res://resources/symbols/pizza_party.tres" id="6_m7i84"]
+[ext_resource type="Resource" uid="uid://btwdm18mru06b" path="res://resources/symbols/roi.tres" id="7_43be6"]
+
+[node name="ComboDictionary" type="Node" unique_id=1376710668]
+script = ExtResource("1_umm07")
+all_symbols = Array[ExtResource("2_eepqi")]([ExtResource("3_w2d8j"), ExtResource("4_8grjo"), ExtResource("5_iwfcf"), ExtResource("6_m7i84"), ExtResource("7_43be6")])

@@ -17,8 +17,8 @@ config/icon="res://icon.svg"
 
 [autoload]
 
-ComboDictionary="*uid://wtk4rfls6fv6"
 SFXManager="*uid://q8xr070b4rft"
+ComboDictionary="*uid://cjble715oj7rd"
 
 [display]
 

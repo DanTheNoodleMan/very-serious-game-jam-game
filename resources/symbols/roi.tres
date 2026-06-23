@@ -1,6 +1,6 @@
 [gd_resource type="Resource" script_class="SymbolData" format=3 uid="uid://btwdm18mru06b"]
 
-[ext_resource type="Texture2D" uid="uid://byyfpu7g4epc6" path="res://assets/symbols/roi.png" id="1_27hvf"]
+[ext_resource type="Texture2D" uid="uid://cxj5nc5wn5jfa" path="res://assets/symbols/roi_pixel.png" id="1_27hvf"]
 [ext_resource type="Script" uid="uid://b6y6l2gtrmxlo" path="res://resources/symbol_data.gd" id="1_t2yfc"]
 
 [resource]

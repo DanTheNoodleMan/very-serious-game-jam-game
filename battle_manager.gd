@@ -3,10 +3,18 @@ extends Node
 signal boss_turn
 signal player_turn
 
-const STAMP_OFFSETS := [Vector2(-140, 40), Vector2(-80, 80), Vector2(0, 60)]
+const STAMP_OFFSETS := [Vector2(-64, -60), Vector2(-64, 10), Vector2(-64, -60)]
 
 enum GameState {PLAYER_TURN, SPINNING, RESOLVING, ENEMY_TURN, GAME_OVER}
 var current_state: GameState = GameState.PLAYER_TURN
+
+@export var button_down_sfx: AudioStream
+@export var button_up_sfx: AudioStream
+@export var slide: AudioStream
+@export var whoosh: AudioStream
+@export var hit: AudioStream
+@export var shield_impact: AudioStream
+@export var shield_break: AudioStream
 
 @export var current_boss: BossData
 var player_hp: int = 100
@@ -14,7 +22,11 @@ var player_max_hp: int = 100
 var player_shield: int = 0   # resets each enemy turn after absorbing
 var boss_hp: int = 100
 var turn_number: int = 0
-var rerolls_left: int = 2
+var rerolls_left: int = 1
+var base_rerolls_left: int = 2
+
+var _combat_ui_rest_x: float
+var _combat_ui_tween: Tween
 
 @onready var enemy_display: EnemyDisplay = $EnemyArea
 @onready var player_display: PlayerDisplay = $PlayerArea
@@ -25,10 +37,10 @@ var rerolls_left: int = 2
 @onready var action_button_label: Label = $CombatUI/ActionButton/ActionButtonLabel
 @onready var lock_in_button: TextureButton = $CombatUI/LockInButton
 @onready var lock_in_button_label: Label = $CombatUI/LockInButton/LockInButtonLabel
-@onready var intent_label: RichTextLabel = $EnemyArea/IntentBox/IntentLabel
-@onready var combo_label: RichTextLabel = $CombatUI/ComboLabel  # ADD THIS NODE in editor
+@onready var combo_label: RichTextLabel = $ComboLabel 
 
 var custom_font = load("uid://csmid407kor44")
+
 
 func _ready() -> void:
 	boss_hp = current_boss.max_hp
@@ -36,15 +48,19 @@ func _ready() -> void:
 	player_display.setup(player_hp)
 
 	action_button.pressed.connect(_on_action_button_pressed)
-	action_button.button_down.connect(_on_button_down)
-	action_button.button_up.connect(_on_button_up)
+	action_button.button_down.connect(_on_action_button_down)
+	action_button.button_up.connect(_on_action_button_up)
 	
 	lock_in_button.pressed.connect(_on_lock_in_button_pressed)
-	lock_in_button.button_down.connect(_on_button_down)
-	lock_in_button.button_up.connect(_on_button_up)
+	lock_in_button.button_down.connect(_on_lock_in_button_down)
+	lock_in_button.button_up.connect(_on_lock_in_button_up)
 	
 	slot_machine.spin_finished.connect(_on_spin_finished)
 	slot_machine.spin_start.connect(_on_spin_start)
+	
+	await get_tree().process_frame
+	_combat_ui_rest_x = combat_ui.position.x
+	combat_ui.visible = false  # Start hidden, first show comes from start_player_turn
 	
 	start_player_turn()
 
@@ -52,8 +68,8 @@ func start_player_turn() -> void:
 	player_turn.emit()
 	player_display.clear_shield()  
 	current_state = GameState.PLAYER_TURN
-	rerolls_left = 2
-	combat_ui.visible = true  # Show buttons again
+	rerolls_left = base_rerolls_left
+	_show_combat_ui()
 	combo_label.text = ""  # Clear preview from last turn
 	slot_machine.reset_all_holds()
 
@@ -76,7 +92,9 @@ func _on_spin_finished(results: Array[SymbolData]) -> void:
 		current_state = GameState.PLAYER_TURN
 		action_button.disabled = false
 		action_button_label.text = "REROLL (" + str(rerolls_left) + ")"
+		action_button_label.position.y -= 2
 		lock_in_button.disabled = false
+		lock_in_button_label.position.y -= 2
 	else:
 		# No rerolls left, auto-resolve after brief pause so player sees result
 		await get_tree().create_timer(0.6).timeout
@@ -86,7 +104,7 @@ func _on_spin_finished(results: Array[SymbolData]) -> void:
 func resolve_player_attack() -> void:
 	current_state = GameState.RESOLVING
 	slot_machine.interactible = false
-	combat_ui.visible = false  # Hide buttons during resolution
+	_hide_combat_ui()  # Hide buttons during resolution
 
 	var final_symbols = slot_machine.logic.active_symbols
 	var combo_result = ComboDictionary.calculate(final_symbols)
@@ -103,7 +121,7 @@ func resolve_player_attack() -> void:
 	var player_center := player_display.get_global_center()
 	
 	if combo_result["impact"] > 0:
-		spawn_floating_text("[b][color=#ff5555]-" + str(combo_result["impact"]) + " IMPACT[/color][/b]",
+		spawn_floating_text("[b][color=#cc5555]-" + str(combo_result["impact"]) + " HP[/color][/b]",
 		boss_center + Vector2(128, -32))
 	if combo_result["bandwidth"] > 0:
 		spawn_floating_text("[b][color=#55aaff]+" + str(combo_result["bandwidth"]) + " BW[/color][/b]",
@@ -112,8 +130,9 @@ func resolve_player_attack() -> void:
 		spawn_floating_text("[b][color=#55ee77]+" + str(combo_result["morale"]) + " MORALE[/color][/b]",
 		player_center + Vector2(0, -18))
 		
+	SFXManager.play(hit, 0.0, 0.0, -20.0, 1.5, 0.0)
 	await enemy_display.play_hit()  # Wait for hit anim to finish
-	
+
 	boss_hp -= combo_result["impact"]
 	enemy_display.update_hp(boss_hp)
 	
@@ -152,21 +171,25 @@ func start_enemy_turn() -> void:
 		if shield_broke:
 			# Shield was exactly depleted
 			await player_display.play_shield_break(prev_shield, exact_break)
+			SFXManager.play(shield_impact, 0.0, 0.0, -20.0, 1.0, 0.0) 
 		else:
 			# Shield still has points left
 			await player_display.play_blocked()
+			SFXManager.play(shield_impact, 0.0, 0.0, -20.0, 1.0, 0.0) 
 	else:
 		# HP damage taken (shield may have broken or not)
 		if shield_broke:
 			await player_display.play_shield_break(prev_shield, exact_break)
+			SFXManager.play(shield_break, 0.0, 0.0, -20.0, 1.0, 0.0) 
 		# Now apply HP damage and play hit animation
 		player_hp -= hp_damage
 		player_display.update_hp(player_hp)
-		await player_display.play_hit()
-
+		
 		var player_center := player_display.get_global_center()
-		spawn_floating_text("[b][color=#ff5555]-" + str(hp_damage) + " HP[/color][/b]",
+		spawn_floating_text("[b][color=#cc5555]-" + str(hp_damage) + " HP[/color][/b]",
 			player_center + Vector2(-24, 12))   # change "BW" to "HP" for clarity
+		SFXManager.play(hit, 0.0, 0.0, -20.0, 1.0, 0.0)
+		await player_display.play_hit()
 
 	if player_hp <= 0:
 		print("GAME OVER")
@@ -183,6 +206,8 @@ func _set_buttons_spinning() -> void:
 	action_button.disabled = true
 	lock_in_button.disabled = true
 	action_button_label.text = "SPINNING..."
+	action_button_label.position.y = 8
+	lock_in_button_label.position.y = 8
 
 func _update_combo_label(results: Array[SymbolData], combo: Dictionary) -> void:
 	var new_text := ""
@@ -200,9 +225,9 @@ func _update_combo_label(results: Array[SymbolData], combo: Dictionary) -> void:
 			new_text += "   " + "   ".join(effects)
 	else:
 		var parts: Array[String] = []
-		if combo["impact"] > 0:    parts.append("[color=#cc5555][b]" + str(combo["impact"]) + "[/b] IMPACT[/color]")
-		if combo["bandwidth"] > 0: parts.append("[color=#5588cc][b]" + str(combo["bandwidth"]) + "[/b] BW[/color]")
-		if combo["morale"] > 0:    parts.append("[color=#55aa77][b]" + str(combo["morale"]) + "[/b] MORALE[/color]")
+		if combo["impact"] > 0:    parts.append("[wave amp=2 freq=5.0][color=#cc5555][b]" + str(combo["impact"]) + "[/b] IMPACT[/color][/wave]")
+		if combo["bandwidth"] > 0: parts.append("[wave amp=2 freq=5.0][color=#5588cc][b]" + str(combo["bandwidth"]) + "[/b] BW[/color][/wave]")
+		if combo["morale"] > 0:    parts.append("[wave amp=2 freq=5.0][color=#55aa77][b]" + str(combo["morale"]) + "[/b] MORALE[/color][/wave]")
 		new_text = " + ".join(parts) if not parts.is_empty() else "[color=#44445a]no effect[/color]"
 
 	combo_label.text = new_text
@@ -234,6 +259,7 @@ func throw_symbols_at_boss(symbols: Array[SymbolData]) -> void:
 	var target: Vector2 = enemy_display.get_portrait_global_center()
 	
 	for i in 3:
+		SFXManager.play(whoosh, 0.0, 0.0, -20.0, 1.0, 0.0) 
 		await get_tree().create_timer(0.09).timeout  # Stagger launches
 		_launch_word_projectile(symbols[i], origins[i], target, STAMP_OFFSETS[i])
 	
@@ -260,7 +286,7 @@ func _launch_word_projectile(sym: SymbolData, from: Vector2, to: Vector2, stamp_
 	icon_t.tween_callback(icon.queue_free)
 	
 	# --- Word stamp: fires after icon arrives ---
-	var stamp_pos := to + stamp_offset
+	var stamp_pos := from + stamp_offset
 	var delay_t := create_tween()
 	delay_t.tween_interval(flight_time)
 	delay_t.tween_callback(func(): _spawn_word_stamp(sym.symbol_name.to_upper(), stamp_pos))
@@ -275,6 +301,8 @@ func _spawn_word_stamp(word: String, pos: Vector2) -> void:
 	rtl.z_index = 110
 	rtl.scale = Vector2(2.8, 2.8)
 	rtl.modulate.a = 0.0
+	rtl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	rtl.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	rtl.add_theme_font_override("normal_font", custom_font)
 	rtl.add_theme_font_override("bold_font", custom_font)
 	rtl.add_theme_font_size_override("normal_font_size", 16)
@@ -314,6 +342,8 @@ func show_combo_announcement(combo_name: String) -> void:
 	rtl.add_theme_color_override("font_shadow_color", Color(0, 0, 0, 0.8))
 	rtl.add_theme_constant_override("shadow_offset_x", 4)
 	rtl.add_theme_constant_override("shadow_offset_y", 4)
+	rtl.add_theme_constant_override("outline_size", 6)
+	rtl.add_theme_color_override("font_outline_color", "#201533")
 	rtl.z_index = 200
 	get_tree().root.add_child(rtl)
 
@@ -424,6 +454,40 @@ func _hide_combo_label() -> void:
 		combo_label.rotation = 0.0
 		combo_label.modulate = Color.WHITE
 	)
+	
+
+func _show_combat_ui() -> void:
+	if is_instance_valid(_combat_ui_tween):
+		_combat_ui_tween.kill()
+	
+	combat_ui.position.x = _combat_ui_rest_x + combat_ui.size.x + 16.0
+	combat_ui.visible = true
+	
+	var overshoot := 6.0  # <-- tune this, was implicitly ~20-30px with TRANS_BACK
+	
+	SFXManager.play(slide, 0.0, 0.0, -10.0, 0.75, 0.0) 
+
+	_combat_ui_tween = create_tween()
+	# Step 1: slide in and slightly past the rest position
+	_combat_ui_tween.tween_property(combat_ui, "position:x", _combat_ui_rest_x - overshoot, 0.28) \
+		.set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+	# Step 2: spring back to the true rest position
+	_combat_ui_tween.chain().tween_property(combat_ui, "position:x", _combat_ui_rest_x, 0.12) \
+		.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+
+
+func _hide_combat_ui() -> void:
+	if not combat_ui.visible: return
+	if is_instance_valid(_combat_ui_tween):
+		_combat_ui_tween.kill()
+	
+	SFXManager.play(slide, 0.0, 0.0, -10.0, 1.5, 0.0) 
+	_combat_ui_tween = create_tween()
+	_combat_ui_tween.tween_property(
+		combat_ui, "position:x",
+		_combat_ui_rest_x + combat_ui.size.x + 16.0, 0.15
+	).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN)
+	_combat_ui_tween.tween_callback(func(): combat_ui.visible = false)
 
 # --- Signal receivers -----------------------------------
 func _on_spin_start() -> void:
@@ -441,8 +505,18 @@ func _on_lock_in_button_pressed() -> void:
 	if current_state != GameState.PLAYER_TURN: return
 	resolve_player_attack()
 
-func _on_button_down() -> void:
-	action_button_label.position.y += 2 # Shifts the text down 2 pixels while held
+func _on_action_button_down() -> void:
+	action_button_label.position.y += 2 
+	SFXManager.play(button_down_sfx, 0.1, 0.05, -15.0, 1.0)
 
-func _on_button_up() -> void:
-	action_button_label.position.y -= 2 # Shifts the text back up 2 pixels upon release
+func _on_action_button_up() -> void:
+	action_button_label.position.y -= 2 
+	SFXManager.play(button_up_sfx, 0.1, 0.05, -15.0, 1.0)
+
+func _on_lock_in_button_down() -> void:
+	lock_in_button_label.position.y += 2
+	SFXManager.play(button_down_sfx, 0.1, 0.05, -15.0, 1.0)
+
+func _on_lock_in_button_up() -> void:
+	lock_in_button_label.position.y -= 2
+	SFXManager.play(button_up_sfx, 0.1, 0.05, -15.0, 1.0)

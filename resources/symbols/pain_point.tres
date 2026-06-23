@@ -1,7 +1,7 @@
 [gd_resource type="Resource" script_class="SymbolData" format=3 uid="uid://b5rqdu7o1qnng"]
 
 [ext_resource type="Script" uid="uid://b6y6l2gtrmxlo" path="res://resources/symbol_data.gd" id="1_081dw"]
-[ext_resource type="Texture2D" uid="uid://ckmgbpn3rucwr" path="res://assets/symbols/pain_point.png" id="1_i05pc"]
+[ext_resource type="Texture2D" uid="uid://mx2o3qn0eo5w" path="res://assets/symbols/pain_point_pixel.png" id="1_i05pc"]
 
 [resource]
 script = ExtResource("1_081dw")

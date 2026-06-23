@@ -1,7 +1,7 @@
 class_name EnemyDisplay
 extends Control
 
-@onready var portrait: AnimatedSprite2D = $EnemyPortrait
+@onready var enemy_portrait: AnimatedSprite2D = $EnemyPortrait
 @onready var hp_bar: TextureProgressBar = $EnemyHPBar
 @onready var intent_label: RichTextLabel = $IntentBox/IntentLabel
 @onready var enemy_name: RichTextLabel = $EnemyNameContainer/HBoxContainer/NameContainer/EnemyName
@@ -48,8 +48,8 @@ func _ready() -> void:
 func setup(boss: BossData) -> void:
 	talking_border.visible = false
 	enemy_name.text = boss.boss_name
-	portrait.sprite_frames = boss.animations
-	portrait.play("idle")
+	enemy_portrait.sprite_frames = boss.animations
+	enemy_portrait.play("idle")
 	hp_bar.max_value = boss.max_hp
 	hp_bar.value = boss.max_hp
 
@@ -58,31 +58,31 @@ func update_hp(new_hp: int) -> void:
 	create_tween().tween_property(hp_bar, "value", new_hp, 0.3).set_trans(Tween.TRANS_SINE)
 
 func play_hit() -> void:
-	if portrait.sprite_frames.has_animation("hit"):
-		portrait.play("hit")
-		await portrait.animation_finished
-		portrait.play("idle")
+	if enemy_portrait.sprite_frames.has_animation("hit"):
+		enemy_portrait.play("hit")
+		await enemy_portrait.animation_finished
+		enemy_portrait.play("idle")
 	else:
 		# Fallback if no hit animation drawn yet
-		var origin := portrait.position
+		var origin := enemy_portrait.position
 		var t := create_tween()
-		t.tween_property(portrait, "modulate", Color(1.5, 0.3, 0.3), 0.04)
-		t.parallel().tween_property(portrait, "position:x", origin.x + 10, 0.05)
-		t.chain().tween_property(portrait, "position:x", origin.x - 10, 0.05)
-		t.chain().tween_property(portrait, "position:x", origin.x, 0.07)
-		t.chain().tween_property(portrait, "modulate", Color.WHITE, 0.15)
+		t.tween_property(enemy_portrait, "modulate", Color(1.5, 0.3, 0.3), 0.04)
+		t.parallel().tween_property(enemy_portrait, "position:x", origin.x + 10, 0.05)
+		t.chain().tween_property(enemy_portrait, "position:x", origin.x - 10, 0.05)
+		t.chain().tween_property(enemy_portrait, "position:x", origin.x, 0.07)
+		t.chain().tween_property(enemy_portrait, "modulate", Color.WHITE, 0.15)
 		await t.finished
 
 func play_attack() -> void:
-	if portrait.sprite_frames.has_animation("attack"):
-		portrait.play("attack")
-		await portrait.animation_finished
-		portrait.play("idle")
+	if enemy_portrait.sprite_frames.has_animation("attack"):
+		enemy_portrait.play("attack")
+		await enemy_portrait.animation_finished
+		enemy_portrait.play("idle")
 	else:
-		var origin := portrait.position
+		var origin := enemy_portrait.position
 		var t := create_tween()
-		t.tween_property(portrait, "position:x", origin.x + 18, 0.08).set_trans(Tween.TRANS_SINE)
-		t.chain().tween_property(portrait, "position:x", origin.x, 0.18).set_trans(Tween.TRANS_BOUNCE)
+		t.tween_property(enemy_portrait, "position:x", origin.x + 18, 0.08).set_trans(Tween.TRANS_SINE)
+		t.chain().tween_property(enemy_portrait, "position:x", origin.x, 0.18).set_trans(Tween.TRANS_BOUNCE)
 		await t.finished
 
 func set_intent(next_attack: int) -> void:
@@ -97,7 +97,7 @@ func set_intent(next_attack: int) -> void:
 
 	new_text = " + ".join(parts) if not parts.is_empty() else "[color=#44445a]no effect[/color]"
 	
-	var full_text = "[color=#ffffff][font_size=16]Intent: [/font_size][/color]" + new_text
+	var full_text = "[shake rate=10.0 level=2][color=#ffffff][font_size=16]Intent: [/font_size][/color]" + new_text + "[/shake]"
 	intent_label.text = full_text
 	intent_label.scale = Vector2(0.75, 0.75)
 	intent_label.rotation = deg_to_rad(randf_range(-2, 2)) # Slight tilt every update
@@ -123,7 +123,7 @@ func set_intent(next_attack: int) -> void:
 
 
 func get_portrait_global_center() -> Vector2:
-	return portrait.global_position
+	return enemy_portrait.global_position
 
 func show_reaction(damage: int) -> void:
 	var is_heavy := damage >= 15
@@ -158,6 +158,7 @@ func show_reaction(damage: int) -> void:
 		reaction_label.visible = false
 		reaction_label.visible_characters = -1
 	)
+
 
 func _on_boss_turn() -> void:
 	mic.texture = mic_on

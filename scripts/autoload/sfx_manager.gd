@@ -12,32 +12,26 @@ func _ready() -> void:
 	# Create the pool of audio players
 	for i in range(POOL_SIZE):
 		var p := AudioStreamPlayer.new()
-		p.bus = "SFX" # Make sure you route this to an SFX audio bus if you have one!
 		add_child(p)
 		_players.append(p)
 
-# Call this from ANYWHERE in your game!
-func play(stream: AudioStream, pitch_variance: float = 0.1, debounce_time: float = 0.05, volume_db: float = 0.0) -> void:
+# Call this from anywhere
+func play(stream: AudioStream, pitch_variance: float = 0.1, debounce_time: float = 0.0, volume_db: float = 0.0, 
+override_pitch: float = 0.0, from_position: float = 0.0) -> void:
 	if stream == null: return
 	
 	var now := Time.get_ticks_msec() / 1000.0
-	
-	# Anti-Phasing: If we just played this exact sound a millisecond ago, ignore it!
 	if _last_played_times.has(stream):
 		if now - _last_played_times[stream] < debounce_time:
 			return 
-			
 	_last_played_times[stream] = now
 	
 	# Find an available player in the pool
 	for p in _players:
 		if not p.playing:
 			p.stream = stream
-			# Randomize the pitch slightly so repeating sounds feel organic
-			p.pitch_scale = randf_range(1.0 - pitch_variance, 1.0 + pitch_variance)
+			p.pitch_scale = override_pitch if override_pitch != 0.0 else randf_range(1.0 - pitch_variance, 1.0 + pitch_variance)
 			p.volume_db = volume_db
-			p.play()
+			p.play(from_position)
 			return
 			
-	# Optional: If all 16 players are busy, the sound is just dropped. 
-	# In chaotic games, dropping the 17th simultaneous sound is actually good for the mix!

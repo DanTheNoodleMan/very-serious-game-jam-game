@@ -13,6 +13,13 @@ signal spin_start
 	$SymbolInfoRow/InfoLabel2,
 ]
 
+@export var spin_sound: AudioStream
+@export var reel_thump: AudioStream
+@export var border_tex: Texture2D
+@export var lock_tex: Texture2D
+
+const SPIN_SFX_LENGTH := 1.4 # seconds — update if you swap the file
+
 const SPIN_DURATIONS := [0.6, 1.0, 1.4]
 var _reels: Array[SlotReel] = []
 var _stopped_count: int = 0
@@ -33,6 +40,8 @@ func _build_reels() -> void:
 	# Create 3 reels dynamically
 	for i in 3:
 		var reel := SlotReel.new()
+		reel.border_texture = border_tex
+		reel.lock_texture = lock_tex
 		reels_box.add_child(reel)
 		reel.initialise(logic.shared_pool)
 		reel.reel_stopped.connect(_on_reel_stopped.bind(i))
@@ -51,12 +60,10 @@ func trigger_spin() -> void:
 	_stopped_count = 0
 	for label in info_labels:
 		label.text = ""
-	logic.trigger_spin() # Tells logic to pick 3 symbols
+	SFXManager.play(spin_sound, 0.0, 0.0, -10.0, 0.0, 0.0) 
 
-#func _update_symbol_info() -> void:
-	#for i in 3:
-		#if _last_results[i] != null:
-			#info_labels[i].text = ComboDictionary.describe_symbol(_last_results[i])
+	logic.trigger_spin() # Tells logic to pick 3 symbols
+	
 
 
 func get_reel_global_centers() -> Array[Vector2]:
@@ -64,7 +71,6 @@ func get_reel_global_centers() -> Array[Vector2]:
 	for reel in _reels:
 		positions.append(reel.global_position + Vector2(reel.custom_minimum_size.x, reel.custom_minimum_size.y) * 0.5)
 	return positions
-
 
 
 # Triggered when logic finishes picking symbols
@@ -96,8 +102,12 @@ func _on_reel_stopped(index: int) -> void:
 		t.parallel().tween_property(label, "modulate:a", 1.0, 0.08)
 		t.chain().tween_property(label, "scale", Vector2(1.0, 1.0), 0.06).set_trans(Tween.TRANS_SINE)
 		
-		# 4. THE SOUND TRIGGER
-		# SFXManager.play(preload("res://assets/sfx/reel_thump.wav"), 0.1, 0.05, 2.0)
+		# 4. The sound
+		# Rising pitch per stop
+		var base_pitch := 0.9 + 0.1 * (_stopped_count - 1)   # 0.8, 1.0, 1.2
+		# keep a tiny bit of organic variation
+		base_pitch += randf_range(-0.03, 0.03)
+		SFXManager.play(reel_thump, 0.0, 0.05, -2.0, base_pitch)
 
 	# If this was the last reel, finish the spin
 	if _stopped_count == 3:
@@ -109,7 +119,7 @@ func _on_reel_clicked(index: int) -> void:
 	if not interactible or is_spinning: return
 	print("reel inde: ", index)
 	var is_now_held = logic.toggle_hold(index)
-	_reels[index].set_held(is_now_held)
+	_reels[index].set_held(is_now_held, true)
 	
 
 # --- HOLD LOGIC ---
@@ -124,10 +134,10 @@ func _input(event: InputEvent) -> void:
 	if pressed != -1:
 		# Toggle in logic, get the result, and apply to visual reel
 		var is_now_held = logic.toggle_hold(pressed)
-		_reels[pressed].set_held(is_now_held)
+		_reels[pressed].set_held(is_now_held, true)
 
 # Called by BattleManager at the start of a new turn
 func reset_all_holds() -> void:
 	logic.reset_holds()
 	for reel in _reels:
-		reel.set_held(false)
+		reel.set_held(false, false)

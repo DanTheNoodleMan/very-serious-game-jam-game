@@ -2,26 +2,40 @@
 
 [ext_resource type="Script" uid="uid://blag7nvj85ksd" path="res://battle_manager.gd" id="1_hd2ub"]
 [ext_resource type="Resource" uid="uid://ccly2nhdi72t6" path="res://resources/enemies/salaryman.tres" id="2_7gog2"]
+[ext_resource type="AudioStream" uid="uid://cic6oaxheu6wr" path="res://assets/sounds/button_down.ogg" id="2_r45vu"]
 [ext_resource type="Script" uid="uid://ceh6y02v6mnjm" path="res://enemy_display.gd" id="3_ji6bj"]
-[ext_resource type="Texture2D" uid="uid://ky1yjqccebdo" path="res://layout.png" id="3_obqq3"]
+[ext_resource type="AudioStream" uid="uid://qeyyqvoyjgo1" path="res://assets/sounds/button_up.ogg" id="3_pxf7c"]
+[ext_resource type="AudioStream" uid="uid://be5an2lwav1pd" path="res://assets/sounds/slide.ogg" id="4_hv2jr"]
 [ext_resource type="Texture2D" uid="uid://bp4mauft2yh0i" path="res://horizontal bars/least rounded/progress bar least rounded over.png" id="4_hvv87"]
 [ext_resource type="Texture2D" uid="uid://dmppgiy1r3u5t" path="res://horizontal bars/least rounded/progress bar least rounded under.png" id="4_ji6bj"]
 [ext_resource type="Texture2D" uid="uid://j350prhnuoym" path="res://boss_cam.png" id="5_kciku"]
 [ext_resource type="Texture2D" uid="uid://dn02sameovu6w" path="res://horizontal bars/medium rounded/progress bar medium rounded progress blue.png" id="5_oc8fh"]
+[ext_resource type="AudioStream" uid="uid://oxtscnrgkw1l" path="res://assets/sounds/whoosh.ogg" id="5_y3bpw"]
 [ext_resource type="Texture2D" uid="uid://r72llpjgwftc" path="res://boss_background_2.png" id="6_kciku"]
+[ext_resource type="AudioStream" uid="uid://ensxqgja4c8p" path="res://assets/sounds/hit_2.ogg" id="6_qlaij"]
 [ext_resource type="Texture2D" uid="uid://3vklcfa2jt2i" path="res://player_idle.png" id="7_6ravy"]
 [ext_resource type="Texture2D" uid="uid://8g42hrmy0dw0" path="res://horizontal bars/medium rounded/progress bar medium rounded progress green.png" id="7_c531c"]
+[ext_resource type="AudioStream" uid="uid://b6mfjdoat0fqo" path="res://assets/sounds/shield_impact_1.ogg" id="7_i8kqh"]
+[ext_resource type="AudioStream" uid="uid://dbdidmc22y0ut" path="res://assets/sounds/shield_impact_2.ogg" id="8_i8kqh"]
 [ext_resource type="Script" uid="uid://dhlf1na8stdk6" path="res://player_display.gd" id="8_obqq3"]
 [ext_resource type="Texture2D" uid="uid://vojlhm4i3vwm" path="res://nameplate_2.png" id="9_b4bhy"]
+[ext_resource type="Texture2D" uid="uid://713f0kyrfbgr" path="res://layout_5.png" id="10_i8kqh"]
 [ext_resource type="Texture2D" uid="uid://cplpsa1rtn0di" path="res://mic_off.png" id="10_y04i6"]
 [ext_resource type="Texture2D" uid="uid://csite2sa0gul7" path="res://talking_border.png" id="11_b4bhy"]
 [ext_resource type="PackedScene" uid="uid://twq2fsikmerm" path="res://slot_machine.tscn" id="11_ji6bj"]
+[ext_resource type="Texture2D" uid="uid://dvce760xiccd8" path="res://player_cam.png" id="15_o7yjl"]
 [ext_resource type="FontFile" uid="uid://csmid407kor44" path="res://assets/fonts/Stacked pixel.ttf" id="16_qmjfx"]
 [ext_resource type="Texture2D" uid="uid://qlyaou4vhjo7" path="res://shield.png" id="17_kciku"]
 [ext_resource type="Texture2D" uid="uid://cfqnk213ug7cb" path="res://button_up_2.png" id="17_l36ul"]
 [ext_resource type="Texture2D" uid="uid://c5ygkvyr0cqqn" path="res://button_down.png" id="18_as4c2"]
+[ext_resource type="Texture2D" uid="uid://dr1btcl7di1om" path="res://player_background.png" id="18_xwdjj"]
 [ext_resource type="Texture2D" uid="uid://c48n4u3ngs05e" path="res://button_hovered.png" id="19_4g358"]
-[ext_resource type="Texture2D" uid="uid://cu553hdx1gdja" path="res://button_disabled.png" id="19_ovs4j"]
+[ext_resource type="Texture2D" uid="uid://pgxqjkw8j6qs" path="res://button_disabled_2.png" id="20_aora4"]
+[ext_resource type="Texture2D" uid="uid://cw4sk3bjuf1hk" path="res://panel_6.png" id="21_60sab"]
+[ext_resource type="Texture2D" uid="uid://dkmk53d5mjic0" path="res://player_cam_4.png" id="22_aora4"]
+[ext_resource type="Texture2D" uid="uid://ckrg3xokkc1d" path="res://agenda_panel.png" id="34_60sab"]
+[ext_resource type="Script" uid="uid://c7ug25uvefd4c" path="res://scripts/agenda_area.gd" id="34_gkwxr"]
+[ext_resource type="PackedScene" uid="uid://qvgtwnrcvw7m" path="res://combo_entry.tscn" id="35_kpklt"]
 
 [sub_resource type="SpriteFrames" id="SpriteFrames_7gog2"]
 
@@ -33,6 +47,13 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_hd2ub")
+button_down_sfx = ExtResource("2_r45vu")
+button_up_sfx = ExtResource("3_pxf7c")
+slide = ExtResource("4_hv2jr")
+whoosh = ExtResource("5_y3bpw")
+hit = ExtResource("6_qlaij")
+shield_impact = ExtResource("7_i8kqh")
+shield_break = ExtResource("8_i8kqh")
 current_boss = ExtResource("2_7gog2")
 
 [node name="Background" type="TextureRect" parent="." unique_id=2117441887]
@@ -42,16 +63,16 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-texture = ExtResource("3_obqq3")
+texture = ExtResource("10_i8kqh")
 
 [node name="EnemyArea" type="Control" parent="." unique_id=43949672]
 layout_mode = 1
 anchors_preset = 10
 anchor_right = 1.0
 offset_left = 193.0
-offset_top = 16.0
+offset_top = 14.0
 offset_right = -16.0
-offset_bottom = 210.0
+offset_bottom = 208.0
 grow_horizontal = 2
 script = ExtResource("3_ji6bj")
 
@@ -61,7 +82,8 @@ layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_bottom = -22.0
+offset_left = -2.0
+offset_bottom = -19.0
 grow_horizontal = 2
 grow_vertical = 2
 texture = ExtResource("5_kciku")
@@ -81,7 +103,7 @@ grow_vertical = 2
 texture = ExtResource("6_kciku")
 
 [node name="EnemyPortrait" type="AnimatedSprite2D" parent="EnemyArea" unique_id=287608916]
-position = Vector2(223, 89)
+position = Vector2(223, 92)
 scale = Vector2(1.3, 1.3)
 sprite_frames = SubResource("SpriteFrames_7gog2")
 
@@ -107,9 +129,10 @@ texture_progress = ExtResource("5_oc8fh")
 
 [node name="EnemyNameContainer" type="MarginContainer" parent="EnemyArea" unique_id=351663617]
 layout_mode = 0
-offset_top = 172.0
+offset_left = -3.0
+offset_top = 175.0
 offset_right = 431.0
-offset_bottom = 194.0
+offset_bottom = 196.0
 
 [node name="Nameplate" type="NinePatchRect" parent="EnemyArea/EnemyNameContainer" unique_id=1340406265]
 layout_mode = 2
@@ -141,6 +164,7 @@ theme_override_constants/margin_right = 2
 
 [node name="EnemyName" type="RichTextLabel" parent="EnemyArea/EnemyNameContainer/HBoxContainer/NameContainer" unique_id=1411591132]
 layout_mode = 2
+theme_override_constants/outline_size = 0
 theme_override_fonts/normal_font = ExtResource("16_qmjfx")
 theme_override_font_sizes/normal_font_size = 16
 theme_override_font_sizes/bold_font_size = 16
@@ -153,9 +177,13 @@ vertical_alignment = 1
 
 [node name="TalkingBorder" type="TextureRect" parent="EnemyArea" unique_id=756266938]
 layout_mode = 1
-anchors_preset = 15
+anchors_preset = -1
 anchor_right = 1.0
-anchor_bottom = 1.0
+anchor_bottom = 1.01
+offset_left = -6.0
+offset_top = -3.0
+offset_right = 3.0
+offset_bottom = 3.0599976
 grow_horizontal = 2
 grow_vertical = 2
 texture = ExtResource("11_b4bhy")
@@ -187,7 +215,8 @@ anchor_top = 1.0
 anchor_right = 1.0
 anchor_bottom = 1.0
 offset_left = -139.0
-offset_top = -22.0
+offset_top = -19.0
+offset_bottom = 3.0
 grow_horizontal = 0
 grow_vertical = 0
 localize_numeral_system = false
@@ -196,6 +225,8 @@ theme_override_constants/margin_right = 8
 [node name="IntentLabel" type="RichTextLabel" parent="EnemyArea/IntentBox" unique_id=755939474]
 layout_mode = 2
 size_flags_horizontal = 3
+theme_override_colors/font_outline_color = Color(0.1254902, 0.08235294, 0.2, 1)
+theme_override_constants/outline_size = 6
 theme_override_fonts/normal_font = ExtResource("16_qmjfx")
 theme_override_fonts/bold_font = ExtResource("16_qmjfx")
 theme_override_font_sizes/normal_font_size = 10
@@ -208,19 +239,157 @@ autowrap_mode = 0
 horizontal_alignment = 2
 vertical_alignment = 1
 
+[node name="CombatUI" type="Control" parent="." unique_id=251974575]
+layout_mode = 1
+anchor_left = 1.0
+anchor_top = 0.794
+anchor_right = 1.0
+anchor_bottom = 0.794
+offset_left = -223.0
+offset_top = -65.84
+offset_right = -132.0
+offset_bottom = 74.16
+grow_horizontal = 0
+grow_vertical = 0
+
+[node name="ButtonBackground" type="NinePatchRect" parent="CombatUI" unique_id=502633575]
+layout_mode = 0
+offset_top = 30.0
+offset_right = 108.0
+offset_bottom = 116.0
+texture = ExtResource("21_60sab")
+patch_margin_left = 10
+patch_margin_top = 10
+patch_margin_right = 10
+patch_margin_bottom = 10
+
+[node name="ActionButton" type="TextureButton" parent="CombatUI" unique_id=1440483961]
+layout_mode = 1
+anchors_preset = -1
+anchor_top = 0.38200003
+anchor_bottom = 0.38200003
+offset_left = 11.0
+offset_top = -16.952003
+offset_right = 86.0
+offset_bottom = 17.047997
+mouse_default_cursor_shape = 2
+keep_pressed_outside = true
+texture_normal = ExtResource("17_l36ul")
+texture_pressed = ExtResource("18_as4c2")
+texture_hover = ExtResource("19_4g358")
+texture_disabled = ExtResource("20_aora4")
+stretch_mode = 4
+
+[node name="ActionButtonLabel" type="Label" parent="CombatUI/ActionButton" unique_id=1926684897]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.5
+anchor_top = 0.45900002
+anchor_right = 0.5
+anchor_bottom = 0.45900002
+offset_left = -32.5
+offset_top = -9.134016
+offset_right = 32.5
+offset_bottom = 10.865984
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_fonts/font = ExtResource("16_qmjfx")
+theme_override_font_sizes/font_size = 12
+text = "Reroll [1]"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="LockInButton" type="TextureButton" parent="CombatUI" unique_id=687897491]
+self_modulate = Color(0.8793795, 0.96121734, 0.86571497, 1)
+layout_mode = 1
+anchors_preset = -1
+anchor_top = 0.66200006
+anchor_bottom = 0.66200006
+offset_left = 11.0
+offset_top = -18.680008
+offset_right = 86.0
+offset_bottom = 15.319992
+grow_vertical = 2
+mouse_default_cursor_shape = 2
+keep_pressed_outside = true
+texture_normal = ExtResource("17_l36ul")
+texture_pressed = ExtResource("18_as4c2")
+texture_hover = ExtResource("19_4g358")
+texture_disabled = ExtResource("20_aora4")
+stretch_mode = 4
+
+[node name="LockInButtonLabel" type="Label" parent="CombatUI/LockInButton" unique_id=548009829]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.5
+anchor_top = 0.47100002
+anchor_right = 0.5
+anchor_bottom = 0.47100002
+offset_left = -32.5
+offset_top = -10.014
+offset_right = 32.5
+offset_bottom = 9.986
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_fonts/font = ExtResource("16_qmjfx")
+theme_override_font_sizes/font_size = 12
+text = "Lock In"
+horizontal_alignment = 1
+vertical_alignment = 1
+
 [node name="PlayerArea" type="Control" parent="." unique_id=1026676407]
 layout_mode = 1
 anchors_preset = 12
 anchor_top = 1.0
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = 513.0
-offset_top = -131.0
-offset_right = -16.0
-offset_bottom = -20.0
+offset_left = 514.0
+offset_top = -125.0
+offset_right = -15.0
+offset_bottom = -14.0
 grow_horizontal = 2
 grow_vertical = 0
 script = ExtResource("8_obqq3")
+
+[node name="PlayerCam" type="TextureRect" parent="PlayerArea" unique_id=231918537]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -1.0
+offset_top = -1.0
+offset_right = 3.0
+offset_bottom = 3.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("22_aora4")
+
+[node name="PlayerCamMask" type="TextureRect" parent="PlayerArea/PlayerCam" unique_id=208936190]
+clip_children = 1
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 1.0
+offset_top = 0.5
+offset_right = -2.5
+offset_bottom = -14.5
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("15_o7yjl")
+expand_mode = 1
+
+[node name="TextureRect" type="TextureRect" parent="PlayerArea/PlayerCam/PlayerCamMask" unique_id=1918829970]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_right = -1.0
+offset_bottom = -1.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("18_xwdjj")
+expand_mode = 1
 
 [node name="PlayerNameContainer" type="MarginContainer" parent="PlayerArea" unique_id=946557039]
 layout_mode = 1
@@ -228,7 +397,7 @@ anchors_preset = 12
 anchor_top = 1.0
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_top = -13.0
+offset_top = -12.0
 grow_horizontal = 2
 grow_vertical = 0
 
@@ -249,9 +418,9 @@ anchor_top = 1.0
 anchor_right = 0.5
 anchor_bottom = 1.0
 offset_left = -46.5
-offset_top = -109.0
+offset_top = -108.0
 offset_right = 17.5
-offset_bottom = -45.0
+offset_bottom = -44.0
 grow_horizontal = 2
 grow_vertical = 0
 scale = Vector2(1.5, 1.5)
@@ -275,6 +444,7 @@ texture_under = ExtResource("4_ji6bj")
 texture_progress = ExtResource("7_c531c")
 
 [node name="ShieldBadge" type="TextureRect" parent="PlayerArea" unique_id=477156201]
+visible = false
 layout_mode = 1
 offset_left = -6.0
 offset_top = -8.0
@@ -300,36 +470,15 @@ autowrap_mode = 0
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="SlotMachine" parent="." unique_id=798385911 instance=ExtResource("11_ji6bj")]
+[node name="ComboLabel" type="RichTextLabel" parent="." unique_id=430376861]
 layout_mode = 1
-anchors_preset = 14
-anchor_top = 0.5
-anchor_bottom = 0.5
-offset_left = 190.0
-offset_top = 67.0
-offset_right = -450.0
-offset_bottom = 67.0
-
-[node name="CombatUI" type="Control" parent="." unique_id=251974575]
-layout_mode = 1
-anchor_left = 1.0
-anchor_top = 0.794
-anchor_right = 1.0
-anchor_bottom = 0.794
-offset_left = -223.0
-offset_top = -67.84
-offset_right = -132.0
-offset_bottom = 68.16
-grow_horizontal = 0
-grow_vertical = 0
-
-[node name="ComboLabel" type="RichTextLabel" parent="CombatUI" unique_id=430376861]
-layout_mode = 1
-offset_left = -220.0
-offset_top = 4.0
-offset_right = 208.0
-offset_bottom = 30.0
+offset_left = 198.0
+offset_top = 230.0
+offset_right = 625.0
+offset_bottom = 256.0
 mouse_filter = 2
+theme_override_colors/font_outline_color = Color(0.1254902, 0.08235294, 0.2, 1)
+theme_override_constants/outline_size = 6
 theme_override_fonts/normal_font = ExtResource("16_qmjfx")
 theme_override_fonts/bold_font = ExtResource("16_qmjfx")
 theme_override_font_sizes/normal_font_size = 10
@@ -339,72 +488,91 @@ text = "fffgf"
 fit_content = true
 scroll_active = false
 
-[node name="ActionButton" type="TextureButton" parent="CombatUI" unique_id=1440483961]
+[node name="SlotMachine" parent="." unique_id=798385911 instance=ExtResource("11_ji6bj")]
 layout_mode = 1
-anchors_preset = -1
-anchor_top = 0.38200003
-anchor_bottom = 0.38200003
-offset_top = -16.952003
-offset_right = 75.0
-offset_bottom = 17.047997
-mouse_default_cursor_shape = 2
-keep_pressed_outside = true
-texture_normal = ExtResource("17_l36ul")
-texture_pressed = ExtResource("18_as4c2")
-texture_hover = ExtResource("19_4g358")
-texture_disabled = ExtResource("19_ovs4j")
-stretch_mode = 4
+anchors_preset = 14
+anchor_top = 0.5
+anchor_bottom = 0.5
+offset_left = 190.0
+offset_top = 72.0
+offset_right = -450.0
+offset_bottom = 72.0
 
-[node name="ActionButtonLabel" type="Label" parent="CombatUI/ActionButton" unique_id=1926684897]
+[node name="AgendaArea" type="Control" parent="." unique_id=1596377603]
+anchors_preset = 0
+offset_right = 174.0
+offset_bottom = 360.0
+script = ExtResource("34_gkwxr")
+combo_entry_scene = ExtResource("35_kpklt")
+
+[node name="NinePatchRect" type="NinePatchRect" parent="AgendaArea" unique_id=168415565]
 layout_mode = 1
-anchors_preset = -1
-anchor_left = 0.5
-anchor_top = 0.45900002
-anchor_right = 0.5
-anchor_bottom = 0.45900002
-offset_left = -32.5
-offset_top = -9.606001
-offset_right = 32.5
-offset_bottom = 10.393999
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-theme_override_fonts/font = ExtResource("16_qmjfx")
-theme_override_font_sizes/font_size = 12
-text = "Reroll [1]"
-horizontal_alignment = 1
-vertical_alignment = 1
+texture = ExtResource("34_60sab")
+patch_margin_right = 3
+axis_stretch_horizontal = 1
+axis_stretch_vertical = 1
 
-[node name="LockInButton" type="TextureButton" parent="CombatUI" unique_id=687897491]
+[node name="MarginContainer" type="MarginContainer" parent="AgendaArea" unique_id=1582843020]
 layout_mode = 1
-anchors_preset = -1
-anchor_top = 0.66200006
-anchor_bottom = 0.66200006
-offset_top = -17.032005
-offset_right = 75.0
-offset_bottom = 16.967995
-grow_vertical = 2
-mouse_default_cursor_shape = 2
-texture_normal = ExtResource("17_l36ul")
-texture_pressed = ExtResource("18_as4c2")
-texture_hover = ExtResource("19_4g358")
-texture_disabled = ExtResource("19_ovs4j")
-stretch_mode = 4
-
-[node name="LockInButtonLabel" type="Label" parent="CombatUI/LockInButton" unique_id=548009829]
-layout_mode = 1
-anchors_preset = -1
-anchor_left = 0.5
-anchor_top = 0.47100002
-anchor_right = 0.5
-anchor_bottom = 0.47100002
-offset_left = -32.5
-offset_top = -10.014
-offset_right = 32.5
-offset_bottom = 9.986
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-theme_override_fonts/font = ExtResource("16_qmjfx")
-theme_override_font_sizes/font_size = 12
-text = "Lock In"
-horizontal_alignment = 1
-vertical_alignment = 1
+theme_override_constants/margin_left = 6
+theme_override_constants/margin_top = 6
+theme_override_constants/margin_right = 9
+theme_override_constants/margin_bottom = 6
+
+[node name="VBoxContainer" type="VBoxContainer" parent="AgendaArea/MarginContainer" unique_id=1773645231]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/separation = 8
+
+[node name="Agenda" type="RichTextLabel" parent="AgendaArea/MarginContainer/VBoxContainer" unique_id=1279455627]
+visible = false
+layout_mode = 2
+theme_override_fonts/normal_font = ExtResource("16_qmjfx")
+theme_override_fonts/bold_font = ExtResource("16_qmjfx")
+bbcode_enabled = true
+text = "Agenda"
+fit_content = true
+scroll_active = false
+
+[node name="HSeparator" type="HSeparator" parent="AgendaArea/MarginContainer/VBoxContainer" unique_id=1994401752]
+visible = false
+layout_mode = 2
+
+[node name="Combos" type="RichTextLabel" parent="AgendaArea/MarginContainer/VBoxContainer" unique_id=258468887]
+clip_contents = false
+layout_mode = 2
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 6
+theme_override_fonts/normal_font = ExtResource("16_qmjfx")
+theme_override_fonts/bold_font = ExtResource("16_qmjfx")
+text = "Combos"
+fit_content = true
+scroll_active = false
+
+[node name="ComboList" type="VBoxContainer" parent="AgendaArea/MarginContainer/VBoxContainer" unique_id=2052080633]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="HSeparator2" type="HSeparator" parent="AgendaArea/MarginContainer/VBoxContainer" unique_id=684165049]
+visible = false
+layout_mode = 2
+
+[node name="Symbols" type="RichTextLabel" parent="AgendaArea/MarginContainer/VBoxContainer" unique_id=1142355650]
+visible = false
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_fonts/normal_font = ExtResource("16_qmjfx")
+theme_override_fonts/bold_font = ExtResource("16_qmjfx")
+text = "Symbols"

@@ -1,6 +1,6 @@
 [gd_resource type="Resource" script_class="SymbolData" format=3 uid="uid://dnyn4iruiaydi"]
 
-[ext_resource type="Texture2D" uid="uid://b5kpu2k2l06ou" path="res://assets/symbols/pizza_party.png" id="1_0exnf"]
+[ext_resource type="Texture2D" uid="uid://5mp4u7vkttl2" path="res://assets/symbols/pizza_party_pixel.png" id="1_0exnf"]
 [ext_resource type="Script" uid="uid://b6y6l2gtrmxlo" path="res://resources/symbol_data.gd" id="1_81fa5"]
 
 [resource]
