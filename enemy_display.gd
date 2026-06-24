@@ -35,6 +35,8 @@ const mic_on = preload("uid://brlf6outqe7y5")
 const mic_off = preload("uid://cplpsa1rtn0di")
 const border = preload("uid://csite2sa0gul7")
 
+var _boss_name: String = ""
+
 func _ready() -> void:
 	var game_manager = owner
 
@@ -47,6 +49,8 @@ func _ready() -> void:
 
 func setup(boss: BossData) -> void:
 	talking_border.visible = false
+	enemy_portrait.modulate = Color.WHITE
+	_boss_name = boss.boss_name #store it to reset it due to reconnecting animation timing
 	enemy_name.text = boss.boss_name
 	enemy_portrait.sprite_frames = boss.animations
 	enemy_portrait.play("idle")
@@ -159,6 +163,57 @@ func show_reaction(damage: int) -> void:
 		reaction_label.visible_characters = -1
 	)
 
+# --- UPGRADE SCREEN TRANSITION -----------------------------------
+
+func play_disconnected() -> void:
+	# Step 1: Portrait greys out and border fades, name flickers
+	var t := create_tween()
+	t.tween_property(enemy_portrait, "modulate", Color(0.3, 0.3, 0.4), 0.35)
+	t.parallel().tween_property(talking_border, "modulate:a", 0.0, 0.25)
+
+	# Flicker the name out mid-fade
+	t.parallel().tween_property(enemy_name, "modulate:a", 0.0, 0.15)
+	await t.finished
+
+	# Step 2: Swap to "CONNECTION LOST" while invisible, then type it in
+	enemy_name.text = "[ CONNECTION LOST ]"
+	enemy_name.visible_characters = 0
+	enemy_name.modulate.a = 1.0
+
+	var name_tween := create_tween()
+	name_tween.tween_property(enemy_name, "visible_characters",
+		enemy_name.get_total_character_count(), 0.4)
+	await name_tween.finished
+
+func play_reconnected() -> void:
+	# Reset state but start invisible — we'll reveal theatrically
+	enemy_portrait.modulate = Color(0.0, 0.0, 0.0, 0.0)
+	talking_border.modulate.a = 0.0
+	talking_border.visible = true
+	enemy_name.text = "[ CONNECTING... ]"
+
+	# Step 1: Flicker like a bad connection establishing
+	var t := create_tween()
+	for i in 4:
+		t.tween_property(enemy_portrait, "modulate",
+			Color(0.4, 0.45, 0.5, 0.6), 0.07)
+		t.chain().tween_property(enemy_portrait, "modulate",
+			Color(0.0, 0.0, 0.0, 0.0), 0.05)
+
+	# Step 2: Snap to full colour and reveal name
+	t.chain().tween_property(enemy_portrait, "modulate",
+		Color.WHITE, 0.12).set_trans(Tween.TRANS_SINE)
+	t.parallel().tween_property(talking_border, "modulate:a", 1.0, 0.15)
+
+	await t.finished
+
+	# Step 3: Name types in like a caption appearing
+	enemy_name.text = _boss_name
+	enemy_name.visible_characters = 0
+	var name_tween := create_tween()
+	name_tween.tween_property(enemy_name, "visible_characters",
+		enemy_name.get_total_character_count(), 0.35)
+	await name_tween.finished
 
 func _on_boss_turn() -> void:
 	mic.texture = mic_on

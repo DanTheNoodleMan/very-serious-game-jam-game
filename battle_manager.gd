@@ -5,7 +5,7 @@ signal player_turn
 
 const STAMP_OFFSETS := [Vector2(-64, -60), Vector2(-64, 10), Vector2(-64, -60)]
 
-enum GameState {PLAYER_TURN, SPINNING, RESOLVING, ENEMY_TURN, GAME_OVER}
+enum GameState {PLAYER_TURN, SPINNING, RESOLVING, ENEMY_TURN, UPGRADE, GAME_OVER}
 var current_state: GameState = GameState.PLAYER_TURN
 
 @export var button_down_sfx: AudioStream
@@ -15,8 +15,10 @@ var current_state: GameState = GameState.PLAYER_TURN
 @export var hit: AudioStream
 @export var shield_impact: AudioStream
 @export var shield_break: AudioStream
+@export var boss_roster: Array[BossData] = []
 
-@export var current_boss: BossData
+var current_boss_index: int = 0
+var current_boss: BossData
 var player_hp: int = 100
 var player_max_hp: int = 100
 var player_shield: int = 0   # resets each enemy turn after absorbing
@@ -26,11 +28,18 @@ var rerolls_left: int = 1
 var base_rerolls_left: int = 2
 
 var _combat_ui_rest_x: float
+var _combo_label_rest_y: float
 var _combat_ui_tween: Tween
+var _upgrade_display_rest_x: float
+var _enemy_display_rest_y: float
+var _slot_machine_rest_y: float
 
 @onready var enemy_display: EnemyDisplay = $EnemyArea
 @onready var player_display: PlayerDisplay = $PlayerArea
 @onready var combat_ui: Control = $CombatUI  # the whole button panel
+
+@onready var upgrade_display: Control = $UpgradeDisplay 
+@onready var enemy_area: Control = $EnemyArea
 
 @onready var slot_machine: SlotMachine = $SlotMachine
 @onready var action_button: TextureButton = $CombatUI/ActionButton
@@ -38,12 +47,14 @@ var _combat_ui_tween: Tween
 @onready var lock_in_button: TextureButton = $CombatUI/LockInButton
 @onready var lock_in_button_label: Label = $CombatUI/LockInButton/LockInButtonLabel
 @onready var combo_label: RichTextLabel = $ComboLabel 
+@onready var pool_roster: Control = %PoolRoster
 
 var custom_font = load("uid://csmid407kor44")
 
-
 func _ready() -> void:
-	boss_hp = current_boss.max_hp
+	if boss_roster.size() > 0:
+		current_boss = boss_roster[0]
+		boss_hp = current_boss.max_hp
 	enemy_display.setup(current_boss)
 	player_display.setup(player_hp)
 
@@ -58,9 +69,19 @@ func _ready() -> void:
 	slot_machine.spin_finished.connect(_on_spin_finished)
 	slot_machine.spin_start.connect(_on_spin_start)
 	
+	upgrade_display.upgrade_chosen.connect(_on_upgrade_chosen)
+	upgrade_display.visible = false
+	
 	await get_tree().process_frame
 	_combat_ui_rest_x = combat_ui.position.x
+	_combo_label_rest_y = combo_label.position.y
+	_upgrade_display_rest_x = upgrade_display.position.x
+	_enemy_display_rest_y = enemy_display.position.y
+	_slot_machine_rest_y = slot_machine.position.y
 	combat_ui.visible = false  # Start hidden, first show comes from start_player_turn
+	upgrade_display.visible = false
+	
+	pool_roster.refresh(slot_machine.logic.shared_pool)
 	
 	start_player_turn()
 
@@ -97,7 +118,7 @@ func _on_spin_finished(results: Array[SymbolData]) -> void:
 		lock_in_button_label.position.y -= 2
 	else:
 		# No rerolls left, auto-resolve after brief pause so player sees result
-		await get_tree().create_timer(0.6).timeout
+		await get_tree().create_timer(1.25).timeout
 		resolve_player_attack()
 
 
@@ -145,8 +166,9 @@ func resolve_player_attack() -> void:
 	# Beat 4: Boss mumbles defeated corporate speak
 	enemy_display.show_reaction(combo_result["impact"])
 	if boss_hp <= 0:
-		print("YOU WIN!")
-		current_state = GameState.GAME_OVER
+		current_state = GameState.UPGRADE
+		await _transition_to_upgrade()
+		start_upgrade_phase()
 		return
 
 	await get_tree().create_timer(1.0).timeout
@@ -209,32 +231,49 @@ func _set_buttons_spinning() -> void:
 	action_button_label.position.y = 8
 	lock_in_button_label.position.y = 8
 
+# Inside battle_manager.gd
+
 func _update_combo_label(results: Array[SymbolData], combo: Dictionary) -> void:
 	var new_text := ""
 
 	if combo["is_combo"]:
-		new_text = "[wave color=#ffffff amp=2 freq=10.0][b][color=#ffd060]★  " + combo["name"].to_upper() + "[/color][/b][/wave]"
-		var effects: Array[String] = []
-		if combo["impact"] > 0:    
-			effects.append("[wave color=#ffffff amp=2 freq=10.0][color=#ff7777][b]" + str(combo["impact"]) + "[/b] IMPACT[/color][/wave]")
-		if combo["bandwidth"] > 0: 
-			effects.append("[wave color=#ffffff amp=2 freq=10.0][color=#77aaff][b]" + str(combo["bandwidth"]) + "[/b] BW[/color][/wave]")
-		if combo["morale"] > 0:    
-			effects.append("[wave color=#ffffff amp=2 freq=10.0][color=#77ee99][b]" + str(combo["morale"]) + "[/b] MORALE[/color][/wave]")
-		if not effects.is_empty():
-			new_text += "   " + "   ".join(effects)
+		new_text = "[wave color=#ffffff amp=2 freq=10.0][b][color=#ffe135]★ " + combo["name"].to_upper() + " ★[/color][/b][/wave]   "
+
+	var parts: Array[String] = []
+
+	# Build IMPACT string
+	if combo["impact"] > 0:
+		if combo["impact"] > combo["base_impact"]:
+			# FORMAT: 16 IMPACT (Base 5)
+			parts.append("[wave amp=2 freq=5.0][color=#ffd060][b]" + str(combo["impact"]) + "[/b][/color] [color=#ff7777]IMPACT[/color] [color=#ffd060](Base [color=#ff7777]" + str(combo["base_impact"]) + "[/color])[/color][/wave]")
+		else:
+			parts.append("[wave amp=2 freq=5.0][color=#ff7777][b]" + str(combo["impact"]) + "[/b][/color] [color=#ff7777]IMPACT[/color][/wave]")
+
+	# Build BANDWIDTH string
+	if combo["bandwidth"] > 0:
+		if combo["bandwidth"] > combo["base_bandwidth"]:
+			# FORMAT: 8 BW (Base 4)
+			parts.append("[wave amp=2 freq=5.0][color=#ffd060][b]" + str(combo["bandwidth"]) + "[/b][/color] [color=#77aaff]BW[/color] [color=#ffd060](Base [color=#77aaff]" + str(combo["base_bandwidth"]) + "[/color])[/color][/wave]")
+		else:
+			parts.append("[wave amp=2 freq=5.0][color=#77aaff][b]" + str(combo["bandwidth"]) + "[/b][/color] [color=#77aaff]BW[/color][/wave]")
+
+	# Build MORALE string
+	if combo["morale"] > 0:
+		if combo["morale"] > combo["base_morale"]:
+			# FORMAT: 20 MORALE (Base 8)
+			parts.append("[wave amp=2 freq=5.0][color=#ffd060][b]" + str(combo["morale"]) + "[/b][/color] [color=#77ee99]MORALE[/color] [color=#ffd060](Base [color=#77ee99]" + str(combo["base_morale"]) + "[/color])[/color][/wave]")
+		else:
+			parts.append("[wave amp=2 freq=5.0][color=#77ee99][b]" + str(combo["morale"]) + "[/b][/color] [color=#77ee99]MORALE[/color][/wave]")
+
+	if parts.is_empty():
+		new_text += "[color=#44445a]no effect[/color]"
 	else:
-		var parts: Array[String] = []
-		if combo["impact"] > 0:    parts.append("[wave amp=2 freq=5.0][color=#cc5555][b]" + str(combo["impact"]) + "[/b] IMPACT[/color][/wave]")
-		if combo["bandwidth"] > 0: parts.append("[wave amp=2 freq=5.0][color=#5588cc][b]" + str(combo["bandwidth"]) + "[/b] BW[/color][/wave]")
-		if combo["morale"] > 0:    parts.append("[wave amp=2 freq=5.0][color=#55aa77][b]" + str(combo["morale"]) + "[/b] MORALE[/color][/wave]")
-		new_text = " + ".join(parts) if not parts.is_empty() else "[color=#44445a]no effect[/color]"
+		new_text += " + ".join(parts)
 
 	combo_label.text = new_text
 	combo_label.scale = Vector2(0.75, 0.75)
-	combo_label.rotation = deg_to_rad(randf_range(-2, 2)) # Slight tilt every update
+	combo_label.rotation = deg_to_rad(randf_range(-2, 2))
 
-	# Stop previous tween if the player is spamming Reroll
 	if combo_label.has_meta("active_tween"):
 		var old_t = combo_label.get_meta("active_tween") as Tween
 		if old_t and old_t.is_valid():
@@ -243,15 +282,9 @@ func _update_combo_label(results: Array[SymbolData], combo: Dictionary) -> void:
 	var t := combo_label.create_tween()
 	combo_label.set_meta("active_tween", t)
 	
-	# The Pop-In
 	t.tween_property(combo_label, "scale", Vector2(1.08, 1.08), 0.10).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 	t.chain().tween_property(combo_label, "scale", Vector2(1.0, 1.0), 0.08)
 	t.parallel().tween_property(combo_label, "rotation", 0.0, 0.1)
-	
-	var pulse := combo_label.create_tween().set_loops()
-
-	pulse.tween_property(combo_label, "modulate", Color(1.1, 1.1, 1.1, 1.0), 0.8)
-	pulse.tween_property( combo_label, "modulate", Color(1.0, 1.0, 1.0, 1.0), 0.8)
 
 
 func throw_symbols_at_boss(symbols: Array[SymbolData]) -> void:
@@ -488,6 +521,98 @@ func _hide_combat_ui() -> void:
 		_combat_ui_rest_x + combat_ui.size.x + 16.0, 0.15
 	).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN)
 	_combat_ui_tween.tween_callback(func(): combat_ui.visible = false)
+	
+
+func _transition_to_upgrade() -> void:
+	# "Call ended" on the nameplate first, brief pause for drama
+	enemy_display.play_disconnected()
+	await get_tree().create_timer(0.8).timeout
+	_hide_combat_ui()
+	combo_label.text = ""
+
+	# Slide enemy UP and slot machine DOWN simultaneously
+	var t := create_tween()
+	t.tween_property(enemy_display, "position:y",
+		enemy_display.position.y - 420, 0.4) \
+		.set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_IN)
+	t.parallel().tween_property(slot_machine, "position:y",
+		slot_machine.position.y + 320, 0.4) \
+		.set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_IN)
+	t.parallel().tween_property(combo_label, "position:y",
+		combo_label.position.y + 320, 0.4) \
+		.set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_IN)
+	await t.finished
+
+# --- UPGRADE SCREEN ------------------------------------
+
+func start_upgrade_phase() -> void:
+	current_state = GameState.UPGRADE
+	upgrade_display.show_upgrades(slot_machine.logic.shared_pool, base_rerolls_left)
+
+	# Start offscreen to the right, then slide in
+	upgrade_display.position.x = get_viewport().get_visible_rect().size.x + 200
+	upgrade_display.visible = true
+	var t := create_tween()
+	t.tween_property(upgrade_display, "position:x",
+		_upgrade_display_rest_x, 0.4) \
+		.set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+	await t.finished
+
+
+func _on_upgrade_chosen(type: String, data: Variant) -> void:
+	match type:
+		"add":
+			slot_machine.logic.shared_pool.append(data as SymbolData)
+		"remove":
+			slot_machine.logic.shared_pool.erase(data as SymbolData)
+		"reroll":
+			base_rerolls_left += 1
+	
+	pool_roster.refresh(slot_machine.logic.shared_pool)
+	
+	upgrade_display.visible = false
+	_advance_to_next_boss()
+
+func _advance_to_next_boss() -> void:
+	current_boss_index += 1
+	if current_boss_index >= boss_roster.size():
+		combo_label.text = "[center][wave]YOU ARE THE CEO NOW.[/wave][/center]"
+		current_state = GameState.GAME_OVER
+		return
+
+	# Slide upgrade panel back out to the right
+	var out := create_tween()
+	out.tween_property(upgrade_display, "position:x",
+		get_viewport().get_visible_rect().size.x + 200, 0.3) \
+		.set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN)
+	await out.finished
+	upgrade_display.visible = false
+
+	# Load new boss data
+	current_boss = boss_roster[current_boss_index]
+	boss_hp = current_boss.max_hp
+	turn_number = 0
+	enemy_display.setup(current_boss)
+
+	# Slide enemy and slot machine back in with a slight stagger
+	var t := create_tween()
+	t.tween_property(enemy_display, "position:y", _enemy_display_rest_y, 0.4) \
+		.set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	t.parallel().tween_property(slot_machine, "position:y",
+		_slot_machine_rest_y, 0.4) \
+		.set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT) \
+		.set_delay(0.08)
+	t.parallel().tween_property(combo_label, "position:y",
+		_combo_label_rest_y, 0.4) \
+		.set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	await t.finished
+	
+	# Play connecting animation
+	await enemy_display.play_reconnected()
+
+	start_player_turn()
+
+
 
 # --- Signal receivers -----------------------------------
 func _on_spin_start() -> void:

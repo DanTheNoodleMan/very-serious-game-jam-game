@@ -8,5 +8,6 @@ script = ExtResource("1_nm6ts")
 id = "synergy"
 symbol_name = "Synergy"
 icon = ExtResource("1_of0xb")
+base_value = 3
 effect_type = 1
 metadata/_custom_type_script = "uid://b6y6l2gtrmxlo"

@@ -87,13 +87,11 @@ func _on_reel_stopped(index: int) -> void:
 	var symbol = _last_results[index]
 	
 	if symbol != null:
-		# 1. Update the text immediately
+		# 1. Update the text immediately to RAW base stats
 		label.text = ComboDictionary.describe_symbol(symbol)
-		
-		# 2. Reset the pivot offset in case the text size changed
 		label.pivot_offset = label.size * 0.5
 		
-		# 3. The "Thump" Animation
+		# 2. The "Thump" Animation
 		label.scale = Vector2(0.5, 0.5)
 		label.modulate.a = 0.0
 		
@@ -102,17 +100,38 @@ func _on_reel_stopped(index: int) -> void:
 		t.parallel().tween_property(label, "modulate:a", 1.0, 0.08)
 		t.chain().tween_property(label, "scale", Vector2(1.0, 1.0), 0.06).set_trans(Tween.TRANS_SINE)
 		
-		# 4. The sound
-		# Rising pitch per stop
-		var base_pitch := 0.9 + 0.1 * (_stopped_count - 1)   # 0.8, 1.0, 1.2
-		# keep a tiny bit of organic variation
+		var base_pitch := 0.9 + 0.1 * (_stopped_count - 1)
 		base_pitch += randf_range(-0.03, 0.03)
 		SFXManager.play(reel_thump, 0.0, 0.05, -2.0, base_pitch)
+
+	# If this was the last reel, trigger the Synergy Phase!
+	if _stopped_count == 3:
+		is_spinning = false
+		await _update_contextual_labels() # WAIT for animations to finish!
+		spin_finished.emit(_last_results)
+
 
 	# If this was the last reel, finish the spin
 	if _stopped_count == 3:
 		is_spinning = false
+		_update_contextual_labels()
 		spin_finished.emit(_last_results)
+
+func _update_contextual_labels() -> void:
+	for i in 3:
+		if _last_results[i] == null:
+			continue
+		var new_text := ComboDictionary.get_label_for_position(_last_results, i)
+		var label := info_labels[i]
+		if new_text == label.text:
+			continue  # No change, skip animation
+		label.text = new_text
+		label.pivot_offset = label.size * 0.5
+		# Small pop to draw attention to any value that changed
+		var t := label.create_tween()
+		t.tween_property(label, "scale", Vector2(1.18, 1.18), 0.07).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+		t.chain().tween_property(label, "scale", Vector2(1.0, 1.0), 0.07).set_trans(Tween.TRANS_SINE)
+
 
 func _on_reel_clicked(index: int) -> void:
 	print("clicked : ", index)

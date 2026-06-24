@@ -13,16 +13,16 @@
 [ext_resource type="AudioStream" uid="uid://oxtscnrgkw1l" path="res://assets/sounds/whoosh.ogg" id="5_y3bpw"]
 [ext_resource type="Texture2D" uid="uid://r72llpjgwftc" path="res://boss_background_2.png" id="6_kciku"]
 [ext_resource type="AudioStream" uid="uid://ensxqgja4c8p" path="res://assets/sounds/hit_2.ogg" id="6_qlaij"]
-[ext_resource type="Texture2D" uid="uid://3vklcfa2jt2i" path="res://player_idle.png" id="7_6ravy"]
 [ext_resource type="Texture2D" uid="uid://8g42hrmy0dw0" path="res://horizontal bars/medium rounded/progress bar medium rounded progress green.png" id="7_c531c"]
 [ext_resource type="AudioStream" uid="uid://b6mfjdoat0fqo" path="res://assets/sounds/shield_impact_1.ogg" id="7_i8kqh"]
 [ext_resource type="AudioStream" uid="uid://dbdidmc22y0ut" path="res://assets/sounds/shield_impact_2.ogg" id="8_i8kqh"]
 [ext_resource type="Script" uid="uid://dhlf1na8stdk6" path="res://player_display.gd" id="8_obqq3"]
+[ext_resource type="Script" uid="uid://c48xf5y2x8myd" path="res://resources/boss_data.gd" id="9_2lpl0"]
 [ext_resource type="Texture2D" uid="uid://vojlhm4i3vwm" path="res://nameplate_2.png" id="9_b4bhy"]
-[ext_resource type="Texture2D" uid="uid://713f0kyrfbgr" path="res://layout_5.png" id="10_i8kqh"]
 [ext_resource type="Texture2D" uid="uid://cplpsa1rtn0di" path="res://mic_off.png" id="10_y04i6"]
 [ext_resource type="Texture2D" uid="uid://csite2sa0gul7" path="res://talking_border.png" id="11_b4bhy"]
 [ext_resource type="PackedScene" uid="uid://twq2fsikmerm" path="res://slot_machine.tscn" id="11_ji6bj"]
+[ext_resource type="Texture2D" uid="uid://dqdq1268rbgwc" path="res://layout_6.png" id="11_tm7qj"]
 [ext_resource type="Texture2D" uid="uid://dvce760xiccd8" path="res://player_cam.png" id="15_o7yjl"]
 [ext_resource type="FontFile" uid="uid://csmid407kor44" path="res://assets/fonts/Stacked pixel.ttf" id="16_qmjfx"]
 [ext_resource type="Texture2D" uid="uid://qlyaou4vhjo7" path="res://shield.png" id="17_kciku"]
@@ -33,11 +33,79 @@
 [ext_resource type="Texture2D" uid="uid://pgxqjkw8j6qs" path="res://button_disabled_2.png" id="20_aora4"]
 [ext_resource type="Texture2D" uid="uid://cw4sk3bjuf1hk" path="res://panel_6.png" id="21_60sab"]
 [ext_resource type="Texture2D" uid="uid://dkmk53d5mjic0" path="res://player_cam_4.png" id="22_aora4"]
+[ext_resource type="Texture2D" uid="uid://bhbcxs2joq34h" path="res://player_idle_hat.png" id="31_8o0a2"]
 [ext_resource type="Texture2D" uid="uid://ckrg3xokkc1d" path="res://agenda_panel.png" id="34_60sab"]
 [ext_resource type="Script" uid="uid://c7ug25uvefd4c" path="res://scripts/agenda_area.gd" id="34_gkwxr"]
 [ext_resource type="PackedScene" uid="uid://qvgtwnrcvw7m" path="res://combo_entry.tscn" id="35_kpklt"]
+[ext_resource type="Script" uid="uid://57ie8umjxy6y" path="res://scripts/pool_roster.gd" id="38_8o0a2"]
+[ext_resource type="Script" uid="uid://duxj3ox7eyota" path="res://scripts/upgrade_display.gd" id="38_f4pwu"]
+[ext_resource type="PackedScene" uid="uid://c0grhwl3tyrdh" path="res://upgrade_card.tscn" id="39_tm7qj"]
 
 [sub_resource type="SpriteFrames" id="SpriteFrames_7gog2"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_r20up"]
+atlas = ExtResource("31_8o0a2")
+region = Rect2(0, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_tmhp8"]
+atlas = ExtResource("31_8o0a2")
+region = Rect2(64, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_5pitx"]
+atlas = ExtResource("31_8o0a2")
+region = Rect2(128, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_ognr1"]
+atlas = ExtResource("31_8o0a2")
+region = Rect2(192, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_nwi2s"]
+atlas = ExtResource("31_8o0a2")
+region = Rect2(256, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_d3gqo"]
+atlas = ExtResource("31_8o0a2")
+region = Rect2(320, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_ol3h1"]
+atlas = ExtResource("31_8o0a2")
+region = Rect2(384, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_v24qm"]
+atlas = ExtResource("31_8o0a2")
+region = Rect2(448, 0, 64, 64)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_rbecj"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_r20up")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_tmhp8")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_5pitx")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_ognr1")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_nwi2s")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_d3gqo")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_ol3h1")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_v24qm")
+}],
+"loop": true,
+"name": &"idle",
+"speed": 3.33
+}]
 
 [node name="CombatScene" type="Control" unique_id=1819690931]
 layout_mode = 3
@@ -54,7 +122,7 @@ whoosh = ExtResource("5_y3bpw")
 hit = ExtResource("6_qlaij")
 shield_impact = ExtResource("7_i8kqh")
 shield_break = ExtResource("8_i8kqh")
-current_boss = ExtResource("2_7gog2")
+boss_roster = Array[ExtResource("9_2lpl0")]([ExtResource("2_7gog2"), ExtResource("2_7gog2")])
 
 [node name="Background" type="TextureRect" parent="." unique_id=2117441887]
 layout_mode = 1
@@ -63,7 +131,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-texture = ExtResource("10_i8kqh")
+texture = ExtResource("11_tm7qj")
 
 [node name="EnemyArea" type="Control" parent="." unique_id=43949672]
 layout_mode = 1
@@ -89,7 +157,7 @@ grow_vertical = 2
 texture = ExtResource("5_kciku")
 expand_mode = 1
 
-[node name="TextureRect" type="TextureRect" parent="EnemyArea/BossCamMask" unique_id=987497347]
+[node name="BossCamBackground" type="TextureRect" parent="EnemyArea/BossCamMask" unique_id=987497347]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -410,21 +478,11 @@ patch_margin_top = 4
 patch_margin_right = 4
 patch_margin_bottom = 4
 
-[node name="PlayerPortrait" type="TextureRect" parent="PlayerArea" unique_id=472482344]
-layout_mode = 1
-anchors_preset = 7
-anchor_left = 0.5
-anchor_top = 1.0
-anchor_right = 0.5
-anchor_bottom = 1.0
-offset_left = -46.5
-offset_top = -108.0
-offset_right = 17.5
-offset_bottom = -44.0
-grow_horizontal = 2
-grow_vertical = 0
+[node name="PlayerPortrait" type="AnimatedSprite2D" parent="PlayerArea" unique_id=2052682189]
+position = Vector2(56, 51)
 scale = Vector2(1.5, 1.5)
-texture = ExtResource("7_6ravy")
+sprite_frames = SubResource("SpriteFrames_rbecj")
+animation = &"idle"
 
 [node name="PlayerHPBar" type="TextureProgressBar" parent="PlayerArea" unique_id=428955290]
 layout_mode = 1
@@ -556,7 +614,8 @@ theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
 theme_override_constants/outline_size = 6
 theme_override_fonts/normal_font = ExtResource("16_qmjfx")
 theme_override_fonts/bold_font = ExtResource("16_qmjfx")
-text = "Combos"
+bbcode_enabled = true
+text = "[wave amp=2 freq=2.0]Combos [font_size=9] (order doesn't matter) [/font_size] [/wave]"
 fit_content = true
 scroll_active = false
 
@@ -576,3 +635,69 @@ size_flags_vertical = 3
 theme_override_fonts/normal_font = ExtResource("16_qmjfx")
 theme_override_fonts/bold_font = ExtResource("16_qmjfx")
 text = "Symbols"
+
+[node name="PoolRoster" type="Control" parent="AgendaArea/MarginContainer/VBoxContainer" unique_id=79252817]
+unique_name_in_owner = true
+clip_contents = true
+custom_minimum_size = Vector2(160, 50)
+layout_mode = 2
+size_flags_horizontal = 0
+size_flags_vertical = 3
+script = ExtResource("38_8o0a2")
+
+[node name="ChipRow" type="HBoxContainer" parent="AgendaArea/MarginContainer/VBoxContainer/PoolRoster" unique_id=1805548403]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="UpgradeDisplay" type="Control" parent="." unique_id=265490971]
+layout_mode = 1
+anchor_left = 0.29200003
+anchor_right = 1.0
+anchor_bottom = 0.592
+offset_left = 0.11997986
+offset_top = 14.0
+offset_bottom = -0.11999512
+grow_horizontal = 0
+mouse_filter = 2
+script = ExtResource("38_f4pwu")
+card_scenes = Array[PackedScene]([ExtResource("39_tm7qj"), ExtResource("39_tm7qj"), ExtResource("39_tm7qj")])
+
+[node name="HeaderLabel" type="RichTextLabel" parent="UpgradeDisplay" unique_id=301927323]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_bottom = 34.0
+grow_horizontal = 2
+theme_override_colors/font_outline_color = Color(0.047301866, 0.024442345, 0.08967819, 1)
+theme_override_constants/outline_size = 6
+theme_override_fonts/normal_font = ExtResource("16_qmjfx")
+theme_override_fonts/bold_font = ExtResource("16_qmjfx")
+theme_override_font_sizes/normal_font_size = 24
+theme_override_font_sizes/bold_font_size = 24
+bbcode_enabled = true
+text = "[wave amp=2 freq=6.0]PERFORMANCE REVIEW[/wave]"
+fit_content = true
+scroll_active = false
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="MarginContainer" type="MarginContainer" parent="UpgradeDisplay" unique_id=848024132]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = 65.0
+offset_bottom = -40.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="CardContainer" type="HBoxContainer" parent="UpgradeDisplay/MarginContainer" unique_id=1317515700]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_constants/separation = 20
+alignment = 1

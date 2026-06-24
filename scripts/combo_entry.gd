@@ -9,25 +9,37 @@ extends PanelContainer
 func setup(combo: Dictionary) -> void:
 	name_label.text = "[wave amp=2 freq=2.0][color=#fff][b]" + combo["name"].to_upper() + "[/b][/color][/wave]"
 	
-	# Build effect string from whichever values are non-zero
-	var parts: Array[String] = []
-	if combo["impact"] > 0: parts.append("[wave amp=2 freq=2.0][color=#cc5555][b]" + str(combo["impact"]) + "[/b] IM[/color][/wave]")
-	if combo["morale"] > 0: parts.append("[wave amp=2 freq=2.0][color=#55aa77][b]" + str(combo["morale"]) + "[/b] MO[/color][/wave]")
-	if combo["bandwidth"] > 0: parts.append("[wave amp=2 freq=2.0][color=#5588cc][b]" + str(combo["bandwidth"]) + "[/b] BW[/color][/wave]")
-	effect_label.text = " | ".join(parts)
-	
-	
-	
-	# Look up icons by matching symbol_ids to ComboDictionary.all_symbols
-	var icons := [icon_1, icon_2, icon_3]
 	var ids: Array = combo["symbol_ids"]  # e.g. ["roi", "roi", "roi"]
+	var icons := [icon_1, icon_2, icon_3]
+	var simulated_spin: Array[SymbolData] = []
+	
+	# Look up the actual SymbolData resources to build a "fake spin"
 	for i in 3:
-		icons[i].expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-		icons[i].size = Vector2(12, 12)
-		icons[i].texture = _find_symbol_icon(ids[i])
+		var sym = _find_symbol_data(ids[i])
+		simulated_spin.append(sym)
+		
+		if sym:
+			icons[i].expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+			icons[i].size = Vector2(12, 12)
+			icons[i].texture = sym.icon
 
-func _find_symbol_icon(id: String) -> Texture2D:
+	# Run the simulated spin through the dictionary to get the TRUE total math!
+	var final_math = ComboDictionary.calculate(simulated_spin)
+
+	# Build effect string from the calculated final values
+	var parts: Array[String] = []
+	if final_math["impact"] > 0: 
+		parts.append("[wave amp=2 freq=2.0][color=#cc5555][b]" + str(final_math["impact"]) + "[/b] IM[/color][/wave]")
+	if final_math["morale"] > 0: 
+		parts.append("[wave amp=2 freq=2.0][color=#55aa77][b]" + str(final_math["morale"]) + "[/b] MO[/color][/wave]")
+	if final_math["bandwidth"] > 0: 
+		parts.append("[wave amp=2 freq=2.0][color=#5588cc][b]" + str(final_math["bandwidth"]) + "[/b] BW[/color][/wave]")
+		
+	effect_label.text = " | ".join(parts)
+
+
+func _find_symbol_data(id: String) -> SymbolData:
 	for sym in ComboDictionary.all_symbols:
 		if sym.id == id:
-			return sym.icon
-	return null  # Fallback — shows blank if id doesn't match any SymbolData
+			return sym
+	return null

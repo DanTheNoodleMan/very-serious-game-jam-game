@@ -12,7 +12,8 @@
 [ext_resource type="Resource" uid="uid://sxeq0y40puh6" path="res://resources/symbols/circle_back.tres" id="6_jfulg"]
 [ext_resource type="Resource" uid="uid://dnyn4iruiaydi" path="res://resources/symbols/pizza_party.tres" id="6_kpwbf"]
 [ext_resource type="Resource" uid="uid://b5rqdu7o1qnng" path="res://resources/symbols/pain_point.tres" id="10_bjjkd"]
-[ext_resource type="Resource" uid="uid://bonah5v6eua36" path="res://resources/symbols/synergy.tres" id="12_4tvcy"]
+[ext_resource type="Resource" uid="uid://31gp4lfh0a50" path="res://resources/symbols/ai.tres" id="13_wxo0u"]
+[ext_resource type="Resource" uid="uid://gp76i7yqmgo0" path="res://resources/symbols/leverage.tres" id="14_fj6df"]
 
 [node name="SlotMachine" type="Control" unique_id=798385911]
 layout_mode = 3
@@ -29,7 +30,7 @@ lock_tex = ExtResource("5_3ucdj")
 
 [node name="SlotMachineLogic" type="Node" parent="." unique_id=669746294]
 script = ExtResource("1_agdmm")
-shared_pool = Array[ExtResource("3_knkoj")]([ExtResource("4_842tv"), ExtResource("6_kpwbf"), ExtResource("6_jfulg"), ExtResource("10_bjjkd"), ExtResource("12_4tvcy")])
+shared_pool = Array[ExtResource("3_knkoj")]([ExtResource("4_842tv"), ExtResource("6_kpwbf"), ExtResource("6_jfulg"), ExtResource("14_fj6df"), ExtResource("10_bjjkd"), ExtResource("13_wxo0u")])
 
 [node name="SlotMachineSprite" type="Sprite2D" parent="." unique_id=1014798497]
 
