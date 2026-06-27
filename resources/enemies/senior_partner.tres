@@ -1,0 +1,77 @@
+[gd_resource type="Resource" script_class="BossData" format=3 uid="uid://crf6xkisrsu8p"]
+
+[ext_resource type="Texture2D" uid="uid://ch47pw8fstcfu" path="res://senior_partner.png" id="1_ak50m"]
+[ext_resource type="Script" uid="uid://c48xf5y2x8myd" path="res://resources/boss_data.gd" id="1_nchak"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_aiod3"]
+atlas = ExtResource("1_ak50m")
+region = Rect2(0, 0, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_qvoyf"]
+atlas = ExtResource("1_ak50m")
+region = Rect2(128, 0, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_7hseo"]
+atlas = ExtResource("1_ak50m")
+region = Rect2(256, 0, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_wwybo"]
+atlas = ExtResource("1_ak50m")
+region = Rect2(384, 0, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_5iukm"]
+atlas = ExtResource("1_ak50m")
+region = Rect2(512, 0, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_1bvvm"]
+atlas = ExtResource("1_ak50m")
+region = Rect2(640, 0, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_oe8le"]
+atlas = ExtResource("1_ak50m")
+region = Rect2(768, 0, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_01w3a"]
+atlas = ExtResource("1_ak50m")
+region = Rect2(896, 0, 128, 128)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_u8m6e"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_aiod3")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_qvoyf")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_7hseo")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_wwybo")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_5iukm")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_1bvvm")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_oe8le")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_01w3a")
+}],
+"loop": true,
+"name": &"idle",
+"speed": 2.5
+}]
+
+[resource]
+script = ExtResource("1_nchak")
+boss_id = "senior_partner"
+boss_name = "Senior Partner"
+max_hp = 150
+attack_pattern = Array[int]([10, 11, 25, 6, 0, 30, 0, 0, 35])
+animations = SubResource("SpriteFrames_u8m6e")
+metadata/_custom_type_script = "uid://c48xf5y2x8myd"

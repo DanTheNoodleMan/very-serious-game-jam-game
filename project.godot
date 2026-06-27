@@ -11,14 +11,19 @@ config_version=5
 [application]
 
 config/name="Very Serious Business Meetings"
-run/main_scene="uid://bdoto2gctgevy"
+run/main_scene="uid://dlheug3vmgg13"
 config/features=PackedStringArray("4.6", "GL Compatibility")
 config/icon="res://icon.svg"
+
+[audio]
+
+buses/default_bus_layout="uid://bx21qqeuwesq2"
 
 [autoload]
 
 SFXManager="*uid://q8xr070b4rft"
 ComboDictionary="*uid://cjble715oj7rd"
+GlobalSettings="*uid://cj5dt2jf186my"
 
 [display]
 

@@ -1,5 +1,6 @@
 class_name BossData extends Resource
 
+@export var boss_id: String = ""
 @export var boss_name: String = "The Intern"
 @export var max_hp: int= 50
 # An array of damages the boss will do, cycling sequentially. 

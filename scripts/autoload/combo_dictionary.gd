@@ -1,5 +1,6 @@
-# combo_dictionary.gd
 extends Node
+
+signal dictionary_updated
 
 @export var all_symbols: Array[SymbolData] = []
 
@@ -20,14 +21,14 @@ const COMBOS: Array = [
 	{
 		"name": "Filibuster",
 		"symbol_ids": ["circle_back", "circle_back", "circle_back"],
-		"bonus_impact": 0, "bonus_bandwidth": 22, "bonus_morale": 0
-		# Math: (6+6+6) + 22 = 40 Shield. (Required to survive the CEO's nuke)
+		"bonus_impact": 0, "bonus_bandwidth": 25, "bonus_morale": 10
+		# Math: (6+6+6) + 22 = 40 Shield + 10 Heal
 	},
 	{
 		"name": "Pizza Friday",
 		"symbol_ids": ["pizza", "pizza", "pizza"],
-		"bonus_impact": 0, "bonus_bandwidth": 0, "bonus_morale": 15
-		# Math: (5+5+5) + 15 = 30 Heal. Saves you from the brink of death
+		"bonus_impact": 10, "bonus_bandwidth": 0, "bonus_morale": 15
+		# Math: (5+5+5) + 15 = 30 Heal + 10 Damage. 
 	},
 	{
 		"name": "Hostile Takeover",

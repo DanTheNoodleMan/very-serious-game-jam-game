@@ -28,29 +28,74 @@ func setup(opt: Dictionary) -> void:
 			var sym := _data as SymbolData
 			icon_rect.texture = sym.icon
 			icon_rect.visible = true
-			desc_label.text = _build_symbol_desc(sym, false)
+			desc_label.text = _build_symbol_desc(sym)
 		"remove":
 			var sym := _data as SymbolData
 			icon_rect.texture = sym.icon
 			icon_rect.visible = true
-			desc_label.text = _build_symbol_desc(sym, true)
+			desc_label.text = _build_remove_desc(sym)
+		"upgrade_normal":
+			var sym := _data as SymbolData
+			icon_rect.texture = sym.icon
+			icon_rect.visible = true
+			desc_label.text = _build_upgrade_desc(sym, 4)
+		"upgrade_multiplier":
+			var sym := _data as SymbolData
+			icon_rect.texture = sym.icon
+			icon_rect.visible = true
+			desc_label.text = _build_upgrade_desc(sym, 2)
 		"reroll":
 			icon_rect.visible = true
 			panel_container.modulate = Color(0, 0, 0, 0.0)
 			desc_label.text = "[color=#fff]Gain [color=#aaccff][b]+1 REROLL[/b][/color] per turn[/color]"
 
-func _build_symbol_desc(sym: SymbolData, is_remove: bool) -> String:
-	var verb := "[color=#fff]REMOVE [/color]" if is_remove \
-		else "[color=#fff]ADD [/color]"
-
-	# Effect description in the matching color
-	var effect := ComboDictionary.describe_symbol(sym)
-
-	# Verb + name in effect color + effect in parens
+func _build_symbol_desc(sym: SymbolData) -> String:
 	var name_color := _get_name_color(sym)
-	return verb + "[wave amp=2 freq=6.0][b][color=" + name_color + "]" + sym.symbol_name.to_upper() \
-	+  "[/color][/b][/wave]\n" \
-		+ "(" + effect + ")"
+	var effect := ComboDictionary.describe_symbol(sym)
+	return "[color=#fff]ADD [/color][wave amp=2 freq=6.0][b][color=" + name_color + "]" \
+		+ sym.symbol_name.to_upper() + "[/color][/b][/wave]\n(" + effect + ")"
+
+func _build_remove_desc(sym: SymbolData) -> String:
+	var name_color := _get_name_color(sym)
+	var effect := ComboDictionary.describe_symbol(sym)
+	return "[color=#cc5555]REMOVE [/color][wave amp=2 freq=6.0][b][color=" + name_color + "]" \
+		+ sym.symbol_name.to_upper() + "[/color][/b][/wave]\n(" + effect + ")"
+
+func _build_upgrade_desc(sym: SymbolData, increase: int) -> String:
+	var name_color := _get_name_color(sym)
+	var old_val := sym.base_value
+	var new_val := sym.base_value + increase
+
+	# Show before/after for the relevant stat
+	var stat_label := ""
+	match sym.effect_type:
+		SymbolData.EffectType.DAMAGE:
+			stat_label = "[color=#cc4040]IMPACT[/color]  " \
+				+ "[color=#888888]" + str(old_val) + "[/color]" \
+				+ "[color=#ffd060] → [b]" + str(new_val) + "[/b][/color]"
+		SymbolData.EffectType.SHIELD:
+			stat_label = "[color=#4099bb]BANDWIDTH[/color]  " \
+				+ "[color=#888888]" + str(old_val) + "[/color]" \
+				+ "[color=#ffd060] → [b]" + str(new_val) + "[/b][/color]"
+		SymbolData.EffectType.HEAL:
+			stat_label = "[color=#40aa60]MORALE[/color]  " \
+				+ "[color=#888888]" + str(old_val) + "[/color]" \
+				+ "[color=#ffd060] → [b]" + str(new_val) + "[/b][/color]"
+		SymbolData.EffectType.MULTIPLIER:
+			match sym.id:
+				"ai":
+					stat_label = "[color=#ffd060]MULTIPLIER[/color]  " \
+						+ "[color=#888888]×" + str(old_val) + "[/color]" \
+						+ "[color=#ffd060] → [b]×" + str(new_val) + "[/b][/color]"
+				"leverage":
+					stat_label = "[color=#ffd060]BONUS[/color]  " \
+						+ "[color=#888888]+" + str(old_val) + "[/color]" \
+						+ "[color=#ffd060] → [b]+" + str(new_val) + "[/b][/color]"
+				_:
+					stat_label = "[color=#ffd060]+" + str(increase) + " to effect[/color]"
+
+	return "[color=#fff]UPGRADE [/color][wave amp=2 freq=6.0][b][color=" + name_color + "]" \
+		+ sym.symbol_name.to_upper() + "[/color][/b][/wave]\n(" + stat_label + ")"
 
 func _get_name_color(sym: SymbolData) -> String:
 	match sym.effect_type:

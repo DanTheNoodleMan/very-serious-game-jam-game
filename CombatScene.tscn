@@ -19,11 +19,21 @@
 [ext_resource type="Script" uid="uid://dhlf1na8stdk6" path="res://player_display.gd" id="8_obqq3"]
 [ext_resource type="Script" uid="uid://c48xf5y2x8myd" path="res://resources/boss_data.gd" id="9_2lpl0"]
 [ext_resource type="Texture2D" uid="uid://vojlhm4i3vwm" path="res://nameplate_2.png" id="9_b4bhy"]
+[ext_resource type="AudioStream" uid="uid://buvx63mhmkkfc" path="res://assets/sounds/win/win_fight.ogg" id="9_ol3h1"]
+[ext_resource type="Resource" uid="uid://crf6xkisrsu8p" path="res://resources/enemies/senior_partner.tres" id="10_5pitx"]
+[ext_resource type="Resource" uid="uid://b6y7spiycno0s" path="res://resources/enemies/ceo.tres" id="10_nwi2s"]
+[ext_resource type="Resource" uid="uid://3mdvbve1jj5q" path="res://resources/enemies/chief_empathy_officer.tres" id="10_ognr1"]
+[ext_resource type="AudioStream" uid="uid://bmposl86audei" path="res://assets/sounds/lose/game_over_2.ogg" id="10_rbecj"]
 [ext_resource type="Texture2D" uid="uid://cplpsa1rtn0di" path="res://mic_off.png" id="10_y04i6"]
 [ext_resource type="Texture2D" uid="uid://csite2sa0gul7" path="res://talking_border.png" id="11_b4bhy"]
+[ext_resource type="AudioStream" uid="uid://4btcaotcg4eq" path="res://assets/sounds/win/victory_1.ogg" id="11_d3gqo"]
 [ext_resource type="PackedScene" uid="uid://twq2fsikmerm" path="res://slot_machine.tscn" id="11_ji6bj"]
 [ext_resource type="Texture2D" uid="uid://dqdq1268rbgwc" path="res://layout_6.png" id="11_tm7qj"]
+[ext_resource type="Resource" uid="uid://cprjdjskyhrmx" path="res://resources/enemies/finance_bro.tres" id="11_tmhp8"]
+[ext_resource type="AudioStream" uid="uid://c0yevdv3rcbxr" path="res://assets/sounds/win/victory_music.ogg" id="12_d3gqo"]
+[ext_resource type="AudioStream" uid="uid://bi7shxg68uknr" path="res://assets/sounds/background_music.ogg" id="15_d3gqo"]
 [ext_resource type="Texture2D" uid="uid://dvce760xiccd8" path="res://player_cam.png" id="15_o7yjl"]
+[ext_resource type="Texture2D" uid="uid://d0qe6lbuvx0cm" path="res://salaryman_idle_2.png" id="15_v24qm"]
 [ext_resource type="FontFile" uid="uid://csmid407kor44" path="res://assets/fonts/Stacked pixel.ttf" id="16_qmjfx"]
 [ext_resource type="Texture2D" uid="uid://qlyaou4vhjo7" path="res://shield.png" id="17_kciku"]
 [ext_resource type="Texture2D" uid="uid://cfqnk213ug7cb" path="res://button_up_2.png" id="17_l36ul"]
@@ -33,79 +43,218 @@
 [ext_resource type="Texture2D" uid="uid://pgxqjkw8j6qs" path="res://button_disabled_2.png" id="20_aora4"]
 [ext_resource type="Texture2D" uid="uid://cw4sk3bjuf1hk" path="res://panel_6.png" id="21_60sab"]
 [ext_resource type="Texture2D" uid="uid://dkmk53d5mjic0" path="res://player_cam_4.png" id="22_aora4"]
-[ext_resource type="Texture2D" uid="uid://bhbcxs2joq34h" path="res://player_idle_hat.png" id="31_8o0a2"]
 [ext_resource type="Texture2D" uid="uid://ckrg3xokkc1d" path="res://agenda_panel.png" id="34_60sab"]
 [ext_resource type="Script" uid="uid://c7ug25uvefd4c" path="res://scripts/agenda_area.gd" id="34_gkwxr"]
 [ext_resource type="PackedScene" uid="uid://qvgtwnrcvw7m" path="res://combo_entry.tscn" id="35_kpklt"]
 [ext_resource type="Script" uid="uid://57ie8umjxy6y" path="res://scripts/pool_roster.gd" id="38_8o0a2"]
 [ext_resource type="Script" uid="uid://duxj3ox7eyota" path="res://scripts/upgrade_display.gd" id="38_f4pwu"]
+[ext_resource type="Texture2D" uid="uid://cxtc11chnjuw7" path="res://player_victory_hat.png" id="38_rbecj"]
 [ext_resource type="PackedScene" uid="uid://c0grhwl3tyrdh" path="res://upgrade_card.tscn" id="39_tm7qj"]
+[ext_resource type="Script" uid="uid://cu4s7j7675ht2" path="res://scripts/camera_shake.gd" id="41_r20up"]
+[ext_resource type="Texture2D" uid="uid://d1wadlytwoqw7" path="res://pattern.png" id="48_v24qm"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_cvcst"]
+atlas = ExtResource("15_v24qm")
+region = Rect2(0, 0, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_id3fk"]
+atlas = ExtResource("15_v24qm")
+region = Rect2(128, 0, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_pylc6"]
+atlas = ExtResource("15_v24qm")
+region = Rect2(256, 0, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_50x45"]
+atlas = ExtResource("15_v24qm")
+region = Rect2(384, 0, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_2rx2w"]
+atlas = ExtResource("15_v24qm")
+region = Rect2(512, 0, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_a7d7g"]
+atlas = ExtResource("15_v24qm")
+region = Rect2(640, 0, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_8on0t"]
+atlas = ExtResource("15_v24qm")
+region = Rect2(768, 0, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_yenih"]
+atlas = ExtResource("15_v24qm")
+region = Rect2(896, 0, 128, 128)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_j3ll6"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_cvcst")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_id3fk")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_pylc6")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_50x45")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_2rx2w")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_a7d7g")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_8on0t")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_yenih")
+}],
+"loop": true,
+"name": &"idle",
+"speed": 3.33
+}]
+
+[sub_resource type="Resource" id="Resource_rbecj"]
+script = ExtResource("9_2lpl0")
+boss_id = "salaryman"
+boss_name = "Salaryman"
+attack_pattern = Array[int]([4, 5, 4, 7, 4, 5, 15])
+animations = SubResource("SpriteFrames_j3ll6")
+metadata/_custom_type_script = "uid://c48xf5y2x8myd"
+
+[sub_resource type="Resource" id="Resource_v24qm"]
+script = ExtResource("9_2lpl0")
+boss_id = "salaryman"
+boss_name = "Salaryman"
+max_hp = 70
+attack_pattern = Array[int]([5, 6, 5, 6, 10, 6, 5, 15])
+animations = SubResource("SpriteFrames_j3ll6")
+metadata/_custom_type_script = "uid://c48xf5y2x8myd"
 
 [sub_resource type="SpriteFrames" id="SpriteFrames_7gog2"]
 
-[sub_resource type="AtlasTexture" id="AtlasTexture_r20up"]
-atlas = ExtResource("31_8o0a2")
+[sub_resource type="AtlasTexture" id="AtlasTexture_0j2h3"]
+atlas = ExtResource("38_rbecj")
 region = Rect2(0, 0, 64, 64)
 
-[sub_resource type="AtlasTexture" id="AtlasTexture_tmhp8"]
-atlas = ExtResource("31_8o0a2")
+[sub_resource type="AtlasTexture" id="AtlasTexture_wxrmo"]
+atlas = ExtResource("38_rbecj")
 region = Rect2(64, 0, 64, 64)
 
-[sub_resource type="AtlasTexture" id="AtlasTexture_5pitx"]
-atlas = ExtResource("31_8o0a2")
+[sub_resource type="AtlasTexture" id="AtlasTexture_x2s5v"]
+atlas = ExtResource("38_rbecj")
 region = Rect2(128, 0, 64, 64)
 
-[sub_resource type="AtlasTexture" id="AtlasTexture_ognr1"]
-atlas = ExtResource("31_8o0a2")
+[sub_resource type="AtlasTexture" id="AtlasTexture_5dvdd"]
+atlas = ExtResource("38_rbecj")
 region = Rect2(192, 0, 64, 64)
 
-[sub_resource type="AtlasTexture" id="AtlasTexture_nwi2s"]
-atlas = ExtResource("31_8o0a2")
+[sub_resource type="AtlasTexture" id="AtlasTexture_pmb0h"]
+atlas = ExtResource("38_rbecj")
 region = Rect2(256, 0, 64, 64)
 
-[sub_resource type="AtlasTexture" id="AtlasTexture_d3gqo"]
-atlas = ExtResource("31_8o0a2")
+[sub_resource type="AtlasTexture" id="AtlasTexture_cttmx"]
+atlas = ExtResource("38_rbecj")
 region = Rect2(320, 0, 64, 64)
 
-[sub_resource type="AtlasTexture" id="AtlasTexture_ol3h1"]
-atlas = ExtResource("31_8o0a2")
+[sub_resource type="AtlasTexture" id="AtlasTexture_1fhkp"]
+atlas = ExtResource("38_rbecj")
 region = Rect2(384, 0, 64, 64)
 
-[sub_resource type="AtlasTexture" id="AtlasTexture_v24qm"]
-atlas = ExtResource("31_8o0a2")
+[sub_resource type="AtlasTexture" id="AtlasTexture_g2k32"]
+atlas = ExtResource("38_rbecj")
 region = Rect2(448, 0, 64, 64)
 
 [sub_resource type="SpriteFrames" id="SpriteFrames_rbecj"]
 animations = [{
 "frames": [{
 "duration": 1.0,
-"texture": SubResource("AtlasTexture_r20up")
+"texture": SubResource("AtlasTexture_0j2h3")
 }, {
 "duration": 1.0,
-"texture": SubResource("AtlasTexture_tmhp8")
+"texture": SubResource("AtlasTexture_wxrmo")
 }, {
 "duration": 1.0,
-"texture": SubResource("AtlasTexture_5pitx")
+"texture": SubResource("AtlasTexture_x2s5v")
 }, {
 "duration": 1.0,
-"texture": SubResource("AtlasTexture_ognr1")
+"texture": SubResource("AtlasTexture_5dvdd")
 }, {
 "duration": 1.0,
-"texture": SubResource("AtlasTexture_nwi2s")
+"texture": SubResource("AtlasTexture_pmb0h")
 }, {
 "duration": 1.0,
-"texture": SubResource("AtlasTexture_d3gqo")
+"texture": SubResource("AtlasTexture_cttmx")
 }, {
 "duration": 1.0,
-"texture": SubResource("AtlasTexture_ol3h1")
+"texture": SubResource("AtlasTexture_1fhkp")
 }, {
 "duration": 1.0,
-"texture": SubResource("AtlasTexture_v24qm")
+"texture": SubResource("AtlasTexture_g2k32")
 }],
 "loop": true,
 "name": &"idle",
 "speed": 3.33
 }]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_v24qm"]
+content_margin_left = 8.0
+content_margin_top = 6.0
+content_margin_right = 8.0
+content_margin_bottom = 6.0
+bg_color = Color(0.11764706, 0.34117648, 0.6117647, 1)
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0, 0, 0, 1)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_0j2h3"]
+content_margin_left = 8.0
+content_margin_top = 6.0
+content_margin_right = 8.0
+content_margin_bottom = 6.0
+bg_color = Color(0.1490127, 0.41315183, 0.7328993, 1)
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0, 0, 0, 1)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_rbecj"]
+content_margin_left = 4.0
+content_margin_top = 6.0
+content_margin_right = 4.0
+content_margin_bottom = 6.0
+bg_color = Color(0, 0.59607846, 0.85882354, 1)
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0, 0, 0, 1)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_wxrmo"]
+content_margin_left = 4.0
+content_margin_top = 6.0
+content_margin_right = 4.0
+content_margin_bottom = 6.0
+bg_color = Color(0, 0.6948393, 0.9974397, 1)
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0, 0, 0, 1)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
 
 [node name="CombatScene" type="Control" unique_id=1819690931]
 layout_mode = 3
@@ -122,7 +271,25 @@ whoosh = ExtResource("5_y3bpw")
 hit = ExtResource("6_qlaij")
 shield_impact = ExtResource("7_i8kqh")
 shield_break = ExtResource("8_i8kqh")
-boss_roster = Array[ExtResource("9_2lpl0")]([ExtResource("2_7gog2"), ExtResource("2_7gog2")])
+win_fight = ExtResource("9_ol3h1")
+game_over = ExtResource("10_rbecj")
+victory = ExtResource("11_d3gqo")
+victory_music = ExtResource("12_d3gqo")
+boss_roster = Array[ExtResource("9_2lpl0")]([ExtResource("2_7gog2"), SubResource("Resource_rbecj"), SubResource("Resource_v24qm"), ExtResource("11_tmhp8"), ExtResource("10_ognr1"), ExtResource("10_5pitx"), ExtResource("10_nwi2s")])
+boss_music = ExtResource("15_d3gqo")
+
+[node name="ColorRect" type="ColorRect" parent="." unique_id=1417675988]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -23.111084
+offset_top = -13.0
+offset_right = 30.222229
+offset_bottom = 17.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.05490196, 0.09019608, 0.17254902, 1)
 
 [node name="Background" type="TextureRect" parent="." unique_id=2117441887]
 layout_mode = 1
@@ -132,6 +299,49 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 texture = ExtResource("11_tm7qj")
+
+[node name="HoldTutorialLabel" type="RichTextLabel" parent="." unique_id=1255642044]
+visible = false
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.46800002
+anchor_top = 1.0
+anchor_right = 0.46800002
+anchor_bottom = 1.0
+offset_left = -106.52002
+offset_top = -15.0
+offset_right = 106.47998
+grow_horizontal = 2
+grow_vertical = 0
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 6
+theme_override_fonts/normal_font = ExtResource("16_qmjfx")
+theme_override_fonts/bold_font = ExtResource("16_qmjfx")
+theme_override_font_sizes/normal_font_size = 10
+theme_override_font_sizes/bold_font_size = 12
+bbcode_enabled = true
+text = "[center][wave amp=2 freq=6.0][color=#ffd060]↑ Click reels (or press 1, 2, 3) to hold ↑[/color][/wave][/center]"
+fit_content = true
+scroll_active = false
+
+[node name="ComboLabel" type="RichTextLabel" parent="." unique_id=430376861]
+z_index = 50
+layout_mode = 1
+offset_left = 198.0
+offset_top = 230.0
+offset_right = 625.0
+offset_bottom = 256.0
+mouse_filter = 2
+theme_override_colors/font_outline_color = Color(0.1254902, 0.08235294, 0.2, 1)
+theme_override_constants/outline_size = 6
+theme_override_fonts/normal_font = ExtResource("16_qmjfx")
+theme_override_fonts/bold_font = ExtResource("16_qmjfx")
+theme_override_font_sizes/normal_font_size = 10
+theme_override_font_sizes/bold_font_size = 20
+bbcode_enabled = true
+text = "fffgf"
+fit_content = true
+scroll_active = false
 
 [node name="EnemyArea" type="Control" parent="." unique_id=43949672]
 layout_mode = 1
@@ -174,26 +384,6 @@ texture = ExtResource("6_kciku")
 position = Vector2(223, 92)
 scale = Vector2(1.3, 1.3)
 sprite_frames = SubResource("SpriteFrames_7gog2")
-
-[node name="EnemyHPBar" type="TextureProgressBar" parent="EnemyArea" unique_id=903020479]
-layout_mode = 1
-anchors_preset = -1
-anchor_left = 1.0
-anchor_right = 1.0
-offset_left = -100.0
-offset_top = 3.0
-offset_right = -4.0
-offset_bottom = 15.0
-grow_horizontal = 2
-grow_vertical = 0
-nine_patch_stretch = true
-stretch_margin_left = 2
-stretch_margin_top = 2
-stretch_margin_right = 2
-stretch_margin_bottom = 2
-texture_under = ExtResource("4_ji6bj")
-texture_over = ExtResource("4_hvv87")
-texture_progress = ExtResource("5_oc8fh")
 
 [node name="EnemyNameContainer" type="MarginContainer" parent="EnemyArea" unique_id=351663617]
 layout_mode = 0
@@ -240,6 +430,46 @@ text = "Salaryman Extraordinaire"
 fit_content = true
 scroll_active = false
 autowrap_mode = 0
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="EnemyHPBar" type="TextureProgressBar" parent="EnemyArea" unique_id=903020479]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -158.0
+offset_top = 157.0
+offset_right = -4.0
+offset_bottom = 170.0
+grow_horizontal = 2
+grow_vertical = 2
+nine_patch_stretch = true
+stretch_margin_left = 2
+stretch_margin_top = 2
+stretch_margin_right = 2
+stretch_margin_bottom = 2
+texture_under = ExtResource("4_ji6bj")
+texture_over = ExtResource("4_hvv87")
+texture_progress = ExtResource("5_oc8fh")
+
+[node name="EnemyHPLabel" type="RichTextLabel" parent="EnemyArea/EnemyHPBar" unique_id=690398806]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_colors/font_outline_color = Color(0.050980393, 0.023529412, 0.09019608, 1)
+theme_override_constants/outline_size = 4
+theme_override_fonts/normal_font = ExtResource("16_qmjfx")
+theme_override_fonts/bold_font = ExtResource("16_qmjfx")
+theme_override_font_sizes/normal_font_size = 12
+theme_override_font_sizes/bold_font_size = 12
+bbcode_enabled = true
+text = "12/55"
+fit_content = true
+scroll_active = false
 horizontal_alignment = 1
 vertical_alignment = 1
 
@@ -321,10 +551,14 @@ grow_horizontal = 0
 grow_vertical = 0
 
 [node name="ButtonBackground" type="NinePatchRect" parent="CombatUI" unique_id=502633575]
-layout_mode = 0
-offset_top = 30.0
-offset_right = 108.0
-offset_bottom = 116.0
+layout_mode = 1
+anchors_preset = -1
+anchor_top = 0.21400002
+anchor_right = 1.187
+anchor_bottom = 0.82900006
+offset_top = 0.0399971
+offset_right = -0.01700592
+offset_bottom = -0.060005188
 texture = ExtResource("21_60sab")
 patch_margin_left = 10
 patch_margin_top = 10
@@ -484,6 +718,30 @@ scale = Vector2(1.5, 1.5)
 sprite_frames = SubResource("SpriteFrames_rbecj")
 animation = &"idle"
 
+[node name="PlayerHPLabel" type="RichTextLabel" parent="PlayerArea" unique_id=810932695]
+layout_mode = 1
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -35.0
+offset_top = -12.0
+grow_horizontal = 0
+grow_vertical = 0
+theme_override_colors/font_outline_color = Color(0.050980393, 0.023529412, 0.09019608, 1)
+theme_override_constants/outline_size = 4
+theme_override_fonts/normal_font = ExtResource("16_qmjfx")
+theme_override_fonts/bold_font = ExtResource("16_qmjfx")
+theme_override_font_sizes/normal_font_size = 8
+theme_override_font_sizes/bold_font_size = 8
+bbcode_enabled = true
+text = "12/55"
+fit_content = true
+scroll_active = false
+horizontal_alignment = 1
+vertical_alignment = 1
+
 [node name="PlayerHPBar" type="TextureProgressBar" parent="PlayerArea" unique_id=428955290]
 layout_mode = 1
 anchors_preset = 7
@@ -491,14 +749,19 @@ anchor_left = 0.5
 anchor_top = 1.0
 anchor_right = 0.5
 anchor_bottom = 1.0
-offset_left = -48.5
+offset_left = -49.5
 offset_top = -10.0
-offset_right = 49.5
-offset_bottom = -3.0
+offset_right = 19.5
+offset_bottom = -2.0
 grow_horizontal = 2
 grow_vertical = 0
 nine_patch_stretch = true
+stretch_margin_left = 2
+stretch_margin_top = 2
+stretch_margin_right = 2
+stretch_margin_bottom = 2
 texture_under = ExtResource("4_ji6bj")
+texture_over = ExtResource("4_hvv87")
 texture_progress = ExtResource("7_c531c")
 
 [node name="ShieldBadge" type="TextureRect" parent="PlayerArea" unique_id=477156201]
@@ -527,24 +790,6 @@ scroll_active = false
 autowrap_mode = 0
 horizontal_alignment = 1
 vertical_alignment = 1
-
-[node name="ComboLabel" type="RichTextLabel" parent="." unique_id=430376861]
-layout_mode = 1
-offset_left = 198.0
-offset_top = 230.0
-offset_right = 625.0
-offset_bottom = 256.0
-mouse_filter = 2
-theme_override_colors/font_outline_color = Color(0.1254902, 0.08235294, 0.2, 1)
-theme_override_constants/outline_size = 6
-theme_override_fonts/normal_font = ExtResource("16_qmjfx")
-theme_override_fonts/bold_font = ExtResource("16_qmjfx")
-theme_override_font_sizes/normal_font_size = 10
-theme_override_font_sizes/bold_font_size = 20
-bbcode_enabled = true
-text = "fffgf"
-fit_content = true
-scroll_active = false
 
 [node name="SlotMachine" parent="." unique_id=798385911 instance=ExtResource("11_ji6bj")]
 layout_mode = 1
@@ -701,3 +946,176 @@ unique_name_in_owner = true
 layout_mode = 2
 theme_override_constants/separation = 20
 alignment = 1
+
+[node name="Camera2D" type="Camera2D" parent="." unique_id=1143090596 groups=["camera"]]
+unique_name_in_owner = true
+position = Vector2(320, 180)
+script = ExtResource("41_r20up")
+
+[node name="GameOverScreen" type="TextureRect" parent="." unique_id=840115983]
+visible = false
+z_index = 100
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("48_v24qm")
+
+[node name="VBoxContainer" type="VBoxContainer" parent="GameOverScreen" unique_id=804252090]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -108.0
+offset_top = -69.5
+offset_right = 108.0
+offset_bottom = 69.5
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 24
+
+[node name="VBoxContainer" type="VBoxContainer" parent="GameOverScreen/VBoxContainer" unique_id=927560293]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="GameOverTitle" type="RichTextLabel" parent="GameOverScreen/VBoxContainer/VBoxContainer" unique_id=190151941]
+layout_mode = 2
+theme_override_constants/outline_size = 12
+theme_override_fonts/normal_font = ExtResource("16_qmjfx")
+theme_override_fonts/bold_font = ExtResource("16_qmjfx")
+theme_override_font_sizes/normal_font_size = 48
+theme_override_font_sizes/bold_font_size = 48
+bbcode_enabled = true
+text = "[wave amp=4 freq=2.0][b]FIRED[/b][/wave]"
+fit_content = true
+scroll_active = false
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="GameOverSubtitle" type="RichTextLabel" parent="GameOverScreen/VBoxContainer/VBoxContainer" unique_id=978538141]
+layout_mode = 2
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 8
+theme_override_fonts/normal_font = ExtResource("16_qmjfx")
+theme_override_fonts/bold_font = ExtResource("16_qmjfx")
+theme_override_font_sizes/normal_font_size = 12
+bbcode_enabled = true
+text = "[wave amp=4 freq=2.0][b]You weren't serious enough. Lock in.[/b][/wave]"
+fit_content = true
+scroll_active = false
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="HBoxContainer" type="HBoxContainer" parent="GameOverScreen/VBoxContainer" unique_id=476266818]
+layout_mode = 2
+
+[node name="Restart" type="Button" parent="GameOverScreen/VBoxContainer/HBoxContainer" unique_id=2052770437]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+mouse_default_cursor_shape = 2
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 6
+theme_override_fonts/font = ExtResource("16_qmjfx")
+theme_override_styles/normal = SubResource("StyleBoxFlat_v24qm")
+theme_override_styles/hover = SubResource("StyleBoxFlat_0j2h3")
+text = "LOCK IN"
+
+[node name="RestartEasy" type="Button" parent="GameOverScreen/VBoxContainer/HBoxContainer" unique_id=1852390112]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+mouse_default_cursor_shape = 2
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 6
+theme_override_fonts/font = ExtResource("16_qmjfx")
+theme_override_styles/normal = SubResource("StyleBoxFlat_rbecj")
+theme_override_styles/hover = SubResource("StyleBoxFlat_wxrmo")
+text = "LOWER STAKES
+(+25 HP)"
+
+[node name="VictoryScreen" type="TextureRect" parent="." unique_id=219894769]
+z_index = 100
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("48_v24qm")
+
+[node name="VBoxContainer" type="VBoxContainer" parent="VictoryScreen" unique_id=2113836731]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -259.0
+offset_top = -69.5
+offset_right = 259.0
+offset_bottom = 69.5
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 128
+
+[node name="VBoxContainer" type="VBoxContainer" parent="VictoryScreen/VBoxContainer" unique_id=336756534]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="VictoryTitle" type="RichTextLabel" parent="VictoryScreen/VBoxContainer/VBoxContainer" unique_id=475015151]
+layout_mode = 2
+theme_override_constants/outline_size = 12
+theme_override_fonts/normal_font = ExtResource("16_qmjfx")
+theme_override_fonts/bold_font = ExtResource("16_qmjfx")
+theme_override_font_sizes/normal_font_size = 48
+theme_override_font_sizes/bold_font_size = 48
+bbcode_enabled = true
+text = "[wave amp=12 freq=6.0][color=#ffd060][b]★ PROMOTED TO CEO ★[/b][/color][/wave]"
+fit_content = true
+scroll_active = false
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="VictorySubtitle" type="RichTextLabel" parent="VictoryScreen/VBoxContainer/VBoxContainer" unique_id=174808459]
+layout_mode = 2
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 8
+theme_override_fonts/normal_font = ExtResource("16_qmjfx")
+theme_override_fonts/bold_font = ExtResource("16_qmjfx")
+theme_override_font_sizes/normal_font_size = 12
+bbcode_enabled = true
+text = "[wave amp=4 freq=2.0][b]Maximum synergy achieved. The board is pleased.[/b][/wave]"
+fit_content = true
+scroll_active = false
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="HBoxContainer" type="HBoxContainer" parent="VictoryScreen/VBoxContainer" unique_id=1759781733]
+layout_mode = 2
+size_flags_horizontal = 4
+
+[node name="VictoryRestart" type="Button" parent="VictoryScreen/VBoxContainer/HBoxContainer" unique_id=1832306147]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+mouse_default_cursor_shape = 2
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 6
+theme_override_fonts/font = ExtResource("16_qmjfx")
+theme_override_styles/normal = SubResource("StyleBoxFlat_v24qm")
+theme_override_styles/hover = SubResource("StyleBoxFlat_0j2h3")
+text = "START NEW QUARTER"
+
+[node name="VictoryPortrait" type="AnimatedSprite2D" parent="VictoryScreen/VBoxContainer" unique_id=182722308]
+unique_name_in_owner = true
+position = Vector2(259, 138.5)
+scale = Vector2(1.6875, 1.6875)
+sprite_frames = SubResource("SpriteFrames_rbecj")
+animation = &"idle"
+frame = 2
+frame_progress = 0.45865297

@@ -4,14 +4,21 @@ extends Node
 
 const POOL_SIZE = 16 # Max number of sounds that can play at once
 var _players: Array[AudioStreamPlayer] = []
+var _music_player: AudioStreamPlayer # Dedicated player for BGM
 
 # Tracks the last time a specific AudioStream was played to prevent phasing
 var _last_played_times: Dictionary = {} 
 
 func _ready() -> void:
-	# Create the pool of audio players
+	# Create the dedicated Music Player
+	_music_player = AudioStreamPlayer.new()
+	_music_player.bus = "Music" # Assign to Music bus
+	add_child(_music_player)
+	
+	# Create the pool of SFX players
 	for i in range(POOL_SIZE):
 		var p := AudioStreamPlayer.new()
+		p.bus = "SFX" # Assign to SFX bus
 		add_child(p)
 		_players.append(p)
 
@@ -34,4 +41,18 @@ override_pitch: float = 0.0, from_position: float = 0.0) -> void:
 			p.volume_db = volume_db
 			p.play(from_position)
 			return
-			
+
+# --- MUSIC LOGIC ---
+func play_music(stream: AudioStream, volume: float = 0.0) -> void:
+	if stream == null: return
+	
+	# If this exact track is already playing, don't restart it! (Great for scene transitions)
+	if _music_player.stream == stream and _music_player.playing:
+		return 
+		
+	_music_player.stream = stream
+	_music_player.volume_db = volume
+	_music_player.play()
+
+func stop_music() -> void:
+	_music_player.stop()

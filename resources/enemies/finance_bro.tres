@@ -1,0 +1,77 @@
+[gd_resource type="Resource" script_class="BossData" format=3 uid="uid://cprjdjskyhrmx"]
+
+[ext_resource type="Texture2D" uid="uid://d24rqu2tksbo" path="res://finance_bro_idle.png" id="1_81w2s"]
+[ext_resource type="Script" uid="uid://c48xf5y2x8myd" path="res://resources/boss_data.gd" id="1_nk358"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_ah6m8"]
+atlas = ExtResource("1_81w2s")
+region = Rect2(0, 0, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_ab8au"]
+atlas = ExtResource("1_81w2s")
+region = Rect2(128, 0, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_haq8l"]
+atlas = ExtResource("1_81w2s")
+region = Rect2(256, 0, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_n1cth"]
+atlas = ExtResource("1_81w2s")
+region = Rect2(384, 0, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_uvfgs"]
+atlas = ExtResource("1_81w2s")
+region = Rect2(512, 0, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_l4pea"]
+atlas = ExtResource("1_81w2s")
+region = Rect2(640, 0, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_e2qip"]
+atlas = ExtResource("1_81w2s")
+region = Rect2(768, 0, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_l3qko"]
+atlas = ExtResource("1_81w2s")
+region = Rect2(896, 0, 128, 128)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_vr2ti"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_ah6m8")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_ab8au")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_haq8l")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_n1cth")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_uvfgs")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_l4pea")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_e2qip")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_l3qko")
+}],
+"loop": true,
+"name": &"idle",
+"speed": 5.0
+}]
+
+[resource]
+script = ExtResource("1_nk358")
+boss_id = "finance_bro"
+boss_name = "Finance Bro"
+max_hp = 99
+attack_pattern = Array[int]([0, 9, 0, 14, 0, 19, 0, 24])
+animations = SubResource("SpriteFrames_vr2ti")
+metadata/_custom_type_script = "uid://c48xf5y2x8myd"

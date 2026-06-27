@@ -1,46 +1,43 @@
 [gd_resource type="Resource" script_class="BossData" format=3 uid="uid://ccly2nhdi72t6"]
 
-[ext_resource type="Texture2D" uid="uid://y4vau744lyup" path="res://assets/enemies/salaryman_idle.png" id="1_20jq5"]
+[ext_resource type="Texture2D" uid="uid://d0qe6lbuvx0cm" path="res://salaryman_idle_2.png" id="1_20jq5"]
 [ext_resource type="Script" uid="uid://c48xf5y2x8myd" path="res://resources/boss_data.gd" id="1_j3ll6"]
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_20jq5"]
-atlas = ExtResource("1_20jq5")
-region = Rect2(0, 0, 128, 128)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_cvcst"]
 atlas = ExtResource("1_20jq5")
-region = Rect2(128, 0, 128, 128)
+region = Rect2(0, 0, 128, 128)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_id3fk"]
 atlas = ExtResource("1_20jq5")
-region = Rect2(256, 0, 128, 128)
+region = Rect2(128, 0, 128, 128)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_pylc6"]
 atlas = ExtResource("1_20jq5")
-region = Rect2(384, 0, 128, 128)
+region = Rect2(256, 0, 128, 128)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_50x45"]
 atlas = ExtResource("1_20jq5")
-region = Rect2(512, 0, 128, 128)
+region = Rect2(384, 0, 128, 128)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_2rx2w"]
 atlas = ExtResource("1_20jq5")
-region = Rect2(640, 0, 128, 128)
+region = Rect2(512, 0, 128, 128)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_a7d7g"]
 atlas = ExtResource("1_20jq5")
-region = Rect2(768, 0, 128, 128)
+region = Rect2(640, 0, 128, 128)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_8on0t"]
+atlas = ExtResource("1_20jq5")
+region = Rect2(768, 0, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_yenih"]
 atlas = ExtResource("1_20jq5")
 region = Rect2(896, 0, 128, 128)
 
 [sub_resource type="SpriteFrames" id="SpriteFrames_j3ll6"]
 animations = [{
 "frames": [{
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_20jq5")
-}, {
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_cvcst")
 }, {
@@ -61,6 +58,9 @@ animations = [{
 }, {
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_8on0t")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_yenih")
 }],
 "loop": true,
 "name": &"idle",
@@ -69,7 +69,9 @@ animations = [{
 
 [resource]
 script = ExtResource("1_j3ll6")
+boss_id = "salaryman"
 boss_name = "Salaryman"
-attack_pattern = Array[int]([8, 10, 6, 15])
+max_hp = 30
+attack_pattern = Array[int]([3, 3, 4, 4, 6, 6, 10])
 animations = SubResource("SpriteFrames_j3ll6")
 metadata/_custom_type_script = "uid://c48xf5y2x8myd"

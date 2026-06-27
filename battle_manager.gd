@@ -5,7 +5,7 @@ signal player_turn
 
 const STAMP_OFFSETS := [Vector2(-64, -60), Vector2(-64, 10), Vector2(-64, -60)]
 
-enum GameState {PLAYER_TURN, SPINNING, RESOLVING, ENEMY_TURN, UPGRADE, GAME_OVER}
+enum GameState {PLAYER_TURN, SPINNING, RESOLVING, ENEMY_TURN, UPGRADE, GAME_OVER, VICTORY}
 var current_state: GameState = GameState.PLAYER_TURN
 
 @export var button_down_sfx: AudioStream
@@ -15,7 +15,13 @@ var current_state: GameState = GameState.PLAYER_TURN
 @export var hit: AudioStream
 @export var shield_impact: AudioStream
 @export var shield_break: AudioStream
+@export var win_fight: AudioStream
+@export var game_over: AudioStream
+@export var victory: AudioStream
+@export var victory_music: AudioStream
 @export var boss_roster: Array[BossData] = []
+
+@export var boss_music: AudioStream
 
 var current_boss_index: int = 0
 var current_boss: BossData
@@ -34,6 +40,8 @@ var _upgrade_display_rest_x: float
 var _enemy_display_rest_y: float
 var _slot_machine_rest_y: float
 
+var _has_learned_hold: bool = false
+
 @onready var enemy_display: EnemyDisplay = $EnemyArea
 @onready var player_display: PlayerDisplay = $PlayerArea
 @onready var combat_ui: Control = $CombatUI  # the whole button panel
@@ -48,16 +56,39 @@ var _slot_machine_rest_y: float
 @onready var lock_in_button_label: Label = $CombatUI/LockInButton/LockInButtonLabel
 @onready var combo_label: RichTextLabel = $ComboLabel 
 @onready var pool_roster: Control = %PoolRoster
+@onready var camera: Camera2D = %Camera2D
+@onready var hold_tutorial: RichTextLabel = $HoldTutorialLabel
+
+@onready var game_over_screen: TextureRect = $GameOverScreen
+@onready var btn_restart: Button = %Restart
+@onready var btn_easy: Button = %RestartEasy
+
+@onready var victory_screen: TextureRect = $VictoryScreen
+@onready var btn_victory_restart: Button = %VictoryRestart
 
 var custom_font = load("uid://csmid407kor44")
 
 func _ready() -> void:
+	player_max_hp += GlobalSettings.easy_mode_hp_buff
+	player_hp = player_max_hp
+
+	game_over_screen.visible = false
+	victory_screen.visible = false
+	
+	_play_scene_reveal()
+	
 	if boss_roster.size() > 0:
 		current_boss = boss_roster[0]
 		boss_hp = current_boss.max_hp
 	enemy_display.setup(current_boss)
+	enemy_display.show_name_immediate()
+	
 	player_display.setup(player_hp)
-
+	
+	btn_restart.pressed.connect(_on_restart_pressed)
+	btn_easy.pressed.connect(_on_easy_pressed)
+	btn_victory_restart.pressed.connect(_on_restart_pressed)
+	
 	action_button.pressed.connect(_on_action_button_pressed)
 	action_button.button_down.connect(_on_action_button_down)
 	action_button.button_up.connect(_on_action_button_up)
@@ -68,6 +99,7 @@ func _ready() -> void:
 	
 	slot_machine.spin_finished.connect(_on_spin_finished)
 	slot_machine.spin_start.connect(_on_spin_start)
+	slot_machine.player_learned_hold.connect(_on_player_learned_hold)
 	
 	upgrade_display.upgrade_chosen.connect(_on_upgrade_chosen)
 	upgrade_display.visible = false
@@ -100,30 +132,42 @@ func start_player_turn() -> void:
 	_set_buttons_spinning()
 	current_state = GameState.SPINNING
 	await get_tree().create_timer(0.5).timeout
-	slot_machine.trigger_spin()
+	slot_machine.trigger_spin(player_hp)
 
 func _on_spin_finished(results: Array[SymbolData]) -> void:
-	slot_machine.interactible = true  # Player can now click reels
-
 	# Update combo preview
 	var combo = ComboDictionary.calculate(results)
 	_update_combo_label(results, combo)
 
 	if rerolls_left > 0:
 		current_state = GameState.PLAYER_TURN
+		slot_machine.interactible = true  # Player can click reels
 		action_button.disabled = false
 		action_button_label.text = "REROLL (" + str(rerolls_left) + ")"
-		action_button_label.position.y -= 2
+		action_button_label.position.y -= 1
 		lock_in_button.disabled = false
-		lock_in_button_label.position.y -= 2
+		lock_in_button_label.position.y -= 1
+		
+		if not _has_learned_hold:
+			hold_tutorial.modulate.a = 0.0
+			hold_tutorial.visible = true
+			create_tween().tween_property(hold_tutorial, "modulate:a", 1.0, 0.4)
 	else:
-		# No rerolls left, auto-resolve after brief pause so player sees result
+		# Auto-resolve
+		slot_machine.interactible = false # Lock reels so they can't click during wait
 		await get_tree().create_timer(1.25).timeout
-		resolve_player_attack()
+		
+		# Only resolve if the player hasn't somehow already resolved it
+		if current_state != GameState.RESOLVING and current_state != GameState.UPGRADE:
+			resolve_player_attack()
 
 
 func resolve_player_attack() -> void:
+	# --- Race condition lock ---
+	if current_state == GameState.RESOLVING or current_state == GameState.UPGRADE or current_state == GameState.GAME_OVER:
+		return 
 	current_state = GameState.RESOLVING
+	# ----------------------------
 	slot_machine.interactible = false
 	_hide_combat_ui()  # Hide buttons during resolution
 
@@ -166,9 +210,14 @@ func resolve_player_attack() -> void:
 	# Beat 4: Boss mumbles defeated corporate speak
 	enemy_display.show_reaction(combo_result["impact"])
 	if boss_hp <= 0:
-		current_state = GameState.UPGRADE
-		await _transition_to_upgrade()
-		start_upgrade_phase()
+		# Check if this is the final boss in the array
+		if current_boss_index >= boss_roster.size() - 1:
+			current_state = GameState.VICTORY
+			await _transition_to_victory()
+		else:
+			current_state = GameState.UPGRADE
+			await _transition_to_upgrade()
+			start_upgrade_phase()
 		return
 
 	await get_tree().create_timer(1.0).timeout
@@ -214,8 +263,11 @@ func start_enemy_turn() -> void:
 		await player_display.play_hit()
 
 	if player_hp <= 0:
-		print("GAME OVER")
 		current_state = GameState.GAME_OVER
+		game_over_screen.modulate.a = 0.0
+		game_over_screen.visible = true
+		create_tween().tween_property(game_over_screen, "modulate:a", 1.0, 1.5)
+		SFXManager.play(game_over, 0.0, 0.0, -15.0, 1.0, 0.0)
 		return
 
 	await get_tree().create_timer(0.5).timeout
@@ -237,6 +289,8 @@ func _update_combo_label(results: Array[SymbolData], combo: Dictionary) -> void:
 	var new_text := ""
 
 	if combo["is_combo"]:
+		SFXManager.play(preload("uid://b4nmr0ovmbky3"), 0.0, 0.05, -5.0, 1.0)
+		camera.screen_shake(6, 0.1)
 		new_text = "[wave color=#ffffff amp=2 freq=10.0][b][color=#ffe135]★ " + combo["name"].to_upper() + " ★[/color][/b][/wave]   "
 
 	var parts: Array[String] = []
@@ -357,8 +411,8 @@ func _spawn_word_stamp(word: String, pos: Vector2) -> void:
 	t.tween_callback(rtl.queue_free)
 
 func show_combo_announcement(combo_name: String) -> void:
-	# SFXManager.play(preload("res://assets/sfx/heavy_slam.ogg"), 0.1, 0.0, 5.0)
-
+	SFXManager.play(preload("uid://b4nmr0ovmbky3"), 0.0, 0.05, -2.0, 1.0)
+	camera.screen_shake(6, 0.1)
 	# Main Text
 	var rtl := RichTextLabel.new()
 	rtl.bbcode_enabled = true
@@ -527,8 +581,12 @@ func _transition_to_upgrade() -> void:
 	# "Call ended" on the nameplate first, brief pause for drama
 	enemy_display.play_disconnected()
 	await get_tree().create_timer(0.8).timeout
+	
+	SFXManager.play(win_fight, 0.0, 0.0, -10.0 , 1.0, 0.0)
+
 	_hide_combat_ui()
 	combo_label.text = ""
+	
 
 	# Slide enemy UP and slot machine DOWN simultaneously
 	var t := create_tween()
@@ -567,6 +625,14 @@ func _on_upgrade_chosen(type: String, data: Variant) -> void:
 			slot_machine.logic.shared_pool.erase(data as SymbolData)
 		"reroll":
 			base_rerolls_left += 1
+		"upgrade_normal":
+			var sym := data as SymbolData
+			sym.base_value += 2  # Modifies the resource directly, persists for the run
+			ComboDictionary.dictionary_updated.emit() 
+		"upgrade_multiplier":
+			var sym := data as SymbolData
+			sym.base_value += 1
+			ComboDictionary.dictionary_updated.emit()
 	
 	pool_roster.refresh(slot_machine.logic.shared_pool)
 	
@@ -574,6 +640,7 @@ func _on_upgrade_chosen(type: String, data: Variant) -> void:
 	_advance_to_next_boss()
 
 func _advance_to_next_boss() -> void:
+	
 	current_boss_index += 1
 	if current_boss_index >= boss_roster.size():
 		combo_label.text = "[center][wave]YOU ARE THE CEO NOW.[/wave][/center]"
@@ -590,6 +657,9 @@ func _advance_to_next_boss() -> void:
 
 	# Load new boss data
 	current_boss = boss_roster[current_boss_index]
+	if current_boss.boss_id == "ceo":
+		print("Ceo")
+		SFXManager.play_music(boss_music, -15.0)
 	boss_hp = current_boss.max_hp
 	turn_number = 0
 	enemy_display.setup(current_boss)
@@ -613,7 +683,66 @@ func _advance_to_next_boss() -> void:
 	start_player_turn()
 
 
+func _play_scene_reveal() -> void:
+	var overlay := ColorRect.new()
+	overlay.set_anchors_preset(Control.PRESET_FULL_RECT)
+	overlay.color = Color(0.05, 0.08, 0.15)
+	overlay.z_index = 200
+	overlay.mouse_filter = Control.MOUSE_FILTER_IGNORE
 
+	var mat := ShaderMaterial.new()
+	mat.shader = preload("res://transition.gdshader")
+	mat.set_shader_parameter("transition_type", 3)
+	mat.set_shader_parameter("sectors", 1)
+	mat.set_shader_parameter("position", Vector2(0.5, 0.5))
+	mat.set_shader_parameter("invert", false)
+	mat.set_shader_parameter("clock_feather", 0.5)
+	mat.set_shader_parameter("use_sprite_alpha", false)
+	mat.set_shader_parameter("use_transition_texture", false)
+	mat.set_shader_parameter("progress", 1.0)  # start fully covering
+	overlay.material = mat
+	add_child(overlay)
+
+	# Wipe away to reveal the combat scene
+	var t := create_tween().set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+	t.tween_method(
+		func(v: float): mat.set_shader_parameter("progress", v),
+		1.0, 0.0, 0.55
+	)
+	t.tween_callback(overlay.queue_free)
+
+
+func _transition_to_victory() -> void:
+	# "Call ended" on the CEO
+	enemy_display.play_disconnected()
+	
+	await get_tree().create_timer(1.2).timeout
+	SFXManager.stop_music()
+	SFXManager.play_music(victory_music, -15.0)
+	SFXManager.play(victory, 0.0, 0.0, -10.0, 0.0, 0.0)
+	_hide_combat_ui()
+	combo_label.text = ""
+
+	# Slide everything off screen cleanly
+	var t := create_tween()
+	t.tween_property(enemy_display, "position:y", enemy_display.position.y - 420, 0.4).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_IN)
+	t.parallel().tween_property(slot_machine, "position:y", slot_machine.position.y + 320, 0.4).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_IN)
+	t.parallel().tween_property(player_display, "position:x", player_display.position.x - 300, 0.4).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_IN)
+	t.parallel().tween_property(pool_roster, "modulate:a", 0.0, 0.3)
+	await t.finished
+
+	# Slowly fade in the Victory Screen
+	victory_screen.modulate.a = 0.0
+	victory_screen.visible = true
+	
+	var vic_tween = create_tween()
+	vic_tween.tween_property(victory_screen, "modulate:a", 1.0, 1.5)
+	
+	# Optional: Make the player portrait pulse with success
+	var portrait = %VictoryPortrait
+	portrait.play("idle")
+
+	
 # --- Signal receivers -----------------------------------
 func _on_spin_start() -> void:
 	if combo_label:
@@ -624,7 +753,7 @@ func _on_action_button_pressed() -> void:
 	rerolls_left -= 1
 	_set_buttons_spinning()
 	current_state = GameState.SPINNING
-	slot_machine.trigger_spin()
+	slot_machine.trigger_spin(player_hp)
 
 func _on_lock_in_button_pressed() -> void:
 	if current_state != GameState.PLAYER_TURN: return
@@ -645,3 +774,18 @@ func _on_lock_in_button_down() -> void:
 func _on_lock_in_button_up() -> void:
 	lock_in_button_label.position.y -= 2
 	SFXManager.play(button_up_sfx, 0.1, 0.05, -15.0, 1.0)
+
+func _on_player_learned_hold() -> void:
+	if not _has_learned_hold:
+		_has_learned_hold = true
+		
+		var t := create_tween()
+		t.tween_property(hold_tutorial, "modulate:a", 0.0, 0.3)
+		t.tween_callback(func(): hold_tutorial.visible = false)
+
+func _on_restart_pressed() -> void:
+	get_tree().reload_current_scene()
+
+func _on_easy_pressed() -> void:
+	GlobalSettings.easy_mode_hp_buff += 25
+	get_tree().reload_current_scene()

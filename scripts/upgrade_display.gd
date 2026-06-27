@@ -1,4 +1,3 @@
-# upgrade_display.gd
 extends Control
 
 signal upgrade_chosen(type: String, data: Variant)
@@ -27,41 +26,62 @@ func show_upgrades(pool: Array[SymbolData], current_rerolls: int) -> void:
 func _generate_options(pool: Array[SymbolData], rerolls: int) -> Array[Dictionary]:
 	var opts: Array[Dictionary] = []
 
-	# Option 1: Add a random symbol not already dominant in pool
-	var all := ComboDictionary.all_symbols.duplicate()
-	all.shuffle()
-	# Pick one that isn't already 3+ copies in pool
-	for sym in all:
-		var count = pool.filter(func(s): return s.id == sym.id).size()
-		if count < 3:
-			opts.append({ "type": "add", "data": sym,
-				"title": "HIRE CONSULTANT",
-				"desc": "Add [" + sym.symbol_name.to_upper() + "] to your roster" })
-			break
+	 # which unlockable symbols haven't entered the pool yet, hardcoded for now since i don't have many
+	var unlockable_ids := ["disruptor", "ai", "leverage", "annual_bonus"]
+	var pool_ids := pool.map(func(s): return s.id)
+	var available_unlocks: Array[SymbolData] = []
+	for sym in ComboDictionary.all_symbols:
+		if sym.id in unlockable_ids and sym.id not in pool_ids:
+			available_unlocks.append(sym)
+	available_unlocks.shuffle()
+	
+	# Option 1: Add a new unlockable symbol (if any remain)
+	if available_unlocks.size() > 0:
+		var sym := available_unlocks[0]
+		opts.append({
+			"type": "add", "data": sym,
+			"title": "BRING IN A CONSULTANT",
+			"desc": "Add [" + sym.symbol_name.to_upper() + "] to your roster"
+		})
+	else:
+		# Fallback: add a duplicate of a random existing symbol
+		var sym: SymbolData = pool.pick_random()
+		opts.append({
+			"type": "add", "data": sym,
+			"title": "EXPAND THE TEAM",
+			"desc": "Add another [" + sym.symbol_name.to_upper() + "] — increases its roll chance"
+		})
 
-	# Option 2: Remove a symbol (only if pool has more than 3)
-	if pool.size() > 3:
-		var to_remove: SymbolData = pool.pick_random()
-		opts.append({ "type": "remove", "data": to_remove,
+	# Option 2: Upgrade a symbol's base_value
+	if pool.size() > 0:
+		var sym: SymbolData = pool.pick_random()
+		if sym.effect_type != SymbolData.EffectType.MULTIPLIER:
+			opts.append({
+				"type": "upgrade_normal", "data": sym,
+				"title": "AREA OF IMPROVEMENT",
+				"desc": "Upgrade [" + sym.symbol_name.to_upper() + "] — increases its value by 4"
+			})
+		else:
+			opts.append({
+				"type": "upgrade_multiplier", "data": sym,
+				"title": "CAREER COACHING",
+				"desc": "Upgrade [" + sym.symbol_name.to_upper() + "] — increases its value by 2"
+			})
+
+	# Option 3: Option C: Extra reroll OR remove a symbol
+	if pool.size() > 5 and rerolls >= 3:
+		var weakest: SymbolData = pool.pick_random()
+		opts.append({
+			"type": "remove", "data": weakest,
 			"title": "RESTRUCTURE",
-			"desc": "Remove [" + to_remove.symbol_name.to_upper() + "] from your roster" })
+			"desc": "Remove [" + weakest.symbol_name.to_upper() + "] from your roster"
+		})
 	else:
-		# Fallback if pool is tiny
-		opts.append({ "type": "reroll", "data": null,
-			"title": "SCHEDULE ALIGNMENT",
-			"desc": "Gain +1 REROLL per turn" })
-
-	# Option 3: Extra reroll (unless they already have a lot)
-	if rerolls < 4:
-		opts.append({ "type": "reroll", "data": null,
+		opts.append({
+			"type": "reroll", "data": null,
 			"title": "EXTEND THE MEETING",
-			"desc": "Gain +1 REROLL per turn (currently " + str(rerolls) + ")" })
-	else:
-		# Fallback
-		var sym2 = ComboDictionary.all_symbols.pick_random()
-		opts.append({ "type": "add", "data": sym2,
-			"title": "OUTSOURCE",
-			"desc": "Add [" + sym2.symbol_name.to_upper() + "] to your roster" })
+			"desc": "Gain +1 REROLL per turn (currently " + str(rerolls) + ")"
+		})
 
 	return opts
 

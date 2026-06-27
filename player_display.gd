@@ -5,32 +5,72 @@ extends Control
 @onready var hp_bar: TextureProgressBar = $PlayerHPBar
 @onready var shield_badge: TextureRect = $ShieldBadge
 @onready var shield_label: RichTextLabel = $ShieldBadge/ShieldAmount
+@onready var player_hp_label: RichTextLabel = $PlayerHPLabel
 
 var current_shield: int = 0
+var _max_hp: int = 50
+var camera: Camera2D
 
 func setup(max_hp: int) -> void:
 	hp_bar.max_value = max_hp
 	hp_bar.value = max_hp
+	_max_hp = max_hp
 	shield_badge.visible = false
 	player_portrait.play("idle")
+	_set_hp_text(max_hp)
+	
+	camera = get_tree().get_first_node_in_group("camera")
+
+func _set_hp_text(current_val: int) -> void:
+	player_hp_label.text = "[center][b]" + str(current_val) + "[/b] [color=#8899a6]/ " + str(_max_hp) + "[/color][/center]"
 
 func update_hp(new_hp: int) -> void:
+	var current_hp_int := int(hp_bar.value)
+	
+	if new_hp == current_hp_int:
+		return # HP didn't change, no need to flash!
+		
+	var is_heal := new_hp > current_hp_int
+	var flash_color := Color(0.4, 1.5, 0.4) if is_heal else Color(1.5, 0.4, 0.4)
+	
+	# Center the pivot so the scale animation expands from the middle!
+	player_hp_label.pivot_offset = player_hp_label.size / 2.0
+	
+	# 1. Smoothly fill/drain the bar
 	create_tween().tween_property(hp_bar, "value", new_hp, 0.3).set_trans(Tween.TRANS_SINE)
+	
+	# 2. Smoothly "roll" the numbers
+	var num_tween := create_tween()
+	num_tween.tween_method(_set_hp_text, current_hp_int, new_hp, 0.3).set_trans(Tween.TRANS_SINE)
+	
+	# 3. Add the juicy Impact/Heal "Pop"
+	var pop_tween := create_tween()
+	pop_tween.tween_property(player_hp_label, "modulate", flash_color, 0.05)
+	pop_tween.parallel().tween_property(player_hp_label, "scale", Vector2(1.4, 1.4), 0.05).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	
+	# Settle back to white and normal scale
+	pop_tween.chain().tween_property(player_hp_label, "modulate", Color.WHITE, 0.2)
+	pop_tween.parallel().tween_property(player_hp_label, "scale", Vector2(1.0, 1.0), 0.25).set_trans(Tween.TRANS_BOUNCE).set_ease(Tween.EASE_OUT)
 
 func set_shield(amount: int) -> void:
 	current_shield = amount
 	if amount > 0:
 		var t := shield_badge.create_tween()
 		shield_badge.set_meta("active_tween", t)
+		shield_badge.pivot_offset = shield_badge.size / 2.0
 		
-		# The Pop-In
-		t.tween_property(shield_badge, "scale", Vector2(1.08, 1.08), 0.10).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
-		t.chain().tween_property(shield_badge, "scale", Vector2(1.0, 1.0), 0.08)
+		if not shield_badge.visible:
+			shield_badge.scale = Vector2.ZERO
+			shield_badge.visible = true
+			
+		# Make gaining shields feel a bit punchier
+		t.tween_property(shield_badge, "scale", Vector2(1.3, 1.3), 0.10).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+		t.chain().tween_property(shield_badge, "scale", Vector2(1.0, 1.0), 0.15).set_trans(Tween.TRANS_BOUNCE)
 		t.parallel().tween_property(shield_badge, "rotation", 0.0, 0.1)
-		shield_badge.visible = true
 		shield_label.text = str(amount)
 	else:
 		shield_badge.visible = false
+
 
 func clear_shield() -> void:
 	set_shield(0)
@@ -43,6 +83,7 @@ func absorb_damage(incoming: int) -> int:
 	return hp_damage
 
 func play_hit() -> void:
+	camera.screen_shake(6, 0.1)
 	var origin := player_portrait.position
 	var t := create_tween()
 	t.tween_property(player_portrait, "modulate", Color(1.5, 0.3, 0.3), 0.04)
@@ -54,13 +95,32 @@ func play_hit() -> void:
 
 # When a hit is fully blocked
 func play_blocked() -> void:
+	# Make sure it scales from the center!
+	shield_badge.pivot_offset = shield_badge.size / 2.0
+	player_hp_label.pivot_offset = player_hp_label.size / 2.0
+	
 	var t := create_tween()
-	t.tween_property(shield_badge, "scale", Vector2(1.3, 1.3), 0.06).set_trans(Tween.TRANS_SINE)
-	t.chain().tween_property(shield_badge, "scale", Vector2(1.0, 1.0), 0.12).set_trans(Tween.TRANS_BOUNCE)
-	# Brief blue flash on the HP bar area
-	t.parallel().tween_property(hp_bar, "modulate", Color(0.4, 0.8, 1.5), 0.06)
-	t.chain().tween_property(hp_bar, "modulate", Color.WHITE, 0.2)
+	
+	# 1. Shield Badge pulses HUGE and glows super bright white/blue
+	t.tween_property(shield_badge, "scale", Vector2(1.5, 1.5), 0.06).set_trans(Tween.TRANS_SINE)
+	t.parallel().tween_property(shield_badge, "modulate", Color(1.5, 2.0, 2.5), 0.06)
+	
+	# 2. Flash the HP Label Cyan so the eye catches the block
+	t.parallel().tween_property(player_hp_label, "modulate", Color(0.5, 1.5, 2.5), 0.05)
+	t.parallel().tween_property(player_hp_label, "scale", Vector2(1.15, 1.15), 0.05)
+	
+	# 3. Bar flashes blue (using higher HDR values to make it pop)
+	t.parallel().tween_property(hp_bar, "modulate", Color(1.2, 1.8, 2.5), 0.05)
+	
+	# Settle everything back to normal
+	t.chain().tween_property(shield_badge, "scale", Vector2(1.0, 1.0), 0.15).set_trans(Tween.TRANS_BOUNCE)
+	t.parallel().tween_property(shield_badge, "modulate", Color.WHITE, 0.15)
+	t.parallel().tween_property(player_hp_label, "modulate", Color.WHITE, 0.2)
+	t.parallel().tween_property(player_hp_label, "scale", Vector2(1.0, 1.0), 0.2)
+	t.parallel().tween_property(hp_bar, "modulate", Color.WHITE, 0.2)
+	
 	await t.finished
+
 
 
 func play_shield_break(absorbed_amount: int, exact: bool) -> void:

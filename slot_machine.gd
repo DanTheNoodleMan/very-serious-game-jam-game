@@ -4,6 +4,7 @@ extends Control
 
 signal spin_finished(results: Array[SymbolData])
 signal spin_start
+signal player_learned_hold
 
 @onready var logic: SlotMachineLogic = $SlotMachineLogic
 @onready var reels_box: HBoxContainer = $MarginContainer/Reels
@@ -52,7 +53,7 @@ func _build_reels() -> void:
 		info_labels[i].pivot_offset = info_labels[i].size * 0.5
 
 # Called by BattleManager to start the process
-func trigger_spin() -> void:
+func trigger_spin(player_hp: int = 100) -> void:
 	if is_spinning: return
 	spin_start.emit()
 	is_spinning = true
@@ -62,9 +63,8 @@ func trigger_spin() -> void:
 		label.text = ""
 	SFXManager.play(spin_sound, 0.0, 0.0, -10.0, 0.0, 0.0) 
 
-	logic.trigger_spin() # Tells logic to pick 3 symbols
+	logic.trigger_spin(player_hp) # Tells logic to pick 3 symbols
 	
-
 
 func get_reel_global_centers() -> Array[Vector2]:
 	var positions: Array[Vector2] = []
@@ -134,9 +134,8 @@ func _update_contextual_labels() -> void:
 
 
 func _on_reel_clicked(index: int) -> void:
-	print("clicked : ", index)
 	if not interactible or is_spinning: return
-	print("reel inde: ", index)
+	player_learned_hold.emit()
 	var is_now_held = logic.toggle_hold(index)
 	_reels[index].set_held(is_now_held, true)
 	
@@ -152,6 +151,7 @@ func _input(event: InputEvent) -> void:
 	
 	if pressed != -1:
 		# Toggle in logic, get the result, and apply to visual reel
+		player_learned_hold.emit()
 		var is_now_held = logic.toggle_hold(pressed)
 		_reels[pressed].set_held(is_now_held, true)
 
