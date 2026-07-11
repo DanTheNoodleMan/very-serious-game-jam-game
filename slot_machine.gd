@@ -95,14 +95,15 @@ func _on_reel_stopped(index: int) -> void:
 		label.scale = Vector2(0.5, 0.5)
 		label.modulate.a = 0.0
 		
+		var base_pitch := 0.9 + 0.1 * (_stopped_count - 1)
+		base_pitch += randf_range(-0.03, 0.03)
+		SFXManager.play(reel_thump, 0.0, 0.05, -2.0, base_pitch)
 		var t := create_tween()
 		t.tween_property(label, "scale", Vector2(1.2, 1.2), 0.08).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 		t.parallel().tween_property(label, "modulate:a", 1.0, 0.08)
 		t.chain().tween_property(label, "scale", Vector2(1.0, 1.0), 0.06).set_trans(Tween.TRANS_SINE)
 		
-		var base_pitch := 0.9 + 0.1 * (_stopped_count - 1)
-		base_pitch += randf_range(-0.03, 0.03)
-		SFXManager.play(reel_thump, 0.0, 0.05, -2.0, base_pitch)
+		
 
 	# If this was the last reel, trigger the Synergy Phase!
 	if _stopped_count == 3:

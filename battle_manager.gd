@@ -19,6 +19,7 @@ var current_state: GameState = GameState.PLAYER_TURN
 @export var game_over: AudioStream
 @export var victory: AudioStream
 @export var victory_music: AudioStream
+@export var background_music: AudioStream
 @export var boss_roster: Array[BossData] = []
 
 @export var boss_music: AudioStream
@@ -69,6 +70,7 @@ var _has_learned_hold: bool = false
 var custom_font = load("uid://csmid407kor44")
 
 func _ready() -> void:
+	SFXManager.play_music(background_music, -20.0) # play music handles an already playing same track
 	player_max_hp += GlobalSettings.easy_mode_hp_buff
 	player_hp = player_max_hp
 
@@ -113,8 +115,13 @@ func _ready() -> void:
 	combat_ui.visible = false  # Start hidden, first show comes from start_player_turn
 	upgrade_display.visible = false
 	
-	pool_roster.refresh(slot_machine.logic.shared_pool)
+	# IMPORTANT FIX: Clone the symbol pool so upgrades don't persist after restart
+	var cloned_pool: Array[SymbolData] = []
+	for sym in slot_machine.logic.shared_pool:
+		cloned_pool.append(sym.duplicate(true))
+	slot_machine.logic.shared_pool = cloned_pool
 	
+	pool_roster.refresh(slot_machine.logic.shared_pool)
 	start_player_turn()
 
 func start_player_turn() -> void:
@@ -291,7 +298,7 @@ func _update_combo_label(results: Array[SymbolData], combo: Dictionary) -> void:
 	if combo["is_combo"]:
 		SFXManager.play(preload("uid://b4nmr0ovmbky3"), 0.0, 0.05, -5.0, 1.0)
 		camera.screen_shake(6, 0.1)
-		new_text = "[wave color=#ffffff amp=2 freq=10.0][b][color=#ffe135]★ " + combo["name"].to_upper() + " ★[/color][/b][/wave]   "
+		new_text = "[wave color=#ffffff amp=2 freq=10.0][b][color=#ffe135]* " + combo["name"].to_upper() + " *[/color][/b][/wave]   "
 
 	var parts: Array[String] = []
 
@@ -420,8 +427,9 @@ func show_combo_announcement(combo_name: String) -> void:
 	rtl.autowrap_mode = TextServer.AUTOWRAP_OFF
 	rtl.scroll_active = false
 	rtl.visible = false # Prevent top-left flash
+	rtl.clip_contents = false
 
-	rtl.text = "[center][wave amp=20 freq=5][b][color=#ffe135]★ " + combo_name.to_upper() + " ★[/color][/b][/wave][/center]"
+	rtl.text = "[center][wave amp=20 freq=5][b][color=#ffe135]* " + combo_name.to_upper() + " *[/color][/b][/wave][/center]"
 	rtl.add_theme_font_override("normal_font", custom_font)
 	rtl.add_theme_font_override("bold_font", custom_font)
 	rtl.add_theme_font_size_override("normal_font_size", 26)
@@ -550,7 +558,7 @@ func _show_combat_ui() -> void:
 	combat_ui.position.x = _combat_ui_rest_x + combat_ui.size.x + 16.0
 	combat_ui.visible = true
 	
-	var overshoot := 6.0  # <-- tune this, was implicitly ~20-30px with TRANS_BACK
+	var overshoot := 6.0
 	
 	SFXManager.play(slide, 0.0, 0.0, -10.0, 0.75, 0.0) 
 
@@ -627,11 +635,11 @@ func _on_upgrade_chosen(type: String, data: Variant) -> void:
 			base_rerolls_left += 1
 		"upgrade_normal":
 			var sym := data as SymbolData
-			sym.base_value += 2  # Modifies the resource directly, persists for the run
+			sym.base_value += 4  # Modifies the resource directly, persists for the run
 			ComboDictionary.dictionary_updated.emit() 
 		"upgrade_multiplier":
 			var sym := data as SymbolData
-			sym.base_value += 1
+			sym.base_value += 2
 			ComboDictionary.dictionary_updated.emit()
 	
 	pool_roster.refresh(slot_machine.logic.shared_pool)
@@ -687,7 +695,7 @@ func _play_scene_reveal() -> void:
 	var overlay := ColorRect.new()
 	overlay.set_anchors_preset(Control.PRESET_FULL_RECT)
 	overlay.color = Color(0.05, 0.08, 0.15)
-	overlay.z_index = 200
+	overlay.z_index = 2000
 	overlay.mouse_filter = Control.MOUSE_FILTER_IGNORE
 
 	var mat := ShaderMaterial.new()
@@ -695,13 +703,13 @@ func _play_scene_reveal() -> void:
 	mat.set_shader_parameter("transition_type", 3)
 	mat.set_shader_parameter("sectors", 1)
 	mat.set_shader_parameter("position", Vector2(0.5, 0.5))
-	mat.set_shader_parameter("invert", false)
-	mat.set_shader_parameter("clock_feather", 0.5)
-	mat.set_shader_parameter("use_sprite_alpha", false)
-	mat.set_shader_parameter("use_transition_texture", false)
 	mat.set_shader_parameter("progress", 1.0)  # start fully covering
+	
 	overlay.material = mat
 	add_child(overlay)
+	
+	# CRITICAL: Wait 1 frame so the black screen renders BEFORE the scene starts revealing
+	await get_tree().process_frame
 
 	# Wipe away to reveal the combat scene
 	var t := create_tween().set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
@@ -719,7 +727,6 @@ func _transition_to_victory() -> void:
 	await get_tree().create_timer(1.2).timeout
 	SFXManager.stop_music()
 	SFXManager.play_music(victory_music, -15.0)
-	SFXManager.play(victory, 0.0, 0.0, -10.0, 0.0, 0.0)
 	_hide_combat_ui()
 	combo_label.text = ""
 

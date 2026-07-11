@@ -31,6 +31,7 @@
 [ext_resource type="Texture2D" uid="uid://dqdq1268rbgwc" path="res://layout_6.png" id="11_tm7qj"]
 [ext_resource type="Resource" uid="uid://cprjdjskyhrmx" path="res://resources/enemies/finance_bro.tres" id="11_tmhp8"]
 [ext_resource type="AudioStream" uid="uid://c0yevdv3rcbxr" path="res://assets/sounds/win/victory_music.ogg" id="12_d3gqo"]
+[ext_resource type="AudioStream" uid="uid://mp0cg8n3wx1r" path="res://assets/sounds/PixelJazz_Loop.ogg" id="13_pmb0h"]
 [ext_resource type="AudioStream" uid="uid://bi7shxg68uknr" path="res://assets/sounds/background_music.ogg" id="15_d3gqo"]
 [ext_resource type="Texture2D" uid="uid://dvce760xiccd8" path="res://player_cam.png" id="15_o7yjl"]
 [ext_resource type="Texture2D" uid="uid://d0qe6lbuvx0cm" path="res://salaryman_idle_2.png" id="15_v24qm"]
@@ -43,6 +44,7 @@
 [ext_resource type="Texture2D" uid="uid://pgxqjkw8j6qs" path="res://button_disabled_2.png" id="20_aora4"]
 [ext_resource type="Texture2D" uid="uid://cw4sk3bjuf1hk" path="res://panel_6.png" id="21_60sab"]
 [ext_resource type="Texture2D" uid="uid://dkmk53d5mjic0" path="res://player_cam_4.png" id="22_aora4"]
+[ext_resource type="Texture2D" uid="uid://bhbcxs2joq34h" path="res://player_idle_hat.png" id="31_8o0a2"]
 [ext_resource type="Texture2D" uid="uid://ckrg3xokkc1d" path="res://agenda_panel.png" id="34_60sab"]
 [ext_resource type="Script" uid="uid://c7ug25uvefd4c" path="res://scripts/agenda_area.gd" id="34_gkwxr"]
 [ext_resource type="PackedScene" uid="uid://qvgtwnrcvw7m" path="res://combo_entry.tscn" id="35_kpklt"]
@@ -121,7 +123,8 @@ animations = [{
 script = ExtResource("9_2lpl0")
 boss_id = "salaryman"
 boss_name = "Salaryman"
-attack_pattern = Array[int]([4, 5, 4, 7, 4, 5, 15])
+max_hp = 60
+attack_pattern = Array[int]([6, 6, 7, 7, 5, 5, 15])
 animations = SubResource("SpriteFrames_j3ll6")
 metadata/_custom_type_script = "uid://c48xf5y2x8myd"
 
@@ -129,12 +132,132 @@ metadata/_custom_type_script = "uid://c48xf5y2x8myd"
 script = ExtResource("9_2lpl0")
 boss_id = "salaryman"
 boss_name = "Salaryman"
-max_hp = 70
-attack_pattern = Array[int]([5, 6, 5, 6, 10, 6, 5, 15])
+max_hp = 80
+attack_pattern = Array[int]([8, 9, 8, 6, 10, 8, 7, 15])
 animations = SubResource("SpriteFrames_j3ll6")
 metadata/_custom_type_script = "uid://c48xf5y2x8myd"
 
 [sub_resource type="SpriteFrames" id="SpriteFrames_7gog2"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_fjccv"]
+atlas = ExtResource("31_8o0a2")
+region = Rect2(0, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_lghsc"]
+atlas = ExtResource("31_8o0a2")
+region = Rect2(64, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_mc026"]
+atlas = ExtResource("31_8o0a2")
+region = Rect2(128, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_pp18p"]
+atlas = ExtResource("31_8o0a2")
+region = Rect2(192, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_3gejq"]
+atlas = ExtResource("31_8o0a2")
+region = Rect2(256, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_gky6v"]
+atlas = ExtResource("31_8o0a2")
+region = Rect2(320, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_qb6k5"]
+atlas = ExtResource("31_8o0a2")
+region = Rect2(384, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_k7bhb"]
+atlas = ExtResource("31_8o0a2")
+region = Rect2(448, 0, 64, 64)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_lthmb"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_fjccv")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_lghsc")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_mc026")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_pp18p")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_3gejq")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_gky6v")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_qb6k5")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_k7bhb")
+}],
+"loop": true,
+"name": &"idle",
+"speed": 3.33
+}]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_v24qm"]
+content_margin_left = 8.0
+content_margin_top = 6.0
+content_margin_right = 8.0
+content_margin_bottom = 6.0
+bg_color = Color(0.11764706, 0.34117648, 0.6117647, 1)
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0, 0, 0, 1)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_0j2h3"]
+content_margin_left = 8.0
+content_margin_top = 6.0
+content_margin_right = 8.0
+content_margin_bottom = 6.0
+bg_color = Color(0.1490127, 0.41315183, 0.7328993, 1)
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0, 0, 0, 1)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_rbecj"]
+content_margin_left = 4.0
+content_margin_top = 6.0
+content_margin_right = 4.0
+content_margin_bottom = 6.0
+bg_color = Color(0, 0.59607846, 0.85882354, 1)
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0, 0, 0, 1)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_wxrmo"]
+content_margin_left = 4.0
+content_margin_top = 6.0
+content_margin_right = 4.0
+content_margin_bottom = 6.0
+bg_color = Color(0, 0.6948393, 0.9974397, 1)
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0, 0, 0, 1)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_0j2h3"]
 atlas = ExtResource("38_rbecj")
@@ -200,62 +323,6 @@ animations = [{
 "speed": 3.33
 }]
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_v24qm"]
-content_margin_left = 8.0
-content_margin_top = 6.0
-content_margin_right = 8.0
-content_margin_bottom = 6.0
-bg_color = Color(0.11764706, 0.34117648, 0.6117647, 1)
-border_width_right = 2
-border_width_bottom = 2
-border_color = Color(0, 0, 0, 1)
-corner_radius_top_left = 4
-corner_radius_top_right = 4
-corner_radius_bottom_right = 4
-corner_radius_bottom_left = 4
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_0j2h3"]
-content_margin_left = 8.0
-content_margin_top = 6.0
-content_margin_right = 8.0
-content_margin_bottom = 6.0
-bg_color = Color(0.1490127, 0.41315183, 0.7328993, 1)
-border_width_right = 2
-border_width_bottom = 2
-border_color = Color(0, 0, 0, 1)
-corner_radius_top_left = 4
-corner_radius_top_right = 4
-corner_radius_bottom_right = 4
-corner_radius_bottom_left = 4
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_rbecj"]
-content_margin_left = 4.0
-content_margin_top = 6.0
-content_margin_right = 4.0
-content_margin_bottom = 6.0
-bg_color = Color(0, 0.59607846, 0.85882354, 1)
-border_width_right = 2
-border_width_bottom = 2
-border_color = Color(0, 0, 0, 1)
-corner_radius_top_left = 4
-corner_radius_top_right = 4
-corner_radius_bottom_right = 4
-corner_radius_bottom_left = 4
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_wxrmo"]
-content_margin_left = 4.0
-content_margin_top = 6.0
-content_margin_right = 4.0
-content_margin_bottom = 6.0
-bg_color = Color(0, 0.6948393, 0.9974397, 1)
-border_width_right = 2
-border_width_bottom = 2
-border_color = Color(0, 0, 0, 1)
-corner_radius_top_left = 4
-corner_radius_top_right = 4
-corner_radius_bottom_right = 4
-corner_radius_bottom_left = 4
-
 [node name="CombatScene" type="Control" unique_id=1819690931]
 layout_mode = 3
 anchors_preset = 15
@@ -275,7 +342,8 @@ win_fight = ExtResource("9_ol3h1")
 game_over = ExtResource("10_rbecj")
 victory = ExtResource("11_d3gqo")
 victory_music = ExtResource("12_d3gqo")
-boss_roster = Array[ExtResource("9_2lpl0")]([ExtResource("2_7gog2"), SubResource("Resource_rbecj"), SubResource("Resource_v24qm"), ExtResource("11_tmhp8"), ExtResource("10_ognr1"), ExtResource("10_5pitx"), ExtResource("10_nwi2s")])
+background_music = ExtResource("13_pmb0h")
+boss_roster = Array[ExtResource("9_2lpl0")]([ExtResource("2_7gog2"), ExtResource("10_nwi2s"), ExtResource("10_ognr1"), SubResource("Resource_rbecj"), SubResource("Resource_v24qm"), ExtResource("11_tmhp8"), ExtResource("10_5pitx")])
 boss_music = ExtResource("15_d3gqo")
 
 [node name="ColorRect" type="ColorRect" parent="." unique_id=1417675988]
@@ -301,7 +369,7 @@ grow_vertical = 2
 texture = ExtResource("11_tm7qj")
 
 [node name="HoldTutorialLabel" type="RichTextLabel" parent="." unique_id=1255642044]
-visible = false
+clip_contents = false
 layout_mode = 1
 anchors_preset = -1
 anchor_left = 0.46800002
@@ -309,20 +377,23 @@ anchor_top = 1.0
 anchor_right = 0.46800002
 anchor_bottom = 1.0
 offset_left = -106.52002
-offset_top = -15.0
+offset_top = -17.0
 offset_right = 106.47998
+offset_bottom = -2.0
 grow_horizontal = 2
 grow_vertical = 0
 theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
 theme_override_constants/outline_size = 6
 theme_override_fonts/normal_font = ExtResource("16_qmjfx")
 theme_override_fonts/bold_font = ExtResource("16_qmjfx")
-theme_override_font_sizes/normal_font_size = 10
-theme_override_font_sizes/bold_font_size = 12
+theme_override_font_sizes/normal_font_size = 9
+theme_override_font_sizes/bold_font_size = 9
 bbcode_enabled = true
-text = "[center][wave amp=2 freq=6.0][color=#ffd060]↑ Click reels (or press 1, 2, 3) to hold ↑[/color][/wave][/center]"
+text = "[center][wave amp=2 freq=6.0][color=#ffd060]^ Click reels (or press 1, 2, 3) to hold ^[/color][/wave][/center]"
 fit_content = true
 scroll_active = false
+horizontal_alignment = 1
+vertical_alignment = 1
 
 [node name="ComboLabel" type="RichTextLabel" parent="." unique_id=430376861]
 z_index = 50
@@ -715,7 +786,7 @@ patch_margin_bottom = 4
 [node name="PlayerPortrait" type="AnimatedSprite2D" parent="PlayerArea" unique_id=2052682189]
 position = Vector2(56, 51)
 scale = Vector2(1.5, 1.5)
-sprite_frames = SubResource("SpriteFrames_rbecj")
+sprite_frames = SubResource("SpriteFrames_lthmb")
 animation = &"idle"
 
 [node name="PlayerHPLabel" type="RichTextLabel" parent="PlayerArea" unique_id=810932695]
@@ -1039,6 +1110,7 @@ text = "LOWER STAKES
 (+25 HP)"
 
 [node name="VictoryScreen" type="TextureRect" parent="." unique_id=219894769]
+visible = false
 z_index = 100
 layout_mode = 1
 anchors_preset = 15

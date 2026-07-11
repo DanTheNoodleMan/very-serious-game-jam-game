@@ -72,6 +72,6 @@ script = ExtResource("1_nchak")
 boss_id = "senior_partner"
 boss_name = "Senior Partner"
 max_hp = 150
-attack_pattern = Array[int]([10, 11, 25, 6, 0, 30, 0, 0, 35])
+attack_pattern = Array[int]([10, 11, 25, 6, 0, 30, 0, 5, 35])
 animations = SubResource("SpriteFrames_u8m6e")
 metadata/_custom_type_script = "uid://c48xf5y2x8myd"

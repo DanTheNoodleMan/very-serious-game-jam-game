@@ -268,11 +268,11 @@ func show_reaction(damage: int) -> void:
 		t.tween_property(reaction_label, "scale", Vector2(1.12, 1.12), 0.11).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 		t.chain().tween_property(reaction_label, "scale", Vector2(1.0, 1.0), 0.07)
 		t.parallel().tween_property(reaction_label, "visible_characters", total, 0.22)
-		t.tween_interval(1.1)
+		t.tween_interval(2.5)
 	else:
 		reaction_label.scale = Vector2(1.0, 1.0)
 		t.tween_property(reaction_label, "visible_characters", total, 0.55)
-		t.tween_interval(1.3)
+		t.tween_interval(2.0)
 
 	t.chain().tween_property(reaction_label, "modulate:a", 0.0, 0.28)
 	t.tween_callback(func():

@@ -118,7 +118,7 @@ func _compute_raw_buckets(results: Array[SymbolData]) -> Array:
 func _compute_buffed_buckets(results: Array[SymbolData]) -> Array:
 	var buckets = _compute_raw_buckets(results) # Start with base values
 
-	# PASS 2a: Leverage flat bonus (Buffs ALL non-multiplier symbols!)
+	# Leverage adds to all non-multiplier buckets (AI boost handled in _compute_ai_powers)
 	for i in 3:
 		if results[i] != null and results[i].id == "leverage":
 			var lev_buff = results[i].base_value
@@ -128,23 +128,34 @@ func _compute_buffed_buckets(results: Array[SymbolData]) -> Array:
 						SymbolData.EffectType.DAMAGE: buckets[j]["impact"] += lev_buff
 						SymbolData.EffectType.SHIELD: buckets[j]["bandwidth"] += lev_buff
 						SymbolData.EffectType.HEAL:   buckets[j]["morale"] += lev_buff
-						SymbolData.EffectType.MULTIPLIER: pass
+						SymbolData.EffectType.MULTIPLIER: pass  # AI handled separately
 
-	# PASS 2b: AI multiplier (Doubles the buckets of the slot to the left)
+	# AI doubles its immediate left neighbor, if Leverage, it's wasted
 	var ai_power := _compute_ai_powers(results)
 	for i in range(1, 3):
 		if results[i] != null and results[i].id == "ai":
-			buckets[i-1]["impact"]    = int(buckets[i-1]["impact"]    * ai_power[i])
-			buckets[i-1]["bandwidth"] = int(buckets[i-1]["bandwidth"] * ai_power[i])
-			buckets[i-1]["morale"]    = int(buckets[i-1]["morale"]    * ai_power[i])
-
+			var left := results[i - 1]
+			if left != null and left.effect_type != SymbolData.EffectType.MULTIPLIER:
+				buckets[i-1]["impact"]    = int(buckets[i-1]["impact"]    * ai_power[i])
+				buckets[i-1]["bandwidth"] = int(buckets[i-1]["bandwidth"] * ai_power[i])
+				buckets[i-1]["morale"]    = int(buckets[i-1]["morale"]    * ai_power[i])
+	
 	return buckets
 
 func _compute_ai_powers(results: Array[SymbolData]) -> Array[float]:
 	var ai_power: Array[float] = [1.0, 1.0, 1.0]
+	# Base AI power
 	for i in 3:
 		if results[i] != null and results[i].id == "ai":
 			ai_power[i] = float(results[i].base_value)
+			
+	# Leverage anywhere boosts ALL AIs
+	for i in 3:
+		if results[i] != null and results[i].id == "leverage":
+			for j in 3:
+				if j != i and results[j] != null and results[j].id == "ai":
+					ai_power[j] += float(results[i].base_value)
+	# Chain AI×AI right-to-left (after leverage is applied)
 	for i in range(2, 0, -1):
 		if results[i] != null and results[i-1] != null:
 			if results[i].id == "ai" and results[i-1].id == "ai":
@@ -162,7 +173,8 @@ func describe_symbol(sym: SymbolData) -> String:
 			return "[b][color=#60ee80]+" + str(sym.base_value) + "[/color][/b][color=#40aa60] MORALE[/color]"
 		SymbolData.EffectType.MULTIPLIER:
 			match sym.id:
-				"ai":       return "[wave amp=6 freq=4][color=#ffd060][b]×" + str(sym.base_value) + " ←[/b][/color][/wave]"
+				"ai":       return "[wave amp=6 freq=4][color=#ffd060][b]×" + str(sym.base_value) \
+				+ " ← [/b][/color][color=#ff6060]I[/color][color=#60ccff]B[/color][color=#60ee80]M[/color][/wave]"
 				"leverage": return "[wave amp=6 freq=4][color=#ffd060][b]+" + str(sym.base_value) + " ALL[/b][/color][/wave]"
 				_:          return "[color=#ffd060]MOD[/color]"
 		_: return "[color=#888888]???[/color]"
@@ -190,15 +202,32 @@ func get_label_for_position(results: Array[SymbolData], index: int) -> String:
 func _describe_multiplier_in_context(results: Array[SymbolData], index: int) -> String:
 	match results[index].id:
 		"ai":
-			if index == 0: return "[color=#555566]×2 ← (miss)[/color]"
+			if index == 0:       
+				return "[color=#555566]×2 ← [color=#ff6060]I[/color][color=#60ccff]B[/color][color=#60ee80]M[/color] (miss)[/color]"
 			var ai_power := _compute_ai_powers(results)
-			return "[b][color=#ffd060]×" + str(int(ai_power[index])) + " ←[/color][/b]"
-		"leverage":
-			var targets := 0
+			var power := int(ai_power[index])
+			var left := results[index - 1]
+			var ibm := " [font_size=10][color=#ff6060]I[/color][color=#60ccff]B[/color][color=#60ee80]M[/color][/font_size]"
+			if left != null and left.effect_type == SymbolData.EffectType.MULTIPLIER:
+				if left.id == "ai":
+					return "[color=#555566]×" + str(power) + " ←" + ibm + " (spent on " + left.symbol_name.to_upper() + ")[/color]"
+				else:
+					return "[color=#555566]×" + str(power) + " ←" + ibm + " (wasted on " + left.symbol_name.to_upper() + ")[/color]"
+			var boosted_by_lev := false
 			for j in 3:
-				if j != index and results[j] != null and results[j].effect_type != SymbolData.EffectType.MULTIPLIER:
-					targets += 1
-			if targets == 0: return "[color=#555566]+" + str(results[index].base_value) + " (miss)[/color]"
-			return "[b][color=#ffd060]+" + str(results[index].base_value) + " ALL[/color][/b]"
+				if j != index and results[j] != null and results[j].id == "leverage":
+					boosted_by_lev = true
+			if boosted_by_lev and power != int(results[index].base_value):
+				return "[b][color=#ffd060]×" + str(power) + " ←" + ibm + "[/color][/b][color=#ffd060] (+LEV)[/color]"
+			return "[b][color=#ffd060]×" + str(power) + " ←" + ibm + "[/color][/b]"
+		"leverage":
+			var lev_buff := results[index].base_value
+			var has_any_target := false
+			for j in 3:
+				if j != index and results[j] != null:
+					has_any_target = true
+			if not has_any_target:
+				return "[color=#555566]+" + str(lev_buff) + " (miss)[/color]"
+			return "[b][color=#ffd060]+" + str(lev_buff) + " ALL[/color][/b]"
 		_:
 			return "[color=#ffd060]MOD[/color]"

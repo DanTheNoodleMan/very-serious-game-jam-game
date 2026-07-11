@@ -10,6 +10,12 @@
 [ext_resource type="Texture2D" uid="uid://d24rqu2tksbo" path="res://finance_bro_idle.png" id="4_qe12f"]
 [ext_resource type="Texture2D" uid="uid://ba6kkaruc13fd" path="res://chief_empathy_fficer.png" id="5_8qtwp"]
 [ext_resource type="Texture2D" uid="uid://ch47pw8fstcfu" path="res://senior_partner.png" id="6_dy7ct"]
+[ext_resource type="Texture2D" uid="uid://c0pbiwsc4rbwn" path="res://assets/symbols/ai_pixel.png" id="9_g8g3n"]
+[ext_resource type="Texture2D" uid="uid://dv8hbdlbjnit8" path="res://assets/symbols/disruptor_pixel.png" id="11_cm266"]
+[ext_resource type="Texture2D" uid="uid://1rpoimiw3u7w" path="res://assets/symbols/leverage_pixel.png" id="11_w44g7"]
+[ext_resource type="Texture2D" uid="uid://cxj5nc5wn5jfa" path="res://assets/symbols/roi_pixel.png" id="12_cm266"]
+[ext_resource type="Texture2D" uid="uid://5mp4u7vkttl2" path="res://assets/symbols/pizza_party_pixel.png" id="13_g8g3n"]
+[ext_resource type="Texture2D" uid="uid://cew4n0qt753la" path="res://assets/symbols/synergy_pixelt.png" id="14_8u0te"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_nlkkf"]
 shader = ExtResource("1_fu7sn")
@@ -431,9 +437,23 @@ expand_margin_bottom = 4.0
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_glbon"]
 
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_0k4wn"]
+bg_color = Color(0.22216114, 0.33678344, 0.5957115, 1)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_j5v2v"]
+bg_color = Color(0.3297466, 0.4608078, 0.7515844, 1)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_8qtwp"]
 shader = ExtResource("3_glbon")
-shader_parameter/use_sprite_alpha = true
+shader_parameter/use_sprite_alpha = false
 shader_parameter/use_transition_texture = false
 shader_parameter/transition_type = 0
 shader_parameter/position = Vector2(0, 0)
@@ -478,8 +498,66 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
+[node name="Icons" type="Control" parent="." unique_id=2059834631]
+anchors_preset = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="Leverage" type="TextureRect" parent="Icons" unique_id=2008905860]
+layout_mode = 0
+offset_left = 182.0
+offset_top = 93.99999
+offset_right = 246.0
+offset_bottom = 158.0
+rotation = -0.25834718
+texture = ExtResource("11_w44g7")
+
+[node name="Disruptor" type="TextureRect" parent="Icons" unique_id=1802693148]
+layout_mode = 0
+offset_left = 137.0
+offset_top = 139.00002
+offset_right = 201.0
+offset_bottom = 203.00002
+rotation = 0.3058486
+texture = ExtResource("11_cm266")
+
+[node name="Pizza" type="TextureRect" parent="Icons" unique_id=171935021]
+layout_mode = 0
+offset_left = 194.0
+offset_top = 200.00002
+offset_right = 258.0
+offset_bottom = 264.00003
+rotation = -0.37174007
+texture = ExtResource("13_g8g3n")
+
+[node name="AI" type="TextureRect" parent="Icons" unique_id=582750758]
+layout_mode = 0
+offset_left = 410.0
+offset_top = 76.00001
+offset_right = 474.0
+offset_bottom = 140.0
+rotation = 0.24999481
+texture = ExtResource("9_g8g3n")
+
+[node name="ROI" type="TextureRect" parent="Icons" unique_id=269884612]
+layout_mode = 0
+offset_left = 463.0
+offset_top = 142.0
+offset_right = 527.0
+offset_bottom = 206.0
+rotation = -0.19811024
+texture = ExtResource("12_cm266")
+
+[node name="Synergy" type="TextureRect" parent="Icons" unique_id=1944029863]
+layout_mode = 0
+offset_left = 432.0
+offset_top = 199.0
+offset_right = 496.0
+offset_bottom = 263.0
+rotation = 0.21452662
+texture = ExtResource("14_8u0te")
+
 [node name="Boss5" type="AnimatedSprite2D" parent="." unique_id=1030594784]
-modulate = Color(1, 1, 1, 0.039215688)
 position = Vector2(332, 194)
 scale = Vector2(2.7656248, 2.7656248)
 sprite_frames = SubResource("SpriteFrames_v2pes")
@@ -487,6 +565,7 @@ animation = &"idle"
 autoplay = "idle"
 
 [node name="Boss1" type="AnimatedSprite2D" parent="." unique_id=605990834]
+visible = false
 position = Vector2(66.25, 299.5)
 scale = Vector2(1.0273436, 0.9453125)
 sprite_frames = SubResource("SpriteFrames_g8g3n")
@@ -494,6 +573,7 @@ animation = &"idle"
 autoplay = "idle"
 
 [node name="Boss6" type="AnimatedSprite2D" parent="." unique_id=1928240172]
+visible = false
 position = Vector2(193, 299.00003)
 scale = Vector2(1.0429688, 0.9453125)
 sprite_frames = SubResource("SpriteFrames_g8g3n")
@@ -501,6 +581,7 @@ animation = &"idle"
 autoplay = "idle"
 
 [node name="Boss7" type="AnimatedSprite2D" parent="." unique_id=1378951660]
+visible = false
 position = Vector2(130, 299.5)
 scale = Vector2(1.0273436, 0.9453125)
 sprite_frames = SubResource("SpriteFrames_g8g3n")
@@ -508,6 +589,7 @@ animation = &"idle"
 autoplay = "idle"
 
 [node name="Boss2" type="AnimatedSprite2D" parent="." unique_id=863599783]
+visible = false
 position = Vector2(322, 299)
 scale = Vector2(0.99023443, 0.9453125)
 sprite_frames = SubResource("SpriteFrames_ql5ya")
@@ -515,6 +597,7 @@ animation = &"idle"
 autoplay = "idle"
 
 [node name="Boss3" type="AnimatedSprite2D" parent="." unique_id=1583144970]
+visible = false
 position = Vector2(454.25003, 299.00003)
 scale = Vector2(1.0820315, 0.9453125)
 sprite_frames = SubResource("SpriteFrames_ai24q")
@@ -522,6 +605,7 @@ animation = &"idle"
 autoplay = "idle"
 
 [node name="Boss4" type="AnimatedSprite2D" parent="." unique_id=775530445]
+visible = false
 position = Vector2(578.25, 299.00003)
 scale = Vector2(0.9726565, 0.9453125)
 sprite_frames = SubResource("SpriteFrames_h1gbt")
@@ -529,15 +613,16 @@ animation = &"idle"
 autoplay = "idle"
 
 [node name="Title" type="RichTextLabel" parent="." unique_id=1391948735]
+visible = false
 clip_contents = false
 layout_mode = 1
 anchors_preset = 5
 anchor_left = 0.5
 anchor_right = 0.5
 offset_left = -183.0
-offset_top = 51.0
+offset_top = 31.0
 offset_right = 183.0
-offset_bottom = 90.0
+offset_bottom = 70.0
 grow_horizontal = 2
 theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
 theme_override_constants/outline_size = 12
@@ -546,7 +631,7 @@ theme_override_fonts/bold_font = ExtResource("2_jix8l")
 theme_override_font_sizes/normal_font_size = 48
 theme_override_font_sizes/bold_font_size = 48
 bbcode_enabled = true
-text = "[wave amp=4 freq=2.0][b]Let's Circle Back[/b][/wave]"
+text = "[wave amp=8 freq=2.0][b]Return on Luck [color=#ffd060](r.o.l)[/color][/b][/wave]"
 fit_content = true
 scroll_active = false
 autowrap_mode = 0
@@ -570,6 +655,36 @@ theme_override_fonts/bold_font = ExtResource("2_jix8l")
 bbcode_enabled = true
 fit_content = true
 scroll_active = false
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="ThumbnailTitle" type="RichTextLabel" parent="." unique_id=331830358]
+clip_contents = false
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -219.5
+offset_top = 28.0
+offset_right = 219.5
+offset_bottom = 113.0
+grow_horizontal = 2
+theme_override_colors/default_color = Color(0.9468294, 0.9895764, 0.99468523, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 1)
+theme_override_constants/shadow_outline_size = 10
+theme_override_constants/shadow_offset_x = 4
+theme_override_constants/shadow_offset_y = 4
+theme_override_constants/outline_size = 12
+theme_override_fonts/normal_font = ExtResource("2_jix8l")
+theme_override_fonts/bold_font = ExtResource("2_jix8l")
+theme_override_font_sizes/normal_font_size = 64
+theme_override_font_sizes/bold_font_size = 74
+bbcode_enabled = true
+text = "[wave amp=8 freq=2.0][b][color=#ffd060]R[/color][/b]eturn [color=#ffd060][b]o[/b][/color]n [color=#ffd060][b]L[/b][/color]uck[/wave]"
+fit_content = true
+scroll_active = false
+autowrap_mode = 0
 horizontal_alignment = 1
 vertical_alignment = 1
 
@@ -643,7 +758,7 @@ layout_mode = 2
 layout_mode = 2
 theme_override_fonts/font = ExtResource("2_jix8l")
 theme_override_font_sizes/font_size = 24
-text = "── AUDIO SETUP ───"
+text = "─── AUDIO SETUP ───"
 
 [node name="HSeparator" type="HSeparator" parent="AudioPanel/VBoxContainer" unique_id=1212945461]
 layout_mode = 2
@@ -711,12 +826,19 @@ step = 0.01
 
 [node name="CloseButton" type="Button" parent="AudioPanel/VBoxContainer" unique_id=821174985]
 layout_mode = 2
+mouse_default_cursor_shape = 2
 theme_override_fonts/font = ExtResource("2_jix8l")
+theme_override_styles/normal = SubResource("StyleBoxFlat_0k4wn")
+theme_override_styles/hover = SubResource("StyleBoxFlat_j5v2v")
 text = "CLOSE"
+
+[node name="CanvasModulate" type="CanvasModulate" parent="." unique_id=629994789]
+visible = false
+color = Color(1.2570534, 1.2570534, 1.2570534, 1)
 
 [node name="TransitionLayer" type="ColorRect" parent="." unique_id=1525316696]
 visible = false
-z_index = 100
+z_index = 2000
 material = SubResource("ShaderMaterial_8qtwp")
 layout_mode = 1
 anchors_preset = 15
@@ -724,3 +846,4 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+mouse_filter = 2

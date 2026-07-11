@@ -29,7 +29,7 @@ lock_tex = ExtResource("5_3ucdj")
 
 [node name="SlotMachineLogic" type="Node" parent="." unique_id=669746294]
 script = ExtResource("1_agdmm")
-shared_pool = Array[ExtResource("3_knkoj")]([ExtResource("4_842tv"), ExtResource("6_jfulg"), ExtResource("12_4tvcy"), ExtResource("6_kpwbf"), ExtResource("10_bjjkd")])
+shared_pool = Array[ExtResource("3_knkoj")]([ExtResource("4_842tv"), ExtResource("10_bjjkd"), ExtResource("12_4tvcy"), ExtResource("6_jfulg"), ExtResource("6_kpwbf")])
 
 [node name="SlotMachineSprite" type="Sprite2D" parent="." unique_id=1014798497]
 

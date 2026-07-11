@@ -66,9 +66,6 @@ func _tween_progress(from: float, to: float, duration: float, on_done: Callable 
 
 # ── Title ─────────────────────────────────────────────────────────────────────
 func _setup_title() -> void:
-	
-
-	# Subtitle line
 	var sub := title_label.get_node_or_null("Subtitle") as RichTextLabel
 	if sub:
 		sub.text = "[center][wave amp=4 freq=2.0]a very serious corporate battle simulator[/wave][/center]"

@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://dusk4t75p7qyl"
-path="res://.godot/imported/return_on_luck.png-63ca8a2b08f1beca3aed6e340d0ddf8d.ctex"
+uid="uid://d16a0cyuo5kt6"
+path="res://.godot/imported/star.png-19e2a8935edef1994254d9cf64a4c2d9.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://builds/web/return_on_luck.png"
-dest_files=["res://.godot/imported/return_on_luck.png-63ca8a2b08f1beca3aed6e340d0ddf8d.ctex"]
+source_file="res://star.png"
+dest_files=["res://.godot/imported/star.png-19e2a8935edef1994254d9cf64a4c2d9.ctex"]
 
 [params]
 

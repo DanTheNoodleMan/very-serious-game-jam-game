@@ -2,13 +2,13 @@
 
 importer="font_data_dynamic"
 type="FontFile"
-uid="uid://csmid407kor44"
-path="res://.godot/imported/Stacked pixel.ttf-918065b0628910080e232748ee373060.fontdata"
+uid="uid://dtpttdl2mh053"
+path="res://.godot/imported/arial.ttf-c6f7c5adb2d9c3d2e38e84bb530e7bb1.fontdata"
 
 [deps]
 
-source_file="res://assets/fonts/Stacked pixel.ttf"
-dest_files=["res://.godot/imported/Stacked pixel.ttf-918065b0628910080e232748ee373060.fontdata"]
+source_file="res://assets/fonts/arial.ttf"
+dest_files=["res://.godot/imported/arial.ttf-c6f7c5adb2d9c3d2e38e84bb530e7bb1.fontdata"]
 
 [params]
 
@@ -27,16 +27,10 @@ subpixel_positioning=4
 keep_rounding_remainders=true
 oversampling=0.0
 Fallbacks=null
-fallbacks=[Resource("uid://dtpttdl2mh053", "res://assets/fonts/arial.ttf")]
+fallbacks=[]
 Compress=null
 compress=true
-preload=[{
-"chars": [],
-"glyphs": [],
-"name": "New Configuration",
-"size": Vector2i(16, 0),
-&"variation_embolden": 0.0
-}]
+preload=[]
 language_support={}
 script_support={}
 opentype_features={}

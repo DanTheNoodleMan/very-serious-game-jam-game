@@ -72,6 +72,6 @@ script = ExtResource("1_ebnh8")
 boss_id = "hr"
 boss_name = "Chief Empathy Officer"
 max_hp = 125
-attack_pattern = Array[int]([7, 7, 7, 0, 22, 7, 7, 7, 0, 32])
+attack_pattern = Array[int]([8, 8, 8, 0, 22, 10, 10, 12, 0, 32])
 animations = SubResource("SpriteFrames_ebnh8")
 metadata/_custom_type_script = "uid://c48xf5y2x8myd"

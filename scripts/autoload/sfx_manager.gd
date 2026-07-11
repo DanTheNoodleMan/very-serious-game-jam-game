@@ -46,7 +46,7 @@ override_pitch: float = 0.0, from_position: float = 0.0) -> void:
 func play_music(stream: AudioStream, volume: float = 0.0) -> void:
 	if stream == null: return
 	
-	# If this exact track is already playing, don't restart it! (Great for scene transitions)
+	# If this exact track is already playing, don't restart it (perfect for scene transitions)
 	if _music_player.stream == stream and _music_player.playing:
 		return 
 		
