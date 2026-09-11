@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://be8njf7wfvrmj"
-path="res://.godot/imported/salaryman_idle.png-cd3f144a2533ddb9a945e26d27d23a23.ctex"
+uid="uid://cpumt4hh2wob0"
+path="res://.godot/imported/lock_symbol.png-f079feadab827cc531a4111119d2704c.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/enemies/salaryman_idle.png"
-dest_files=["res://.godot/imported/salaryman_idle.png-cd3f144a2533ddb9a945e26d27d23a23.ctex"]
+source_file="res://assets/ui/lock_symbol.png"
+dest_files=["res://.godot/imported/lock_symbol.png-f079feadab827cc531a4111119d2704c.ctex"]
 
 [params]
 

@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://be8njf7wfvrmj"
-path="res://.godot/imported/salaryman_idle.png-cd3f144a2533ddb9a945e26d27d23a23.ctex"
+uid="uid://brlf6outqe7y5"
+path="res://.godot/imported/mic_on.png-28253f5b409cf9cd0551e45c9ec626b6.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/enemies/salaryman_idle.png"
-dest_files=["res://.godot/imported/salaryman_idle.png-cd3f144a2533ddb9a945e26d27d23a23.ctex"]
+source_file="res://assets/ui/mic_on.png"
+dest_files=["res://.godot/imported/mic_on.png-28253f5b409cf9cd0551e45c9ec626b6.ctex"]
 
 [params]
 

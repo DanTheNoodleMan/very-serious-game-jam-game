@@ -1,7 +1,7 @@
 [gd_resource type="Resource" script_class="BossData" format=3 uid="uid://b6y7spiycno0s"]
 
 [ext_resource type="Script" uid="uid://c48xf5y2x8myd" path="res://resources/boss_data.gd" id="1_d61h4"]
-[ext_resource type="Texture2D" uid="uid://dftb18agj860b" path="res://ceo.png" id="1_g2tga"]
+[ext_resource type="Texture2D" uid="uid://dftb18agj860b" path="res://assets/enemies/ceo.png" id="1_g2tga"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_0ns7a"]
 atlas = ExtResource("1_g2tga")

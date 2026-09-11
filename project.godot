@@ -1,16 +1,8 @@
-; Engine configuration file.
-; It's best edited using the editor UI and not directly,
-; since the parameters that go here are not all obvious.
-;
-; Format:
-;   [section] ; section goes between []
-;   param=value ; assign values to parameters
-
 config_version=5
 
 [application]
 
-config/name="Very Serious Business Meetings"
+config/name="Return On Luck"
 run/main_scene="uid://dlheug3vmgg13"
 config/features=PackedStringArray("4.6", "GL Compatibility")
 config/icon="res://icon.svg"
@@ -38,7 +30,8 @@ window/stretch/mode="canvas_items"
 folder_colors={
 "res://resources/": "blue",
 "res://resources/enemies/": "red",
-"res://resources/symbols/": "yellow"
+"res://resources/symbols/": "yellow",
+"res://resources/symbols/symbols_effects/": "green"
 }
 
 [input]

@@ -4,7 +4,6 @@ signal dictionary_updated
 
 @export var all_symbols: Array[SymbolData] = []
 
-# Combos now provide a flat BONUS on top of the multiplied individual symbols!
 const COMBOS: Array = [
 	{
 		"name": "Quarterly Report",
@@ -67,7 +66,7 @@ func calculate(results: Array[SymbolData]) -> Dictionary:
 	var final_name = ""
 	if combo.is_combo:
 		final_name = combo.name
-		# Add the combo bonus on top of the multipliers!
+		# Add the combo bonus on top of the multipliers
 		final_impact += combo.bonus_impact
 		final_bw += combo.bonus_bandwidth
 		final_mo += combo.bonus_morale
@@ -80,8 +79,7 @@ func calculate(results: Array[SymbolData]) -> Dictionary:
 		"morale": final_mo, "base_morale": base_mo
 	}
 
-func get_all_combos() -> Array:
-	return COMBOS
+func get_all_combos() -> Array: return COMBOS
 
 # ── Combo checking ────────────────────────────────────────────────────────────
 func _check_combos(results: Array[SymbolData]) -> Dictionary:
@@ -220,7 +218,7 @@ func _describe_multiplier_in_context(results: Array[SymbolData], index: int) -> 
 			if boosted_by_lev and power != int(results[index].base_value):
 				return "[b][color=#ffd060]×" + str(power) + " ←" + ibm + "[/color][/b][color=#ffd060] (+LEV)[/color]"
 			return "[b][color=#ffd060]×" + str(power) + " ←" + ibm + "[/color][/b]"
-		"leverage":
+		"leverage":	
 			var lev_buff := results[index].base_value
 			var has_any_target := false
 			for j in 3:

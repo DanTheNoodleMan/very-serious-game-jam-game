@@ -1,6 +1,6 @@
 [gd_resource type="Resource" script_class="BossData" format=3 uid="uid://crf6xkisrsu8p"]
 
-[ext_resource type="Texture2D" uid="uid://ch47pw8fstcfu" path="res://senior_partner.png" id="1_ak50m"]
+[ext_resource type="Texture2D" uid="uid://ch47pw8fstcfu" path="res://assets/enemies/senior_partner.png" id="1_ak50m"]
 [ext_resource type="Script" uid="uid://c48xf5y2x8myd" path="res://resources/boss_data.gd" id="1_nchak"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_aiod3"]

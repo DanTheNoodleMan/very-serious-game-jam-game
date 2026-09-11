@@ -1,6 +1,6 @@
 [gd_resource type="Resource" script_class="BossData" format=3 uid="uid://ccly2nhdi72t6"]
 
-[ext_resource type="Texture2D" uid="uid://d0qe6lbuvx0cm" path="res://salaryman_idle_2.png" id="1_20jq5"]
+[ext_resource type="Texture2D" uid="uid://d0qe6lbuvx0cm" path="res://assets/enemies/salaryman_idle_2.png" id="1_20jq5"]
 [ext_resource type="Script" uid="uid://c48xf5y2x8myd" path="res://resources/boss_data.gd" id="1_j3ll6"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_cvcst"]

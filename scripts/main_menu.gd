@@ -118,7 +118,7 @@ func _on_start_pressed() -> void:
 		btn.disabled = true
 	# Cover the screen FIRST, then switch
 	_tween_progress(0.0, 1.0, 0.45, func():
-		get_tree().change_scene_to_file("res://main.tscn")
+		get_tree().change_scene_to_file("uid://bdoto2gctgevy")
 	)
 
 func _on_quit_pressed() -> void:

@@ -1,0 +1,1193 @@
+[gd_scene format=3 uid="uid://btxfrwlyw7er3"]
+
+[ext_resource type="Script" uid="uid://blag7nvj85ksd" path="res://scripts/battle_manager.gd" id="1_hd2ub"]
+[ext_resource type="Resource" uid="uid://ccly2nhdi72t6" path="res://resources/enemies/salaryman.tres" id="2_7gog2"]
+[ext_resource type="AudioStream" uid="uid://cic6oaxheu6wr" path="res://assets/sounds/button_down.ogg" id="2_r45vu"]
+[ext_resource type="Script" uid="uid://ceh6y02v6mnjm" path="res://scripts/enemy_display.gd" id="3_ji6bj"]
+[ext_resource type="AudioStream" uid="uid://qeyyqvoyjgo1" path="res://assets/sounds/button_up.ogg" id="3_pxf7c"]
+[ext_resource type="AudioStream" uid="uid://be5an2lwav1pd" path="res://assets/sounds/slide.ogg" id="4_hv2jr"]
+[ext_resource type="Texture2D" uid="uid://bp4mauft2yh0i" path="res://horizontal bars/least rounded/progress bar least rounded over.png" id="4_hvv87"]
+[ext_resource type="Texture2D" uid="uid://dmppgiy1r3u5t" path="res://horizontal bars/least rounded/progress bar least rounded under.png" id="4_ji6bj"]
+[ext_resource type="Texture2D" uid="uid://j350prhnuoym" path="res://assets/ui/panels/boss_cam.png" id="5_kciku"]
+[ext_resource type="Texture2D" uid="uid://dn02sameovu6w" path="res://horizontal bars/medium rounded/progress bar medium rounded progress blue.png" id="5_oc8fh"]
+[ext_resource type="AudioStream" uid="uid://oxtscnrgkw1l" path="res://assets/sounds/whoosh.ogg" id="5_y3bpw"]
+[ext_resource type="Texture2D" uid="uid://r72llpjgwftc" path="res://assets/ui/panels/boss_background_2.png" id="6_kciku"]
+[ext_resource type="AudioStream" uid="uid://ensxqgja4c8p" path="res://assets/sounds/hit_2.ogg" id="6_qlaij"]
+[ext_resource type="Texture2D" uid="uid://8g42hrmy0dw0" path="res://horizontal bars/medium rounded/progress bar medium rounded progress green.png" id="7_c531c"]
+[ext_resource type="AudioStream" uid="uid://b6mfjdoat0fqo" path="res://assets/sounds/shield_impact_1.ogg" id="7_i8kqh"]
+[ext_resource type="AudioStream" uid="uid://dbdidmc22y0ut" path="res://assets/sounds/shield_impact_2.ogg" id="8_i8kqh"]
+[ext_resource type="Script" uid="uid://dhlf1na8stdk6" path="res://scripts/player_display.gd" id="8_obqq3"]
+[ext_resource type="Script" uid="uid://c48xf5y2x8myd" path="res://resources/boss_data.gd" id="9_2lpl0"]
+[ext_resource type="Texture2D" uid="uid://vojlhm4i3vwm" path="res://assets/ui/panels/nameplate_2.png" id="9_b4bhy"]
+[ext_resource type="AudioStream" uid="uid://buvx63mhmkkfc" path="res://assets/sounds/win/win_fight.ogg" id="9_ol3h1"]
+[ext_resource type="Resource" uid="uid://crf6xkisrsu8p" path="res://resources/enemies/senior_partner.tres" id="10_5pitx"]
+[ext_resource type="Resource" uid="uid://b6y7spiycno0s" path="res://resources/enemies/ceo.tres" id="10_nwi2s"]
+[ext_resource type="Resource" uid="uid://3mdvbve1jj5q" path="res://resources/enemies/chief_empathy_officer.tres" id="10_ognr1"]
+[ext_resource type="AudioStream" uid="uid://bmposl86audei" path="res://assets/sounds/lose/game_over_2.ogg" id="10_rbecj"]
+[ext_resource type="Texture2D" uid="uid://cplpsa1rtn0di" path="res://assets/ui/mic_off.png" id="10_y04i6"]
+[ext_resource type="Texture2D" uid="uid://csite2sa0gul7" path="res://assets/ui/talking_border.png" id="11_b4bhy"]
+[ext_resource type="AudioStream" uid="uid://4btcaotcg4eq" path="res://assets/sounds/win/victory_1.ogg" id="11_d3gqo"]
+[ext_resource type="PackedScene" uid="uid://twq2fsikmerm" path="res://scenes/slot_machine.tscn" id="11_ji6bj"]
+[ext_resource type="Texture2D" uid="uid://dqdq1268rbgwc" path="res://assets/ui/layout_6.png" id="11_tm7qj"]
+[ext_resource type="Resource" uid="uid://cprjdjskyhrmx" path="res://resources/enemies/finance_bro.tres" id="11_tmhp8"]
+[ext_resource type="AudioStream" uid="uid://c0yevdv3rcbxr" path="res://assets/sounds/win/victory_music.ogg" id="12_d3gqo"]
+[ext_resource type="AudioStream" uid="uid://mp0cg8n3wx1r" path="res://assets/sounds/PixelJazz_Loop.ogg" id="13_pmb0h"]
+[ext_resource type="AudioStream" uid="uid://bi7shxg68uknr" path="res://assets/sounds/background_music.ogg" id="15_d3gqo"]
+[ext_resource type="Texture2D" uid="uid://dvce760xiccd8" path="res://assets/ui/panels/player_cam.png" id="15_o7yjl"]
+[ext_resource type="Texture2D" uid="uid://d0qe6lbuvx0cm" path="res://assets/enemies/salaryman_idle_2.png" id="15_v24qm"]
+[ext_resource type="FontFile" uid="uid://csmid407kor44" path="res://assets/fonts/Stacked pixel.ttf" id="16_qmjfx"]
+[ext_resource type="Texture2D" uid="uid://qlyaou4vhjo7" path="res://assets/ui/shield.png" id="17_kciku"]
+[ext_resource type="Texture2D" uid="uid://cfqnk213ug7cb" path="res://assets/ui/buttons/button_up_2.png" id="17_l36ul"]
+[ext_resource type="Texture2D" uid="uid://c5ygkvyr0cqqn" path="res://assets/ui/buttons/button_down.png" id="18_as4c2"]
+[ext_resource type="Texture2D" uid="uid://dr1btcl7di1om" path="res://assets/ui/panels/player_background.png" id="18_xwdjj"]
+[ext_resource type="Texture2D" uid="uid://c48n4u3ngs05e" path="res://assets/ui/buttons/button_hovered.png" id="19_4g358"]
+[ext_resource type="Texture2D" uid="uid://pgxqjkw8j6qs" path="res://assets/ui/buttons/button_disabled_2.png" id="20_aora4"]
+[ext_resource type="Texture2D" uid="uid://cw4sk3bjuf1hk" path="res://assets/ui/panels/panel_6.png" id="21_60sab"]
+[ext_resource type="Texture2D" uid="uid://dkmk53d5mjic0" path="res://assets/ui/panels/player_cam_4.png" id="22_aora4"]
+[ext_resource type="Texture2D" uid="uid://bhbcxs2joq34h" path="res://assets/player/player_idle_hat.png" id="31_8o0a2"]
+[ext_resource type="Texture2D" uid="uid://ckrg3xokkc1d" path="res://assets/ui/panels/agenda_panel.png" id="34_60sab"]
+[ext_resource type="Script" uid="uid://c7ug25uvefd4c" path="res://scripts/ui/agenda_area.gd" id="34_gkwxr"]
+[ext_resource type="PackedScene" uid="uid://qvgtwnrcvw7m" path="res://scenes/combo_entry.tscn" id="35_kpklt"]
+[ext_resource type="Script" uid="uid://57ie8umjxy6y" path="res://scripts/pool_roster.gd" id="38_8o0a2"]
+[ext_resource type="Script" uid="uid://duxj3ox7eyota" path="res://scripts/upgrade_display.gd" id="38_f4pwu"]
+[ext_resource type="Texture2D" uid="uid://cxtc11chnjuw7" path="res://assets/player/player_victory_hat.png" id="38_rbecj"]
+[ext_resource type="PackedScene" uid="uid://c0grhwl3tyrdh" path="res://scenes/upgrade_card.tscn" id="39_tm7qj"]
+[ext_resource type="Script" uid="uid://cu4s7j7675ht2" path="res://scripts/utils/camera_shake.gd" id="41_r20up"]
+[ext_resource type="Texture2D" uid="uid://d1wadlytwoqw7" path="res://assets/ui/panels/pattern.png" id="48_v24qm"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_cvcst"]
+atlas = ExtResource("15_v24qm")
+region = Rect2(0, 0, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_id3fk"]
+atlas = ExtResource("15_v24qm")
+region = Rect2(128, 0, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_pylc6"]
+atlas = ExtResource("15_v24qm")
+region = Rect2(256, 0, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_50x45"]
+atlas = ExtResource("15_v24qm")
+region = Rect2(384, 0, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_2rx2w"]
+atlas = ExtResource("15_v24qm")
+region = Rect2(512, 0, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_a7d7g"]
+atlas = ExtResource("15_v24qm")
+region = Rect2(640, 0, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_8on0t"]
+atlas = ExtResource("15_v24qm")
+region = Rect2(768, 0, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_yenih"]
+atlas = ExtResource("15_v24qm")
+region = Rect2(896, 0, 128, 128)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_j3ll6"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_cvcst")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_id3fk")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_pylc6")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_50x45")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_2rx2w")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_a7d7g")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_8on0t")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_yenih")
+}],
+"loop": true,
+"name": &"idle",
+"speed": 3.33
+}]
+
+[sub_resource type="Resource" id="Resource_rbecj"]
+script = ExtResource("9_2lpl0")
+boss_id = "salaryman"
+boss_name = "Salaryman"
+max_hp = 60
+attack_pattern = Array[int]([6, 6, 7, 7, 5, 5, 15])
+animations = SubResource("SpriteFrames_j3ll6")
+metadata/_custom_type_script = "uid://c48xf5y2x8myd"
+
+[sub_resource type="Resource" id="Resource_v24qm"]
+script = ExtResource("9_2lpl0")
+boss_id = "salaryman"
+boss_name = "Salaryman"
+max_hp = 80
+attack_pattern = Array[int]([8, 9, 8, 6, 10, 8, 7, 15])
+animations = SubResource("SpriteFrames_j3ll6")
+metadata/_custom_type_script = "uid://c48xf5y2x8myd"
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_7gog2"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_fjccv"]
+atlas = ExtResource("31_8o0a2")
+region = Rect2(0, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_lghsc"]
+atlas = ExtResource("31_8o0a2")
+region = Rect2(64, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_mc026"]
+atlas = ExtResource("31_8o0a2")
+region = Rect2(128, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_pp18p"]
+atlas = ExtResource("31_8o0a2")
+region = Rect2(192, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_3gejq"]
+atlas = ExtResource("31_8o0a2")
+region = Rect2(256, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_gky6v"]
+atlas = ExtResource("31_8o0a2")
+region = Rect2(320, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_qb6k5"]
+atlas = ExtResource("31_8o0a2")
+region = Rect2(384, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_k7bhb"]
+atlas = ExtResource("31_8o0a2")
+region = Rect2(448, 0, 64, 64)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_lthmb"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_fjccv")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_lghsc")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_mc026")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_pp18p")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_3gejq")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_gky6v")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_qb6k5")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_k7bhb")
+}],
+"loop": true,
+"name": &"idle",
+"speed": 3.33
+}]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_v24qm"]
+content_margin_left = 8.0
+content_margin_top = 6.0
+content_margin_right = 8.0
+content_margin_bottom = 6.0
+bg_color = Color(0.11764706, 0.34117648, 0.6117647, 1)
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0, 0, 0, 1)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_0j2h3"]
+content_margin_left = 8.0
+content_margin_top = 6.0
+content_margin_right = 8.0
+content_margin_bottom = 6.0
+bg_color = Color(0.1490127, 0.41315183, 0.7328993, 1)
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0, 0, 0, 1)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_rbecj"]
+content_margin_left = 4.0
+content_margin_top = 6.0
+content_margin_right = 4.0
+content_margin_bottom = 6.0
+bg_color = Color(0, 0.59607846, 0.85882354, 1)
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0, 0, 0, 1)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_wxrmo"]
+content_margin_left = 4.0
+content_margin_top = 6.0
+content_margin_right = 4.0
+content_margin_bottom = 6.0
+bg_color = Color(0, 0.6948393, 0.9974397, 1)
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0, 0, 0, 1)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_0j2h3"]
+atlas = ExtResource("38_rbecj")
+region = Rect2(0, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_wxrmo"]
+atlas = ExtResource("38_rbecj")
+region = Rect2(64, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_x2s5v"]
+atlas = ExtResource("38_rbecj")
+region = Rect2(128, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_5dvdd"]
+atlas = ExtResource("38_rbecj")
+region = Rect2(192, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_pmb0h"]
+atlas = ExtResource("38_rbecj")
+region = Rect2(256, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_cttmx"]
+atlas = ExtResource("38_rbecj")
+region = Rect2(320, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_1fhkp"]
+atlas = ExtResource("38_rbecj")
+region = Rect2(384, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_g2k32"]
+atlas = ExtResource("38_rbecj")
+region = Rect2(448, 0, 64, 64)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_rbecj"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_0j2h3")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_wxrmo")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_x2s5v")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_5dvdd")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_pmb0h")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_cttmx")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_1fhkp")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_g2k32")
+}],
+"loop": true,
+"name": &"idle",
+"speed": 3.33
+}]
+
+[node name="CombatScene" type="Control" unique_id=1819690931]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_hd2ub")
+button_down_sfx = ExtResource("2_r45vu")
+button_up_sfx = ExtResource("3_pxf7c")
+slide = ExtResource("4_hv2jr")
+whoosh = ExtResource("5_y3bpw")
+hit = ExtResource("6_qlaij")
+shield_impact = ExtResource("7_i8kqh")
+shield_break = ExtResource("8_i8kqh")
+win_fight = ExtResource("9_ol3h1")
+game_over = ExtResource("10_rbecj")
+victory = ExtResource("11_d3gqo")
+victory_music = ExtResource("12_d3gqo")
+background_music = ExtResource("13_pmb0h")
+boss_roster = Array[ExtResource("9_2lpl0")]([ExtResource("2_7gog2"), ExtResource("10_nwi2s"), ExtResource("10_ognr1"), SubResource("Resource_rbecj"), SubResource("Resource_v24qm"), ExtResource("11_tmhp8"), ExtResource("10_5pitx")])
+boss_music = ExtResource("15_d3gqo")
+
+[node name="ColorRect" type="ColorRect" parent="." unique_id=1417675988]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -23.111084
+offset_top = -13.0
+offset_right = 30.222229
+offset_bottom = 17.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.05490196, 0.09019608, 0.17254902, 1)
+
+[node name="Background" type="TextureRect" parent="." unique_id=2117441887]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("11_tm7qj")
+
+[node name="HoldTutorialLabel" type="RichTextLabel" parent="." unique_id=1255642044]
+clip_contents = false
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.46800002
+anchor_top = 1.0
+anchor_right = 0.46800002
+anchor_bottom = 1.0
+offset_left = -106.52002
+offset_top = -17.0
+offset_right = 106.47998
+offset_bottom = -2.0
+grow_horizontal = 2
+grow_vertical = 0
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 6
+theme_override_fonts/normal_font = ExtResource("16_qmjfx")
+theme_override_fonts/bold_font = ExtResource("16_qmjfx")
+theme_override_font_sizes/normal_font_size = 9
+theme_override_font_sizes/bold_font_size = 9
+bbcode_enabled = true
+text = "[center][wave amp=2 freq=6.0][color=#ffd060]^ Click reels (or press 1, 2, 3) to hold ^[/color][/wave][/center]"
+fit_content = true
+scroll_active = false
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="ComboLabel" type="RichTextLabel" parent="." unique_id=430376861]
+z_index = 50
+layout_mode = 1
+offset_left = 198.0
+offset_top = 230.0
+offset_right = 625.0
+offset_bottom = 256.0
+mouse_filter = 2
+theme_override_colors/font_outline_color = Color(0.1254902, 0.08235294, 0.2, 1)
+theme_override_constants/outline_size = 6
+theme_override_fonts/normal_font = ExtResource("16_qmjfx")
+theme_override_fonts/bold_font = ExtResource("16_qmjfx")
+theme_override_font_sizes/normal_font_size = 10
+theme_override_font_sizes/bold_font_size = 20
+bbcode_enabled = true
+text = "fffgf"
+fit_content = true
+scroll_active = false
+
+[node name="EnemyArea" type="Control" parent="." unique_id=43949672]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_left = 193.0
+offset_top = 14.0
+offset_right = -16.0
+offset_bottom = 208.0
+grow_horizontal = 2
+script = ExtResource("3_ji6bj")
+
+[node name="BossCamMask" type="TextureRect" parent="EnemyArea" unique_id=41228240]
+clip_children = 1
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -2.0
+offset_bottom = -19.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("5_kciku")
+expand_mode = 1
+
+[node name="BossCamBackground" type="TextureRect" parent="EnemyArea/BossCamMask" unique_id=987497347]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -2.0
+offset_top = -14.0
+offset_right = 1.0
+offset_bottom = 10.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("6_kciku")
+
+[node name="EnemyPortrait" type="AnimatedSprite2D" parent="EnemyArea" unique_id=287608916]
+position = Vector2(223, 92)
+scale = Vector2(1.3, 1.3)
+sprite_frames = SubResource("SpriteFrames_7gog2")
+
+[node name="EnemyNameContainer" type="MarginContainer" parent="EnemyArea" unique_id=351663617]
+layout_mode = 0
+offset_left = -3.0
+offset_top = 175.0
+offset_right = 431.0
+offset_bottom = 196.0
+
+[node name="Nameplate" type="NinePatchRect" parent="EnemyArea/EnemyNameContainer" unique_id=1340406265]
+layout_mode = 2
+texture = ExtResource("9_b4bhy")
+region_rect = Rect2(0, 0, 53, 15)
+patch_margin_left = 4
+patch_margin_top = 4
+patch_margin_right = 4
+patch_margin_bottom = 4
+
+[node name="HBoxContainer" type="HBoxContainer" parent="EnemyArea/EnemyNameContainer" unique_id=1157661479]
+layout_mode = 2
+
+[node name="MicContainer" type="MarginContainer" parent="EnemyArea/EnemyNameContainer/HBoxContainer" unique_id=572495917]
+layout_mode = 2
+theme_override_constants/margin_left = 4
+theme_override_constants/margin_top = 4
+theme_override_constants/margin_bottom = 4
+
+[node name="Mic" type="TextureRect" parent="EnemyArea/EnemyNameContainer/HBoxContainer/MicContainer" unique_id=356108596]
+layout_mode = 2
+texture = ExtResource("10_y04i6")
+expand_mode = 2
+
+[node name="NameContainer" type="MarginContainer" parent="EnemyArea/EnemyNameContainer/HBoxContainer" unique_id=1461736862]
+layout_mode = 2
+theme_override_constants/margin_top = 2
+theme_override_constants/margin_right = 2
+
+[node name="EnemyName" type="RichTextLabel" parent="EnemyArea/EnemyNameContainer/HBoxContainer/NameContainer" unique_id=1411591132]
+layout_mode = 2
+theme_override_constants/outline_size = 0
+theme_override_fonts/normal_font = ExtResource("16_qmjfx")
+theme_override_font_sizes/normal_font_size = 16
+theme_override_font_sizes/bold_font_size = 16
+text = "Salaryman Extraordinaire"
+fit_content = true
+scroll_active = false
+autowrap_mode = 0
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="EnemyHPBar" type="TextureProgressBar" parent="EnemyArea" unique_id=903020479]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -158.0
+offset_top = 157.0
+offset_right = -4.0
+offset_bottom = 170.0
+grow_horizontal = 2
+grow_vertical = 2
+nine_patch_stretch = true
+stretch_margin_left = 2
+stretch_margin_top = 2
+stretch_margin_right = 2
+stretch_margin_bottom = 2
+texture_under = ExtResource("4_ji6bj")
+texture_over = ExtResource("4_hvv87")
+texture_progress = ExtResource("5_oc8fh")
+
+[node name="EnemyHPLabel" type="RichTextLabel" parent="EnemyArea/EnemyHPBar" unique_id=690398806]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_colors/font_outline_color = Color(0.050980393, 0.023529412, 0.09019608, 1)
+theme_override_constants/outline_size = 4
+theme_override_fonts/normal_font = ExtResource("16_qmjfx")
+theme_override_fonts/bold_font = ExtResource("16_qmjfx")
+theme_override_font_sizes/normal_font_size = 12
+theme_override_font_sizes/bold_font_size = 12
+bbcode_enabled = true
+text = "12/55"
+fit_content = true
+scroll_active = false
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="TalkingBorder" type="TextureRect" parent="EnemyArea" unique_id=756266938]
+layout_mode = 1
+anchors_preset = -1
+anchor_right = 1.0
+anchor_bottom = 1.01
+offset_left = -6.0
+offset_top = -3.0
+offset_right = 3.0
+offset_bottom = 3.0599976
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("11_b4bhy")
+
+[node name="ReactionLabel" type="RichTextLabel" parent="EnemyArea" unique_id=1758148460]
+layout_mode = 1
+offset_left = 39.0
+offset_top = 40.0
+offset_right = 177.0
+offset_bottom = 72.0
+theme_override_constants/outline_size = 6
+theme_override_fonts/normal_font = ExtResource("16_qmjfx")
+theme_override_fonts/bold_font = ExtResource("16_qmjfx")
+theme_override_fonts/bold_italics_font = ExtResource("16_qmjfx")
+theme_override_fonts/italics_font = ExtResource("16_qmjfx")
+theme_override_font_sizes/normal_font_size = 10
+theme_override_font_sizes/bold_font_size = 20
+theme_override_font_sizes/bold_italics_font_size = 20
+theme_override_font_sizes/italics_font_size = 16
+bbcode_enabled = true
+fit_content = true
+scroll_active = false
+
+[node name="IntentBox" type="MarginContainer" parent="EnemyArea" unique_id=1140138163]
+layout_mode = 1
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -139.0
+offset_top = -19.0
+offset_bottom = 3.0
+grow_horizontal = 0
+grow_vertical = 0
+localize_numeral_system = false
+theme_override_constants/margin_right = 8
+
+[node name="IntentLabel" type="RichTextLabel" parent="EnemyArea/IntentBox" unique_id=755939474]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_outline_color = Color(0.1254902, 0.08235294, 0.2, 1)
+theme_override_constants/outline_size = 6
+theme_override_fonts/normal_font = ExtResource("16_qmjfx")
+theme_override_fonts/bold_font = ExtResource("16_qmjfx")
+theme_override_font_sizes/normal_font_size = 10
+theme_override_font_sizes/bold_font_size = 20
+bbcode_enabled = true
+text = "100"
+fit_content = true
+scroll_active = false
+autowrap_mode = 0
+horizontal_alignment = 2
+vertical_alignment = 1
+
+[node name="CombatUI" type="Control" parent="." unique_id=251974575]
+layout_mode = 1
+anchor_left = 1.0
+anchor_top = 0.794
+anchor_right = 1.0
+anchor_bottom = 0.794
+offset_left = -223.0
+offset_top = -65.84
+offset_right = -132.0
+offset_bottom = 74.16
+grow_horizontal = 0
+grow_vertical = 0
+
+[node name="ButtonBackground" type="NinePatchRect" parent="CombatUI" unique_id=502633575]
+layout_mode = 1
+anchors_preset = -1
+anchor_top = 0.21400002
+anchor_right = 1.187
+anchor_bottom = 0.82900006
+offset_top = 0.0399971
+offset_right = -0.01700592
+offset_bottom = -0.060005188
+texture = ExtResource("21_60sab")
+patch_margin_left = 10
+patch_margin_top = 10
+patch_margin_right = 10
+patch_margin_bottom = 10
+
+[node name="ActionButton" type="TextureButton" parent="CombatUI" unique_id=1440483961]
+layout_mode = 1
+anchors_preset = -1
+anchor_top = 0.38200003
+anchor_bottom = 0.38200003
+offset_left = 11.0
+offset_top = -16.952003
+offset_right = 86.0
+offset_bottom = 17.047997
+mouse_default_cursor_shape = 2
+keep_pressed_outside = true
+texture_normal = ExtResource("17_l36ul")
+texture_pressed = ExtResource("18_as4c2")
+texture_hover = ExtResource("19_4g358")
+texture_disabled = ExtResource("20_aora4")
+stretch_mode = 4
+
+[node name="ActionButtonLabel" type="Label" parent="CombatUI/ActionButton" unique_id=1926684897]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.5
+anchor_top = 0.45900002
+anchor_right = 0.5
+anchor_bottom = 0.45900002
+offset_left = -32.5
+offset_top = -9.134016
+offset_right = 32.5
+offset_bottom = 10.865984
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_fonts/font = ExtResource("16_qmjfx")
+theme_override_font_sizes/font_size = 12
+text = "Reroll [1]"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="LockInButton" type="TextureButton" parent="CombatUI" unique_id=687897491]
+self_modulate = Color(0.8793795, 0.96121734, 0.86571497, 1)
+layout_mode = 1
+anchors_preset = -1
+anchor_top = 0.66200006
+anchor_bottom = 0.66200006
+offset_left = 11.0
+offset_top = -18.680008
+offset_right = 86.0
+offset_bottom = 15.319992
+grow_vertical = 2
+mouse_default_cursor_shape = 2
+keep_pressed_outside = true
+texture_normal = ExtResource("17_l36ul")
+texture_pressed = ExtResource("18_as4c2")
+texture_hover = ExtResource("19_4g358")
+texture_disabled = ExtResource("20_aora4")
+stretch_mode = 4
+
+[node name="LockInButtonLabel" type="Label" parent="CombatUI/LockInButton" unique_id=548009829]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.5
+anchor_top = 0.47100002
+anchor_right = 0.5
+anchor_bottom = 0.47100002
+offset_left = -32.5
+offset_top = -10.014
+offset_right = 32.5
+offset_bottom = 9.986
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_fonts/font = ExtResource("16_qmjfx")
+theme_override_font_sizes/font_size = 12
+text = "Lock In"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="PlayerArea" type="Control" parent="." unique_id=1026676407]
+layout_mode = 1
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 514.0
+offset_top = -125.0
+offset_right = -15.0
+offset_bottom = -14.0
+grow_horizontal = 2
+grow_vertical = 0
+script = ExtResource("8_obqq3")
+
+[node name="PlayerCam" type="TextureRect" parent="PlayerArea" unique_id=231918537]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -1.0
+offset_top = -1.0
+offset_right = 3.0
+offset_bottom = 3.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("22_aora4")
+
+[node name="PlayerCamMask" type="TextureRect" parent="PlayerArea/PlayerCam" unique_id=208936190]
+clip_children = 1
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 1.0
+offset_top = 0.5
+offset_right = -2.5
+offset_bottom = -14.5
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("15_o7yjl")
+expand_mode = 1
+
+[node name="TextureRect" type="TextureRect" parent="PlayerArea/PlayerCam/PlayerCamMask" unique_id=1918829970]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_right = -1.0
+offset_bottom = -1.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("18_xwdjj")
+expand_mode = 1
+
+[node name="PlayerNameContainer" type="MarginContainer" parent="PlayerArea" unique_id=946557039]
+layout_mode = 1
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -12.0
+grow_horizontal = 2
+grow_vertical = 0
+
+[node name="Nameplate" type="NinePatchRect" parent="PlayerArea/PlayerNameContainer" unique_id=1677409819]
+layout_mode = 2
+texture = ExtResource("9_b4bhy")
+region_rect = Rect2(0, 0, 53, 15)
+patch_margin_left = 4
+patch_margin_top = 4
+patch_margin_right = 4
+patch_margin_bottom = 4
+
+[node name="PlayerPortrait" type="AnimatedSprite2D" parent="PlayerArea" unique_id=2052682189]
+position = Vector2(56, 51)
+scale = Vector2(1.5, 1.5)
+sprite_frames = SubResource("SpriteFrames_lthmb")
+animation = &"idle"
+
+[node name="PlayerHPLabel" type="RichTextLabel" parent="PlayerArea" unique_id=810932695]
+layout_mode = 1
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -35.0
+offset_top = -12.0
+grow_horizontal = 0
+grow_vertical = 0
+theme_override_colors/font_outline_color = Color(0.050980393, 0.023529412, 0.09019608, 1)
+theme_override_constants/outline_size = 4
+theme_override_fonts/normal_font = ExtResource("16_qmjfx")
+theme_override_fonts/bold_font = ExtResource("16_qmjfx")
+theme_override_font_sizes/normal_font_size = 8
+theme_override_font_sizes/bold_font_size = 8
+bbcode_enabled = true
+text = "12/55"
+fit_content = true
+scroll_active = false
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="PlayerHPBar" type="TextureProgressBar" parent="PlayerArea" unique_id=428955290]
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -49.5
+offset_top = -10.0
+offset_right = 19.5
+offset_bottom = -2.0
+grow_horizontal = 2
+grow_vertical = 0
+nine_patch_stretch = true
+stretch_margin_left = 2
+stretch_margin_top = 2
+stretch_margin_right = 2
+stretch_margin_bottom = 2
+texture_under = ExtResource("4_ji6bj")
+texture_over = ExtResource("4_hvv87")
+texture_progress = ExtResource("7_c531c")
+
+[node name="ShieldBadge" type="TextureRect" parent="PlayerArea" unique_id=477156201]
+visible = false
+layout_mode = 1
+offset_left = -6.0
+offset_top = -8.0
+offset_right = 16.0
+offset_bottom = 16.0
+texture = ExtResource("17_kciku")
+
+[node name="ShieldAmount" type="RichTextLabel" parent="PlayerArea/ShieldBadge" unique_id=966535148]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_fonts/normal_font = ExtResource("16_qmjfx")
+theme_override_fonts/bold_font = ExtResource("16_qmjfx")
+theme_override_font_sizes/normal_font_size = 16
+theme_override_font_sizes/bold_font_size = 16
+text = "1"
+fit_content = true
+scroll_active = false
+autowrap_mode = 0
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="SlotMachine" parent="." unique_id=798385911 instance=ExtResource("11_ji6bj")]
+layout_mode = 1
+anchors_preset = 14
+anchor_top = 0.5
+anchor_bottom = 0.5
+offset_left = 190.0
+offset_top = 72.0
+offset_right = -450.0
+offset_bottom = 72.0
+
+[node name="AgendaArea" type="Control" parent="." unique_id=1596377603]
+anchors_preset = 0
+offset_right = 174.0
+offset_bottom = 360.0
+script = ExtResource("34_gkwxr")
+combo_entry_scene = ExtResource("35_kpklt")
+
+[node name="NinePatchRect" type="NinePatchRect" parent="AgendaArea" unique_id=168415565]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("34_60sab")
+patch_margin_right = 3
+axis_stretch_horizontal = 1
+axis_stretch_vertical = 1
+
+[node name="MarginContainer" type="MarginContainer" parent="AgendaArea" unique_id=1582843020]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 6
+theme_override_constants/margin_top = 6
+theme_override_constants/margin_right = 9
+theme_override_constants/margin_bottom = 6
+
+[node name="VBoxContainer" type="VBoxContainer" parent="AgendaArea/MarginContainer" unique_id=1773645231]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/separation = 8
+
+[node name="Agenda" type="RichTextLabel" parent="AgendaArea/MarginContainer/VBoxContainer" unique_id=1279455627]
+visible = false
+layout_mode = 2
+theme_override_fonts/normal_font = ExtResource("16_qmjfx")
+theme_override_fonts/bold_font = ExtResource("16_qmjfx")
+bbcode_enabled = true
+text = "Agenda"
+fit_content = true
+scroll_active = false
+
+[node name="HSeparator" type="HSeparator" parent="AgendaArea/MarginContainer/VBoxContainer" unique_id=1994401752]
+visible = false
+layout_mode = 2
+
+[node name="Combos" type="RichTextLabel" parent="AgendaArea/MarginContainer/VBoxContainer" unique_id=258468887]
+clip_contents = false
+layout_mode = 2
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 6
+theme_override_fonts/normal_font = ExtResource("16_qmjfx")
+theme_override_fonts/bold_font = ExtResource("16_qmjfx")
+bbcode_enabled = true
+text = "[wave amp=2 freq=2.0]Combos [font_size=9] (order doesn't matter) [/font_size] [/wave]"
+fit_content = true
+scroll_active = false
+
+[node name="ComboList" type="VBoxContainer" parent="AgendaArea/MarginContainer/VBoxContainer" unique_id=2052080633]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="HSeparator2" type="HSeparator" parent="AgendaArea/MarginContainer/VBoxContainer" unique_id=684165049]
+visible = false
+layout_mode = 2
+
+[node name="Symbols" type="RichTextLabel" parent="AgendaArea/MarginContainer/VBoxContainer" unique_id=1142355650]
+visible = false
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_fonts/normal_font = ExtResource("16_qmjfx")
+theme_override_fonts/bold_font = ExtResource("16_qmjfx")
+text = "Symbols"
+
+[node name="PoolRoster" type="Control" parent="AgendaArea/MarginContainer/VBoxContainer" unique_id=79252817]
+unique_name_in_owner = true
+clip_contents = true
+custom_minimum_size = Vector2(160, 50)
+layout_mode = 2
+size_flags_horizontal = 0
+size_flags_vertical = 3
+script = ExtResource("38_8o0a2")
+
+[node name="ChipRow" type="HBoxContainer" parent="AgendaArea/MarginContainer/VBoxContainer/PoolRoster" unique_id=1805548403]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="UpgradeDisplay" type="Control" parent="." unique_id=265490971]
+layout_mode = 1
+anchor_left = 0.29200003
+anchor_right = 1.0
+anchor_bottom = 0.592
+offset_left = 0.11997986
+offset_top = 14.0
+offset_bottom = -0.11999512
+grow_horizontal = 0
+mouse_filter = 2
+script = ExtResource("38_f4pwu")
+card_scenes = Array[PackedScene]([ExtResource("39_tm7qj"), ExtResource("39_tm7qj"), ExtResource("39_tm7qj")])
+
+[node name="HeaderLabel" type="RichTextLabel" parent="UpgradeDisplay" unique_id=301927323]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_bottom = 34.0
+grow_horizontal = 2
+theme_override_colors/font_outline_color = Color(0.047301866, 0.024442345, 0.08967819, 1)
+theme_override_constants/outline_size = 6
+theme_override_fonts/normal_font = ExtResource("16_qmjfx")
+theme_override_fonts/bold_font = ExtResource("16_qmjfx")
+theme_override_font_sizes/normal_font_size = 24
+theme_override_font_sizes/bold_font_size = 24
+bbcode_enabled = true
+text = "[wave amp=2 freq=6.0]PERFORMANCE REVIEW[/wave]"
+fit_content = true
+scroll_active = false
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="MarginContainer" type="MarginContainer" parent="UpgradeDisplay" unique_id=848024132]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = 65.0
+offset_bottom = -40.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="CardContainer" type="HBoxContainer" parent="UpgradeDisplay/MarginContainer" unique_id=1317515700]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_constants/separation = 20
+alignment = 1
+
+[node name="Camera2D" type="Camera2D" parent="." unique_id=1143090596 groups=["camera"]]
+unique_name_in_owner = true
+position = Vector2(320, 180)
+script = ExtResource("41_r20up")
+
+[node name="GameOverScreen" type="TextureRect" parent="." unique_id=840115983]
+visible = false
+z_index = 100
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("48_v24qm")
+
+[node name="VBoxContainer" type="VBoxContainer" parent="GameOverScreen" unique_id=804252090]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -108.0
+offset_top = -69.5
+offset_right = 108.0
+offset_bottom = 69.5
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 24
+
+[node name="VBoxContainer" type="VBoxContainer" parent="GameOverScreen/VBoxContainer" unique_id=927560293]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="GameOverTitle" type="RichTextLabel" parent="GameOverScreen/VBoxContainer/VBoxContainer" unique_id=190151941]
+layout_mode = 2
+theme_override_constants/outline_size = 12
+theme_override_fonts/normal_font = ExtResource("16_qmjfx")
+theme_override_fonts/bold_font = ExtResource("16_qmjfx")
+theme_override_font_sizes/normal_font_size = 48
+theme_override_font_sizes/bold_font_size = 48
+bbcode_enabled = true
+text = "[wave amp=4 freq=2.0][b]FIRED[/b][/wave]"
+fit_content = true
+scroll_active = false
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="GameOverSubtitle" type="RichTextLabel" parent="GameOverScreen/VBoxContainer/VBoxContainer" unique_id=978538141]
+layout_mode = 2
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 8
+theme_override_fonts/normal_font = ExtResource("16_qmjfx")
+theme_override_fonts/bold_font = ExtResource("16_qmjfx")
+theme_override_font_sizes/normal_font_size = 12
+bbcode_enabled = true
+text = "[wave amp=4 freq=2.0][b]You weren't serious enough. Lock in.[/b][/wave]"
+fit_content = true
+scroll_active = false
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="HBoxContainer" type="HBoxContainer" parent="GameOverScreen/VBoxContainer" unique_id=476266818]
+layout_mode = 2
+
+[node name="Restart" type="Button" parent="GameOverScreen/VBoxContainer/HBoxContainer" unique_id=2052770437]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+mouse_default_cursor_shape = 2
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 6
+theme_override_fonts/font = ExtResource("16_qmjfx")
+theme_override_styles/normal = SubResource("StyleBoxFlat_v24qm")
+theme_override_styles/hover = SubResource("StyleBoxFlat_0j2h3")
+text = "LOCK IN"
+
+[node name="RestartEasy" type="Button" parent="GameOverScreen/VBoxContainer/HBoxContainer" unique_id=1852390112]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+mouse_default_cursor_shape = 2
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 6
+theme_override_fonts/font = ExtResource("16_qmjfx")
+theme_override_styles/normal = SubResource("StyleBoxFlat_rbecj")
+theme_override_styles/hover = SubResource("StyleBoxFlat_wxrmo")
+text = "LOWER STAKES
+(+25 HP)"
+
+[node name="VictoryScreen" type="TextureRect" parent="." unique_id=219894769]
+visible = false
+z_index = 100
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("48_v24qm")
+
+[node name="VBoxContainer" type="VBoxContainer" parent="VictoryScreen" unique_id=2113836731]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -259.0
+offset_top = -69.5
+offset_right = 259.0
+offset_bottom = 69.5
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 128
+
+[node name="VBoxContainer" type="VBoxContainer" parent="VictoryScreen/VBoxContainer" unique_id=336756534]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="VictoryTitle" type="RichTextLabel" parent="VictoryScreen/VBoxContainer/VBoxContainer" unique_id=475015151]
+layout_mode = 2
+theme_override_constants/outline_size = 12
+theme_override_fonts/normal_font = ExtResource("16_qmjfx")
+theme_override_fonts/bold_font = ExtResource("16_qmjfx")
+theme_override_font_sizes/normal_font_size = 48
+theme_override_font_sizes/bold_font_size = 48
+bbcode_enabled = true
+text = "[wave amp=12 freq=6.0][color=#ffd060][b]★ PROMOTED TO CEO ★[/b][/color][/wave]"
+fit_content = true
+scroll_active = false
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="VictorySubtitle" type="RichTextLabel" parent="VictoryScreen/VBoxContainer/VBoxContainer" unique_id=174808459]
+layout_mode = 2
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 8
+theme_override_fonts/normal_font = ExtResource("16_qmjfx")
+theme_override_fonts/bold_font = ExtResource("16_qmjfx")
+theme_override_font_sizes/normal_font_size = 12
+bbcode_enabled = true
+text = "[wave amp=4 freq=2.0][b]Maximum synergy achieved. The board is pleased.[/b][/wave]"
+fit_content = true
+scroll_active = false
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="HBoxContainer" type="HBoxContainer" parent="VictoryScreen/VBoxContainer" unique_id=1759781733]
+layout_mode = 2
+size_flags_horizontal = 4
+
+[node name="VictoryRestart" type="Button" parent="VictoryScreen/VBoxContainer/HBoxContainer" unique_id=1832306147]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+mouse_default_cursor_shape = 2
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 6
+theme_override_fonts/font = ExtResource("16_qmjfx")
+theme_override_styles/normal = SubResource("StyleBoxFlat_v24qm")
+theme_override_styles/hover = SubResource("StyleBoxFlat_0j2h3")
+text = "START NEW QUARTER"
+
+[node name="VictoryPortrait" type="AnimatedSprite2D" parent="VictoryScreen/VBoxContainer" unique_id=182722308]
+unique_name_in_owner = true
+position = Vector2(259, 138.5)
+scale = Vector2(1.6875, 1.6875)
+sprite_frames = SubResource("SpriteFrames_rbecj")
+animation = &"idle"
+frame = 2
+frame_progress = 0.45865297
