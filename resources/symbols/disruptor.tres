@@ -8,5 +8,5 @@ script = ExtResource("1_iv0cn")
 id = "disruptor"
 symbol_name = "Disruptor"
 icon = ExtResource("1_28gl4")
-base_value = 10
+base_impact = 6
 metadata/_custom_type_script = "uid://b6y6l2gtrmxlo"

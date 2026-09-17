@@ -8,6 +8,6 @@ script = ExtResource("1_81fa5")
 id = "pizza"
 symbol_name = "Pizza Party"
 icon = ExtResource("1_0exnf")
-base_value = 5
 effect_type = 2
+base_morale = 3
 metadata/_custom_type_script = "uid://b6y6l2gtrmxlo"

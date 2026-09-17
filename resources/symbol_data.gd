@@ -17,4 +17,4 @@ enum Department { NONE, FINANCE, HR, IT, MANAGEMENT, SALES }
 @export var base_morale: int = 0
 
 @export_group("Special Ability")
-@export var effect: Array[SymbolData] = []
+@export var effect: SymbolEffect

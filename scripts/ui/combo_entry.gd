@@ -39,8 +39,10 @@ func refresh() -> void:
 	for id in ids:
 		simulated_spin.append(_find_symbol_data(id))
 
-	# Run the simulated spin through the dictionary to get the TRUE total math!
-	var final_math = ComboDictionary.calculate(simulated_spin)
+	# --- Wrap it in a context --- # TODO: will remove this in favor of new left panel
+	var dummy_ctx = BattleContext.new(simulated_spin)
+	var final_math = ComboDictionary.calculate(dummy_ctx)
+	# --------------------------------------
 
 	# Build effect string from the calculated final values
 	var parts: Array[String] = []

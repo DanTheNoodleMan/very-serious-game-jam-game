@@ -118,7 +118,8 @@ func _ready() -> void:
 	# IMPORTANT FIX: Clone the symbol pool so upgrades don't persist after restart
 	var cloned_pool: Array[SymbolData] = []
 	for sym in slot_machine.logic.shared_pool:
-		cloned_pool.append(sym.duplicate(true))
+		cloned_pool.append(sym.duplicate(true)) # THIS UPGRADES 1 INSTANCE OF A SYMBOL. IF I HAVE 
+												# MULTIPLE INSTANCES ONLY 1 WILL BE UPGRADED. TODO: SEE IF THIS IS WHAT I ACTUALLY WANT
 	slot_machine.logic.shared_pool = cloned_pool
 	
 	pool_roster.refresh(slot_machine.logic.shared_pool)
@@ -143,7 +144,8 @@ func start_player_turn() -> void:
 
 func _on_spin_finished(results: Array[SymbolData]) -> void:
 	# Update combo preview
-	var combo = ComboDictionary.calculate(results)
+	var ctx = _create_battle_context(results)
+	var combo = ComboDictionary.calculate(ctx)
 	_update_combo_label(results, combo)
 
 	if rerolls_left > 0:
@@ -179,7 +181,8 @@ func resolve_player_attack() -> void:
 	_hide_combat_ui()  # Hide buttons during resolution
 
 	var final_symbols = slot_machine.logic.active_symbols
-	var combo_result = ComboDictionary.calculate(final_symbols)
+	var ctx = _create_battle_context(final_symbols)
+	var combo_result = ComboDictionary.calculate(ctx)
 	
 	# Beat 1: Combo announcement (if earned)
 	if combo_result["is_combo"]:
@@ -282,6 +285,14 @@ func start_enemy_turn() -> void:
 	start_player_turn()
 
 # --- Helpers -------------------------------------------
+func _create_battle_context(board: Array[SymbolData]) -> BattleContext:
+	var ctx = BattleContext.new(board)
+	ctx.player_hp = player_hp
+	ctx.boss_hp = boss_hp
+	ctx.player_shield = player_shield
+	ctx.turn_number = turn_number
+	ctx.rerolls_left = rerolls_left
+	return ctx
 
 func _set_buttons_spinning() -> void:
 	action_button.disabled = true
@@ -635,11 +646,19 @@ func _on_upgrade_chosen(type: String, data: Variant) -> void:
 			base_rerolls_left += 1
 		"upgrade_normal":
 			var sym := data as SymbolData
-			sym.base_value += 4  # Modifies the resource directly, persists for the run
+			# Buff the correct specific stat
+			match sym.effect_type:
+				SymbolData.EffectType.DAMAGE: sym.base_impact += 4
+				SymbolData.EffectType.SHIELD: sym.base_bandwidth += 4
+				SymbolData.EffectType.HEAL: sym.base_morale += 4
 			ComboDictionary.dictionary_updated.emit() 
 		"upgrade_multiplier":
 			var sym := data as SymbolData
-			sym.base_value += 2
+			# Check which specific effect script is attached to this symbol # TODO: make it not hard coded
+			if sym.effect is MultiplyLeftEffect:
+				sym.effect.base_multiplier += 2
+			elif sym.effect is BuffAllEffect:
+				sym.effect.buff_amount += 2
 			ComboDictionary.dictionary_updated.emit()
 	
 	pool_roster.refresh(slot_machine.logic.shared_pool)

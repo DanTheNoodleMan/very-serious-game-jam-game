@@ -1,7 +1,12 @@
 [gd_resource type="Resource" script_class="SymbolData" format=3 uid="uid://31gp4lfh0a50"]
 
 [ext_resource type="Script" uid="uid://b6y6l2gtrmxlo" path="res://resources/symbol_data.gd" id="1_8ugnu"]
+[ext_resource type="Script" uid="uid://blxvg84u4y3gp" path="res://resources/symbols/symbols_effects/multiply_left_effect.gd" id="1_804rx"]
 [ext_resource type="Texture2D" uid="uid://c0pbiwsc4rbwn" path="res://assets/symbols/ai_pixel.png" id="1_u72aj"]
+
+[sub_resource type="Resource" id="Resource_ayp64"]
+script = ExtResource("1_804rx")
+metadata/_custom_type_script = "uid://blxvg84u4y3gp"
 
 [resource]
 script = ExtResource("1_8ugnu")
@@ -9,4 +14,5 @@ id = "ai"
 symbol_name = "AI"
 icon = ExtResource("1_u72aj")
 effect_type = 3
+effect = SubResource("Resource_ayp64")
 metadata/_custom_type_script = "uid://b6y6l2gtrmxlo"

@@ -8,5 +8,5 @@ script = ExtResource("1_081dw")
 id = "pain_point"
 symbol_name = "Pain Point"
 icon = ExtResource("1_i05pc")
-base_value = 7
+base_impact = 8
 metadata/_custom_type_script = "uid://b6y6l2gtrmxlo"

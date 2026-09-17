@@ -1,13 +1,18 @@
 [gd_resource type="Resource" script_class="SymbolData" format=3 uid="uid://gp76i7yqmgo0"]
 
+[ext_resource type="Script" uid="uid://blos14nhcaudv" path="res://resources/symbols/symbols_effects/buff_all_effect.gd" id="1_i1tna"]
 [ext_resource type="Script" uid="uid://b6y6l2gtrmxlo" path="res://resources/symbol_data.gd" id="1_uiof2"]
 [ext_resource type="Texture2D" uid="uid://1rpoimiw3u7w" path="res://assets/symbols/leverage_pixel.png" id="1_vsdu6"]
+
+[sub_resource type="Resource" id="Resource_ayp64"]
+script = ExtResource("1_i1tna")
+metadata/_custom_type_script = "uid://blos14nhcaudv"
 
 [resource]
 script = ExtResource("1_uiof2")
 id = "leverage"
 symbol_name = "Leverage"
 icon = ExtResource("1_vsdu6")
-base_value = 4
 effect_type = 3
+effect = SubResource("Resource_ayp64")
 metadata/_custom_type_script = "uid://b6y6l2gtrmxlo"

@@ -119,10 +119,13 @@ func _on_reel_stopped(index: int) -> void:
 		spin_finished.emit(_last_results)
 
 func _update_contextual_labels() -> void:
+	# Build a basic context just for UI display purposes
+	var display_ctx = BattleContext.new(_last_results)
+
 	for i in 3:
 		if _last_results[i] == null:
 			continue
-		var new_text := ComboDictionary.get_label_for_position(_last_results, i)
+		var new_text := ComboDictionary.get_label_for_position(display_ctx, i)
 		var label := info_labels[i]
 		if new_text == label.text:
 			continue  # No change, skip animation

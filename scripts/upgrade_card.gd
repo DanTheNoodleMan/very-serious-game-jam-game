@@ -63,39 +63,47 @@ func _build_remove_desc(sym: SymbolData) -> String:
 
 func _build_upgrade_desc(sym: SymbolData, increase: int) -> String:
 	var name_color := _get_name_color(sym)
-	var old_val := sym.base_value
-	var new_val := sym.base_value + increase
 
 	# Show before/after for the relevant stat
 	var stat_label := ""
 	match sym.effect_type:
 		SymbolData.EffectType.DAMAGE:
+			var old_val = sym.base_impact
+			var new_val = old_val + increase
 			stat_label = "[color=#cc4040]IMPACT[/color]  " \
 				+ "[color=#888888]" + str(old_val) + "[/color]" \
 				+ "[color=#ffd060] → [b]" + str(new_val) + "[/b][/color]"
 		SymbolData.EffectType.SHIELD:
+			var old_val = sym.base_bandwidth
+			var new_val = old_val + increase
 			stat_label = "[color=#4099bb]BANDWIDTH[/color]  " \
 				+ "[color=#888888]" + str(old_val) + "[/color]" \
 				+ "[color=#ffd060] → [b]" + str(new_val) + "[/b][/color]"
 		SymbolData.EffectType.HEAL:
+			var old_val = sym.base_morale
+			var new_val = old_val + increase
 			stat_label = "[color=#40aa60]MORALE[/color]  " \
 				+ "[color=#888888]" + str(old_val) + "[/color]" \
 				+ "[color=#ffd060] → [b]" + str(new_val) + "[/b][/color]"
 		SymbolData.EffectType.MULTIPLIER:
-			match sym.id:
-				"ai":
-					stat_label = "[color=#ffd060]MULTIPLIER[/color]  " \
-						+ "[color=#888888]×" + str(old_val) + "[/color]" \
-						+ "[color=#ffd060] → [b]×" + str(new_val) + "[/b][/color]"
-				"leverage":
-					stat_label = "[color=#ffd060]BONUS[/color]  " \
-						+ "[color=#888888]+" + str(old_val) + "[/color]" \
-						+ "[color=#ffd060] → [b]+" + str(new_val) + "[/b][/color]"
-				_:
-					stat_label = "[color=#ffd060]+" + str(increase) + " to effect[/color]"
+			if sym.effect is MultiplyLeftEffect:
+				var old_val = sym.effect.base_multiplier
+				var new_val = old_val + increase
+				stat_label = "[color=#ffd060]MULTIPLIER[/color]  " \
+					+ "[color=#888888]×" + str(old_val) + "[/color]" \
+					+ "[color=#ffd060] → [b]×" + str(new_val) + "[/b][/color]"
+			elif sym.effect is BuffAllEffect:
+				var old_val = sym.effect.buff_amount
+				var new_val = old_val + increase
+				stat_label = "[color=#ffd060]BONUS[/color]  " \
+					+ "[color=#888888]+" + str(old_val) + "[/color]" \
+					+ "[color=#ffd060] → [b]+" + str(new_val) + "[/b][/color]"
+			else:
+				stat_label = "[color=#ffd060]+" + str(increase) + " to effect[/color]"
 
 	return "[color=#fff]UPGRADE [/color][wave amp=2 freq=6.0][b][color=" + name_color + "]" \
 		+ sym.symbol_name.to_upper() + "[/color][/b][/wave]\n(" + stat_label + ")"
+
 
 func _get_name_color(sym: SymbolData) -> String:
 	match sym.effect_type:

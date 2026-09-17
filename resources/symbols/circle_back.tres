@@ -8,6 +8,6 @@ script = ExtResource("1_6aiea")
 id = "circle_back"
 symbol_name = "Circle Back"
 icon = ExtResource("1_ktewh")
-base_value = 5
 effect_type = 1
+base_bandwidth = 5
 metadata/_custom_type_script = "uid://b6y6l2gtrmxlo"

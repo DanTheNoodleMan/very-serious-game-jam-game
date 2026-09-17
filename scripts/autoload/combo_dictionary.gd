@@ -50,30 +50,36 @@ const COMBOS: Array = [
 ]
 
 # ── Public entry point ────────────────────────────────────────────────────────
-func calculate(results: Array[SymbolData]) -> Dictionary:
-	var raw_buckets = _compute_raw_buckets(results)
-	var buffed_buckets = _compute_buffed_buckets(results)
-	var combo = _check_combos(results)
+func calculate(ctx: BattleContext) -> Dictionary:
+	# 1. Have the effects modify the context's buckets
+	_compute_buffed_buckets(ctx)
 
+	# 2. Check for combos
+	var combo = _check_combos(ctx.board)
+	
+	# 3. Tally everything up
 	var base_impact = 0; var base_bw = 0; var base_mo = 0
-	for b in raw_buckets:
-		base_impact += b.impact; base_bw += b.bandwidth; base_mo += b.morale
-
 	var final_impact = 0; var final_bw = 0; var final_mo = 0
-	for b in buffed_buckets:
-		final_impact += b.impact; final_bw += b.bandwidth; final_mo += b.morale
-
+	
+	for i in 3:
+		if ctx.board[i] != null:
+			base_impact += ctx.board[i].base_impact
+			base_bw += ctx.board[i].base_bandwidth
+			base_mo += ctx.board[i].base_morale
+			
+		final_impact += ctx.buckets[i].impact
+		final_bw += ctx.buckets[i].bandwidth
+		final_mo += ctx.buckets[i].morale
+		
 	var final_name = ""
 	if combo.is_combo:
 		final_name = combo.name
-		# Add the combo bonus on top of the multipliers
 		final_impact += combo.bonus_impact
 		final_bw += combo.bonus_bandwidth
 		final_mo += combo.bonus_morale
 
 	return {
-		"is_combo": combo.is_combo,
-		"name": final_name,
+		"is_combo": combo.is_combo, "name": final_name,
 		"impact": final_impact, "base_impact": base_impact,
 		"bandwidth": final_bw, "base_bandwidth": base_bw,
 		"morale": final_mo, "base_morale": base_mo
@@ -97,135 +103,60 @@ func _check_combos(results: Array[SymbolData]) -> Dictionary:
 			}
 	return { "is_combo": false }
 
-# ── Bucket computation (The Math Fix) ─────────────────────────────────────────
-func _compute_raw_buckets(results: Array[SymbolData]) -> Array:
-	var buckets := [
-		{ "impact": 0, "bandwidth": 0, "morale": 0 },
-		{ "impact": 0, "bandwidth": 0, "morale": 0 },
-		{ "impact": 0, "bandwidth": 0, "morale": 0 },
-	]
+# ── Bucket computation ─────────────────────────────────────────
+func _compute_raw_buckets(ctx: BattleContext) -> void:
 	for i in 3:
-		if results[i] == null: continue
-		match results[i].effect_type:
-			SymbolData.EffectType.DAMAGE:     buckets[i]["impact"]    = results[i].base_value
-			SymbolData.EffectType.SHIELD:     buckets[i]["bandwidth"] = results[i].base_value
-			SymbolData.EffectType.HEAL:       buckets[i]["morale"]    = results[i].base_value
-			SymbolData.EffectType.MULTIPLIER: pass
-	return buckets
+		if ctx.board[i] == null: continue
+		ctx.buckets[i]["impact"]    = ctx.board[i].base_impact
+		ctx.buckets[i]["bandwidth"] = ctx.board[i].base_bandwidth
+		ctx.buckets[i]["morale"]    = ctx.board[i].base_morale
 
-func _compute_buffed_buckets(results: Array[SymbolData]) -> Array:
-	var buckets = _compute_raw_buckets(results) # Start with base values
-
-	# Leverage adds to all non-multiplier buckets (AI boost handled in _compute_ai_powers)
-	for i in 3:
-		if results[i] != null and results[i].id == "leverage":
-			var lev_buff = results[i].base_value
-			for j in 3:
-				if j != i and results[j] != null:
-					match results[j].effect_type:
-						SymbolData.EffectType.DAMAGE: buckets[j]["impact"] += lev_buff
-						SymbolData.EffectType.SHIELD: buckets[j]["bandwidth"] += lev_buff
-						SymbolData.EffectType.HEAL:   buckets[j]["morale"] += lev_buff
-						SymbolData.EffectType.MULTIPLIER: pass  # AI handled separately
-
-	# AI doubles its immediate left neighbor, if Leverage, it's wasted
-	var ai_power := _compute_ai_powers(results)
-	for i in range(1, 3):
-		if results[i] != null and results[i].id == "ai":
-			var left := results[i - 1]
-			if left != null and left.effect_type != SymbolData.EffectType.MULTIPLIER:
-				buckets[i-1]["impact"]    = int(buckets[i-1]["impact"]    * ai_power[i])
-				buckets[i-1]["bandwidth"] = int(buckets[i-1]["bandwidth"] * ai_power[i])
-				buckets[i-1]["morale"]    = int(buckets[i-1]["morale"]    * ai_power[i])
+func _compute_buffed_buckets(ctx: BattleContext) -> void:
+	_compute_raw_buckets(ctx) # Fill with base stats first
 	
-	return buckets
-
-func _compute_ai_powers(results: Array[SymbolData]) -> Array[float]:
-	var ai_power: Array[float] = [1.0, 1.0, 1.0]
-	# Base AI power
+	var active_effects: Array = []
 	for i in 3:
-		if results[i] != null and results[i].id == "ai":
-			ai_power[i] = float(results[i].base_value)
+		if ctx.board[i] != null and ctx.board[i].effect != null:
+			active_effects.append({"index": i, "effect": ctx.board[i].effect})
 			
-	# Leverage anywhere boosts ALL AIs
-	for i in 3:
-		if results[i] != null and results[i].id == "leverage":
-			for j in 3:
-				if j != i and results[j] != null and results[j].id == "ai":
-					ai_power[j] += float(results[i].base_value)
-	# Chain AI×AI right-to-left (after leverage is applied)
-	for i in range(2, 0, -1):
-		if results[i] != null and results[i-1] != null:
-			if results[i].id == "ai" and results[i-1].id == "ai":
-				ai_power[i-1] *= ai_power[i]
-	return ai_power
+	# Sort by priority, then by index descending (Right-to-Left execution)
+	active_effects.sort_custom(func(a, b):
+		if a.effect.priority == b.effect.priority:
+			return a.index > b.index
+		return a.effect.priority < b.effect.priority
+	)
+	
+	# Execute scripts
+	for item in active_effects:
+		item.effect.apply_effect(item.index, ctx)
+	
 
 # ── Label Generation ──────────────────────────────────────────────────────────
 func describe_symbol(sym: SymbolData) -> String:
 	match sym.effect_type:
-		SymbolData.EffectType.DAMAGE:
-			return "[b][color=#ff6060]" + str(sym.base_value) + "[/color][/b][color=#cc4040] IMPACT[/color]"
-		SymbolData.EffectType.SHIELD:
-			return "[b][color=#60ccff]" + str(sym.base_value) + "[/color][/b][color=#4099bb] BW[/color]"
-		SymbolData.EffectType.HEAL:
-			return "[b][color=#60ee80]+" + str(sym.base_value) + "[/color][/b][color=#40aa60] MORALE[/color]"
+		SymbolData.EffectType.DAMAGE: return "[b][color=#ff6060]" + str(sym.base_impact) + "[/color][/b][color=#cc4040] IMPACT[/color]"
+		SymbolData.EffectType.SHIELD: return "[b][color=#60ccff]" + str(sym.base_bandwidth) + "[/color][/b][color=#4099bb] BW[/color]"
+		SymbolData.EffectType.HEAL: return "[b][color=#60ee80]+" + str(sym.base_morale) + "[/color][/b][color=#40aa60] MORALE[/color]"
 		SymbolData.EffectType.MULTIPLIER:
-			match sym.id:
-				"ai":       return "[wave amp=6 freq=4][color=#ffd060][b]×" + str(sym.base_value) \
-				+ " ← [/b][/color][color=#ff6060]I[/color][color=#60ccff]B[/color][color=#60ee80]M[/color][/wave]"
-				"leverage": return "[wave amp=6 freq=4][color=#ffd060][b]+" + str(sym.base_value) + " ALL[/b][/color][/wave]"
-				_:          return "[color=#ffd060]MOD[/color]"
+			if sym.effect: return sym.effect.get_description()
+			return "[color=#ffd060]MOD[/color]"
 		_: return "[color=#888888]???[/color]"
 
-func get_label_for_position(results: Array[SymbolData], index: int) -> String:
-	var sym: SymbolData = results[index]
+func get_label_for_position(ctx: BattleContext, index: int) -> String:
+	var sym: SymbolData = ctx.board[index]
 	if sym == null: return ""
 
 	if sym.effect_type == SymbolData.EffectType.MULTIPLIER:
-		return _describe_multiplier_in_context(results, index)
+		_compute_buffed_buckets(ctx) # Calculate context so multiplier powers are ready
+		if sym.effect: return sym.effect.get_contextual_label(index, ctx)
+		return "[color=#ffd060]MOD[/color]"
 
-	var buckets := _compute_raw_buckets(results)
-	var b: Dictionary = buckets[index]
+	_compute_buffed_buckets(ctx)
+	var b: Dictionary = ctx.buckets[index]
 
 	var parts: Array[String] = []
-	if b["impact"] > 0:
-		parts.append("[b][color=#ff6060]" + str(b["impact"]) + "[/color][/b][color=#cc4040] IMPACT[/color]")
-	if b["bandwidth"] > 0:
-		parts.append("[b][color=#60ccff]" + str(b["bandwidth"]) + "[/color][/b][color=#4099bb] BW[/color]")
-	if b["morale"] > 0:
-		parts.append("[b][color=#60ee80]" + str(b["morale"]) + "[/color][/b][color=#40aa60] MORALE[/color]")
+	if b["impact"] > 0: parts.append("[b][color=#ff6060]" + str(b["impact"]) + "[/color][/b][color=#cc4040] IMPACT[/color]")
+	if b["bandwidth"] > 0: parts.append("[b][color=#60ccff]" + str(b["bandwidth"]) + "[/color][/b][color=#4099bb] BW[/color]")
+	if b["morale"] > 0: parts.append("[b][color=#60ee80]+" + str(b["morale"]) + "[/color][/b][color=#40aa60] MORALE[/color]")
 
 	return " + ".join(parts) if not parts.is_empty() else "[color=#444455]—[/color]"
-
-func _describe_multiplier_in_context(results: Array[SymbolData], index: int) -> String:
-	match results[index].id:
-		"ai":
-			if index == 0:       
-				return "[color=#555566]×2 ← [color=#ff6060]I[/color][color=#60ccff]B[/color][color=#60ee80]M[/color] (miss)[/color]"
-			var ai_power := _compute_ai_powers(results)
-			var power := int(ai_power[index])
-			var left := results[index - 1]
-			var ibm := " [font_size=10][color=#ff6060]I[/color][color=#60ccff]B[/color][color=#60ee80]M[/color][/font_size]"
-			if left != null and left.effect_type == SymbolData.EffectType.MULTIPLIER:
-				if left.id == "ai":
-					return "[color=#555566]×" + str(power) + " ←" + ibm + " (spent on " + left.symbol_name.to_upper() + ")[/color]"
-				else:
-					return "[color=#555566]×" + str(power) + " ←" + ibm + " (wasted on " + left.symbol_name.to_upper() + ")[/color]"
-			var boosted_by_lev := false
-			for j in 3:
-				if j != index and results[j] != null and results[j].id == "leverage":
-					boosted_by_lev = true
-			if boosted_by_lev and power != int(results[index].base_value):
-				return "[b][color=#ffd060]×" + str(power) + " ←" + ibm + "[/color][/b][color=#ffd060] (+LEV)[/color]"
-			return "[b][color=#ffd060]×" + str(power) + " ←" + ibm + "[/color][/b]"
-		"leverage":	
-			var lev_buff := results[index].base_value
-			var has_any_target := false
-			for j in 3:
-				if j != index and results[j] != null:
-					has_any_target = true
-			if not has_any_target:
-				return "[color=#555566]+" + str(lev_buff) + " (miss)[/color]"
-			return "[b][color=#ffd060]+" + str(lev_buff) + " ALL[/color][/b]"
-		_:
-			return "[color=#ffd060]MOD[/color]"
