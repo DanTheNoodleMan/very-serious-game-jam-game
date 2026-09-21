@@ -63,7 +63,7 @@ func trigger_spin(player_hp: int = 100) -> void:
 		label.text = ""
 	SFXManager.play(spin_sound, 0.0, 0.0, -10.0, 0.0, 0.0) 
 
-	logic.trigger_spin(player_hp) # Tells logic to pick 3 symbols
+	logic.trigger_spin(player_hp) # Tells logic to pick 3 symbols // player_hp for pity system
 	
 
 func get_reel_global_centers() -> Array[Vector2]:
@@ -105,17 +105,10 @@ func _on_reel_stopped(index: int) -> void:
 		
 		
 
-	# If this was the last reel, trigger the Synergy Phase!
+	# If this was the last reel, finish the spin and update labels
 	if _stopped_count == 3:
 		is_spinning = false
-		await _update_contextual_labels() # WAIT for animations to finish!
-		spin_finished.emit(_last_results)
-
-
-	# If this was the last reel, finish the spin
-	if _stopped_count == 3:
-		is_spinning = false
-		_update_contextual_labels()
+		await _update_contextual_labels() # wait for animations to finish
 		spin_finished.emit(_last_results)
 
 func _update_contextual_labels() -> void:
@@ -129,12 +122,17 @@ func _update_contextual_labels() -> void:
 		var label := info_labels[i]
 		if new_text == label.text:
 			continue  # No change, skip animation
-		label.text = new_text
-		label.pivot_offset = label.size * 0.5
-		# Small pop to draw attention to any value that changed
-		var t := label.create_tween()
-		t.tween_property(label, "scale", Vector2(1.18, 1.18), 0.07).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
-		t.chain().tween_property(label, "scale", Vector2(1.0, 1.0), 0.07).set_trans(Tween.TRANS_SINE)
+		
+		
+		await get_tree().create_timer(0.2).timeout
+		if _last_results[i].effect_type == SymbolData.EffectType.MULTIPLIER:
+			label.text = new_text
+			label.pivot_offset = label.size * 0.5
+			# Small pop to draw attention to any value that changed
+			var t := label.create_tween()
+			t.tween_property(label, "scale", Vector2(1.18, 1.18), 0.07).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+			t.chain().tween_property(label, "scale", Vector2(1.0, 1.0), 0.07).set_trans(Tween.TRANS_SINE)
+
 
 
 func _on_reel_clicked(index: int) -> void:

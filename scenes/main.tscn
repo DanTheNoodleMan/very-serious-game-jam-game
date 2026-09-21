@@ -1,7 +1,97 @@
 [gd_scene format=3 uid="uid://bdoto2gctgevy"]
 
 [ext_resource type="PackedScene" uid="uid://btxfrwlyw7er3" path="res://scenes/combat_scene.tscn" id="1_ig7tw"]
+[ext_resource type="Script" uid="uid://c48xf5y2x8myd" path="res://resources/boss_data.gd" id="2_tipki"]
+[ext_resource type="Resource" uid="uid://ccly2nhdi72t6" path="res://resources/enemies/salaryman.tres" id="3_85g3d"]
+[ext_resource type="Texture2D" uid="uid://d0qe6lbuvx0cm" path="res://assets/enemies/salaryman_idle_2.png" id="4_choun"]
+[ext_resource type="Resource" uid="uid://3mdvbve1jj5q" path="res://resources/enemies/chief_empathy_officer.tres" id="5_ya4ey"]
+[ext_resource type="Resource" uid="uid://cprjdjskyhrmx" path="res://resources/enemies/finance_bro.tres" id="6_eb6dy"]
+[ext_resource type="Resource" uid="uid://crf6xkisrsu8p" path="res://resources/enemies/senior_partner.tres" id="7_trceg"]
+[ext_resource type="Resource" uid="uid://b6y7spiycno0s" path="res://resources/enemies/ceo.tres" id="8_a8y0u"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_cvcst"]
+atlas = ExtResource("4_choun")
+region = Rect2(0, 0, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_id3fk"]
+atlas = ExtResource("4_choun")
+region = Rect2(128, 0, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_pylc6"]
+atlas = ExtResource("4_choun")
+region = Rect2(256, 0, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_50x45"]
+atlas = ExtResource("4_choun")
+region = Rect2(384, 0, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_2rx2w"]
+atlas = ExtResource("4_choun")
+region = Rect2(512, 0, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_a7d7g"]
+atlas = ExtResource("4_choun")
+region = Rect2(640, 0, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_8on0t"]
+atlas = ExtResource("4_choun")
+region = Rect2(768, 0, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_yenih"]
+atlas = ExtResource("4_choun")
+region = Rect2(896, 0, 128, 128)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_j3ll6"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_cvcst")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_id3fk")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_pylc6")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_50x45")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_2rx2w")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_a7d7g")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_8on0t")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_yenih")
+}],
+"loop": 1,
+"name": &"idle",
+"speed": 3.33
+}]
+
+[sub_resource type="Resource" id="Resource_rbecj"]
+script = ExtResource("2_tipki")
+boss_id = "salaryman"
+boss_name = "Salaryman"
+max_hp = 60
+attack_pattern = Array[int]([6, 6, 7, 7, 5, 5, 15])
+animations = SubResource("SpriteFrames_j3ll6")
+metadata/_custom_type_script = "uid://c48xf5y2x8myd"
+
+[sub_resource type="Resource" id="Resource_v24qm"]
+script = ExtResource("2_tipki")
+boss_id = "salaryman"
+boss_name = "Salaryman"
+max_hp = 80
+attack_pattern = Array[int]([8, 9, 8, 6, 10, 8, 7, 15])
+animations = SubResource("SpriteFrames_j3ll6")
+metadata/_custom_type_script = "uid://c48xf5y2x8myd"
 
 [node name="Main" type="Node" unique_id=887175760]
 
 [node name="CombatScene" parent="." unique_id=1819690931 instance=ExtResource("1_ig7tw")]
+boss_roster = Array[ExtResource("2_tipki")]([ExtResource("3_85g3d"), SubResource("Resource_rbecj"), SubResource("Resource_v24qm"), ExtResource("5_ya4ey"), ExtResource("6_eb6dy"), ExtResource("7_trceg"), ExtResource("8_a8y0u")])

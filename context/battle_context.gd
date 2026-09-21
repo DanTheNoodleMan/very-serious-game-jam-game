@@ -18,5 +18,6 @@ func _init(_board: Array[SymbolData]):
 			"impact": 0, 
 			"bandwidth": 0, 
 			"morale": 0, 
-			"multiplier_power": 1.0 
+			"multiplier_bonus": 0, # Flat additions (Leverage)
+			"multiplier_scale": 1  # Multiplicative chaining (A.I. into A.I.)
 		})
