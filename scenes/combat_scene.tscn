@@ -114,7 +114,7 @@ animations = [{
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_yenih")
 }],
-"loop": true,
+"loop": 1,
 "name": &"idle",
 "speed": 3.33
 }]
@@ -198,7 +198,7 @@ animations = [{
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_k7bhb")
 }],
-"loop": true,
+"loop": 1,
 "name": &"idle",
 "speed": 3.33
 }]
@@ -318,7 +318,7 @@ animations = [{
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_g2k32")
 }],
-"loop": true,
+"loop": 1,
 "name": &"idle",
 "speed": 3.33
 }]
@@ -954,8 +954,8 @@ text = "Symbols"
 
 [node name="PoolRoster" type="Control" parent="AgendaArea/MarginContainer/VBoxContainer" unique_id=79252817]
 unique_name_in_owner = true
-clip_contents = true
 custom_minimum_size = Vector2(160, 50)
+clip_contents = true
 layout_mode = 2
 size_flags_horizontal = 0
 size_flags_vertical = 3

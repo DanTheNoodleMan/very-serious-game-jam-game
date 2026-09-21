@@ -87,21 +87,44 @@ func _on_reel_stopped(index: int) -> void:
 	var symbol = _last_results[index]
 	
 	if symbol != null:
+		# --- PRE: TRIGGER LANDING EFFECTS EXACTLY ONCE ---
+		var popup_text := ""
+		if symbol.effect != null:
+			var dummy_ctx = BattleContext.new(_last_results)
+			var was_held: bool = logic.held_slots[index]
+			popup_text = symbol.effect.on_landed(index, was_held, dummy_ctx)
+		# -------------------------------------------------
+		
 		# 1. Update the text immediately to RAW base stats
 		label.text = ComboDictionary.describe_symbol(symbol)
 		label.pivot_offset = label.size * 0.5
 		
-		# 2. The "Thump" Animation
-		label.scale = Vector2(0.5, 0.5)
-		label.modulate.a = 0.0
-		
 		var base_pitch := 0.9 + 0.1 * (_stopped_count - 1)
 		base_pitch += randf_range(-0.03, 0.03)
-		SFXManager.play(reel_thump, 0.0, 0.05, -2.0, base_pitch)
 		var t := create_tween()
-		t.tween_property(label, "scale", Vector2(1.2, 1.2), 0.08).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
-		t.parallel().tween_property(label, "modulate:a", 1.0, 0.08)
-		t.chain().tween_property(label, "scale", Vector2(1.0, 1.0), 0.06).set_trans(Tween.TRANS_SINE)
+		
+		if popup_text != "":
+			# --- THE MASSIVE LEVEL-UP POP ---
+			SFXManager.play(reel_thump, 0.0, 0.05, 5.0, base_pitch + 0.8) # Much louder, much higher!
+			
+			label.scale = Vector2(1.8, 1.8) # Start HUGE
+			label.modulate = Color(1.5, 1.3, 0.4, 1.0) # Start fully OPAQUE Gold
+			
+			t.tween_property(label, "scale", Vector2(1.0, 1.0), 0.4).set_trans(Tween.TRANS_BOUNCE).set_ease(Tween.EASE_OUT)
+			t.parallel().tween_property(label, "modulate", Color.WHITE, 0.4).set_delay(0.1) # Fade back to white slowly
+			
+			# --- SPAWN THE FLOATING "+1" TEXT ---
+			_spawn_reel_floaty(popup_text, index)
+			
+		else:
+			# --- THE NORMAL THUMP ---
+			SFXManager.play(reel_thump, 0.0, 0.05, -2.0, base_pitch)
+			label.scale = Vector2(0.5, 0.5)
+			label.modulate = Color(1, 1, 1, 0)
+			
+			t.tween_property(label, "scale", Vector2(1.2, 1.2), 0.08).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+			t.parallel().tween_property(label, "modulate:a", 1.0, 0.08)
+			t.chain().tween_property(label, "scale", Vector2(1.0, 1.0), 0.06).set_trans(Tween.TRANS_SINE)
 		
 		
 
@@ -110,19 +133,44 @@ func _on_reel_stopped(index: int) -> void:
 		is_spinning = false
 		await _update_contextual_labels() # wait for animations to finish
 		spin_finished.emit(_last_results)
-
+# A tiny helper function to handle the floating text!
+func _spawn_reel_floaty(text: String, reel_index: int) -> void:
+	var floaty := Label.new()
+	floaty.text = text
+	floaty.add_theme_font_override("font", load("uid://csmid407kor44")) # Your custom font
+	floaty.add_theme_font_size_override("font_size", 24)
+	floaty.add_theme_color_override("font_color", Color(1.0, 0.8, 0.2)) # Bright Gold
+	floaty.add_theme_color_override("font_outline_color", Color.BLACK)
+	floaty.add_theme_constant_override("outline_size", 6)
+	
+	add_child(floaty)
+	
+	# Start it perfectly centered on the reel
+	var reel = _reels[reel_index]
+	floaty.global_position = reel.global_position + (reel.size / 2.0) - Vector2(10, 10)
+	
+	var ft := create_tween()
+	# Float up and fade out!
+	ft.tween_property(floaty, "scale", Vector2(1.0, 1.0), 0.4).set_trans(Tween.TRANS_BOUNCE).set_ease(Tween.EASE_OUT)
+	ft.parallel().tween_property(floaty, "modulate:a", 0.0, 0.6).set_delay(0.2)
+	ft.tween_callback(floaty.queue_free)
+	
 func _update_contextual_labels() -> void:
 	# Build a basic context just for UI display purposes
 	var display_ctx = BattleContext.new(_last_results)
+	
+	# Fill display_ctx.buckets with all the final numbers
+	ComboDictionary.calculate(display_ctx)
 
 	for i in 3:
 		if _last_results[i] == null:
 			continue
+		
 		var new_text := ComboDictionary.get_label_for_position(display_ctx, i)
 		var label := info_labels[i]
+		
 		if new_text == label.text:
 			continue  # No change, skip animation
-		
 		
 		await get_tree().create_timer(0.2).timeout
 		if _last_results[i].effect_type == SymbolData.EffectType.MULTIPLIER:

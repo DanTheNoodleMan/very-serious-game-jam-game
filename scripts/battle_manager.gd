@@ -184,6 +184,13 @@ func resolve_player_attack() -> void:
 	var ctx = _create_battle_context(final_symbols)
 	var combo_result = ComboDictionary.calculate(ctx)
 	
+	# --- COMMIT PHASE ---
+	# Trigger all "on play" effects (like scaling) once
+	for i in 3:
+		if ctx.board[i] != null and ctx.board[i].effect != null:
+			ctx.board[i].effect.on_commit(i, ctx)
+	# ------------------------
+	
 	# Beat 1: Combo announcement (if earned)
 	if combo_result["is_combo"]:
 		await show_combo_announcement(combo_result["name"])

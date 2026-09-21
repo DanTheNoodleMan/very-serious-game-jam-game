@@ -149,11 +149,9 @@ func get_label_for_position(ctx: BattleContext, index: int) -> String:
 	if sym == null: return ""
 
 	if sym.effect_type == SymbolData.EffectType.MULTIPLIER:
-		_compute_buffed_buckets(ctx) # Calculate context so multiplier powers are ready
 		if sym.effect: return sym.effect.get_contextual_label(index, ctx)
 		return "[color=#ffd060]MOD[/color]"
 
-	_compute_buffed_buckets(ctx)
 	var b: Dictionary = ctx.buckets[index]
 
 	var parts: Array[String] = []
