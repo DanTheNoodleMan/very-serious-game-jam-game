@@ -1,0 +1,36 @@
+[gd_scene format=3 uid="uid://coawga1h4dr04"]
+
+[ext_resource type="Script" uid="uid://dqnh36q7de0f7" path="res://map_test.gd" id="1_q1m20"]
+
+[node name="Node2D" type="Control" unique_id=1500667580]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="ScrollContainer" type="ScrollContainer" parent="." unique_id=1601093260]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+scroll_vertical = 940
+
+[node name="control" type="Control" parent="ScrollContainer" unique_id=341835311]
+custom_minimum_size = Vector2(630, 1300)
+propagate_maximum_size = true
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+script = ExtResource("1_q1m20")
+
+[node name="Button" type="Button" parent="." unique_id=1502494675]
+layout_mode = 0
+offset_right = 8.0
+offset_bottom = 8.0
+text = "Generate new"
+
+[connection signal="pressed" from="Button" to="ScrollContainer/control" method="_on_button_pressed"]
