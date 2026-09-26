@@ -2,7 +2,7 @@
 
 [ext_resource type="Script" uid="uid://b6y6l2gtrmxlo" path="res://resources/symbol_data.gd" id="1_gyyi6"]
 [ext_resource type="Script" uid="uid://8387s87wcls6" path="res://resources/symbols/symbols_effects/scale_on_land_effect.gd" id="1_n53vp"]
-[ext_resource type="Texture2D" uid="uid://c3f2d4rkdpo1y" path="res://assets/enemies/salaryman.png" id="2_k34qe"]
+[ext_resource type="Texture2D" uid="uid://dog4l8tnhcdoo" path="res://assets/symbols/brainstorm_pixel.png" id="2_n53vp"]
 
 [sub_resource type="Resource" id="Resource_0o0pr"]
 script = ExtResource("1_n53vp")
@@ -13,7 +13,8 @@ metadata/_custom_type_script = "uid://8387s87wcls6"
 script = ExtResource("1_gyyi6")
 id = "brainstorm"
 symbol_name = "Brainstorm"
-icon = ExtResource("2_k34qe")
+icon = ExtResource("2_n53vp")
+department = 3
 base_impact = 1
 effect = SubResource("Resource_0o0pr")
 metadata/_custom_type_script = "uid://b6y6l2gtrmxlo"

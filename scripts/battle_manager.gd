@@ -30,6 +30,7 @@ var player_hp: int = 100
 var player_max_hp: int = 100
 var player_shield: int = 0   # resets each enemy turn after absorbing
 var boss_hp: int = 100
+var boss_max_hp: int = 100
 var turn_number: int = 0
 var rerolls_left: int = 1
 var base_rerolls_left: int = 2
@@ -82,10 +83,11 @@ func _ready() -> void:
 	if boss_roster.size() > 0:
 		current_boss = boss_roster[0]
 		boss_hp = current_boss.max_hp
+		boss_max_hp = current_boss.max_hp
 	enemy_display.setup(current_boss)
 	enemy_display.show_name_immediate()
 	
-	player_display.setup(player_hp)
+	player_display.setup(player_hp, player_max_hp)
 	
 	btn_restart.pressed.connect(_on_restart_pressed)
 	btn_easy.pressed.connect(_on_easy_pressed)
@@ -102,6 +104,7 @@ func _ready() -> void:
 	slot_machine.spin_finished.connect(_on_spin_finished)
 	slot_machine.spin_start.connect(_on_spin_start)
 	slot_machine.player_learned_hold.connect(_on_player_learned_hold)
+	slot_machine.context_factory = Callable(self, "create_battle_context")
 	
 	upgrade_display.upgrade_chosen.connect(_on_upgrade_chosen)
 	upgrade_display.visible = false
@@ -144,7 +147,7 @@ func start_player_turn() -> void:
 
 func _on_spin_finished(results: Array[SymbolData]) -> void:
 	# Update combo preview
-	var ctx = _create_battle_context(results)
+	var ctx = create_battle_context(results)
 	var combo = ComboDictionary.calculate(ctx)
 	_update_combo_label(results, combo)
 
@@ -181,7 +184,7 @@ func resolve_player_attack() -> void:
 	_hide_combat_ui()  # Hide buttons during resolution
 
 	var final_symbols = slot_machine.logic.active_symbols
-	var ctx = _create_battle_context(final_symbols)
+	var ctx = create_battle_context(final_symbols)
 	var combo_result = ComboDictionary.calculate(ctx)
 	
 	# --- COMMIT PHASE ---
@@ -291,10 +294,12 @@ func start_enemy_turn() -> void:
 	turn_number += 1
 	start_player_turn()
 
-# --- Helpers -------------------------------------------
-func _create_battle_context(board: Array[SymbolData]) -> BattleContext:
+# --- Helpers ------------------------------------------- IMPORTANT CONTEXT CREATOR
+func create_battle_context(board: Array[SymbolData]) -> BattleContext:
 	var ctx = BattleContext.new(board)
+	ctx.player_max_hp = player_max_hp
 	ctx.player_hp = player_hp
+	ctx.boss_max_hp = boss_max_hp
 	ctx.boss_hp = boss_hp
 	ctx.player_shield = player_shield
 	ctx.turn_number = turn_number
@@ -324,7 +329,7 @@ func _update_combo_label(results: Array[SymbolData], combo: Dictionary) -> void:
 	if combo["impact"] > 0:
 		if combo["impact"] > combo["base_impact"]:
 			# FORMAT: 16 IMPACT (Base 5)
-			parts.append("[wave amp=2 freq=5.0][color=#ffd060][b]" + str(combo["impact"]) + "[/b][/color] [color=#ff7777]IMPACT[/color] [color=#ffd060](Base [color=#ff7777]" + str(combo["base_impact"]) + "[/color])[/color][/wave]")
+			parts.append("[wave amp=2 freq=5.0][color=#ffd060][b]" + str(combo["impact"]) + "[/b][/color] [color=#ff7777]IMPACT[/color] [color=#ffd060]([color=#ff7777]" + str(combo["base_impact"]) + "[/color])[/color][/wave]")
 		else:
 			parts.append("[wave amp=2 freq=5.0][color=#ff7777][b]" + str(combo["impact"]) + "[/b][/color] [color=#ff7777]IMPACT[/color][/wave]")
 
@@ -332,7 +337,7 @@ func _update_combo_label(results: Array[SymbolData], combo: Dictionary) -> void:
 	if combo["bandwidth"] > 0:
 		if combo["bandwidth"] > combo["base_bandwidth"]:
 			# FORMAT: 8 BW (Base 4)
-			parts.append("[wave amp=2 freq=5.0][color=#ffd060][b]" + str(combo["bandwidth"]) + "[/b][/color] [color=#77aaff]BW[/color] [color=#ffd060](Base [color=#77aaff]" + str(combo["base_bandwidth"]) + "[/color])[/color][/wave]")
+			parts.append("[wave amp=2 freq=5.0][color=#ffd060][b]" + str(combo["bandwidth"]) + "[/b][/color] [color=#77aaff]BW[/color] [color=#ffd060]([color=#77aaff]" + str(combo["base_bandwidth"]) + "[/color])[/color][/wave]")
 		else:
 			parts.append("[wave amp=2 freq=5.0][color=#77aaff][b]" + str(combo["bandwidth"]) + "[/b][/color] [color=#77aaff]BW[/color][/wave]")
 
@@ -340,7 +345,7 @@ func _update_combo_label(results: Array[SymbolData], combo: Dictionary) -> void:
 	if combo["morale"] > 0:
 		if combo["morale"] > combo["base_morale"]:
 			# FORMAT: 20 MORALE (Base 8)
-			parts.append("[wave amp=2 freq=5.0][color=#ffd060][b]" + str(combo["morale"]) + "[/b][/color] [color=#77ee99]MORALE[/color] [color=#ffd060](Base [color=#77ee99]" + str(combo["base_morale"]) + "[/color])[/color][/wave]")
+			parts.append("[wave amp=2 freq=5.0][color=#ffd060][b]" + str(combo["morale"]) + "[/b][/color] [color=#77ee99]MORALE[/color] [color=#ffd060]([color=#77ee99]" + str(combo["base_morale"]) + "[/color])[/color][/wave]")
 		else:
 			parts.append("[wave amp=2 freq=5.0][color=#77ee99][b]" + str(combo["morale"]) + "[/b][/color] [color=#77ee99]MORALE[/color][/wave]")
 

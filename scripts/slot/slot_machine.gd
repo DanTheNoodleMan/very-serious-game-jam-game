@@ -1,6 +1,5 @@
 # slot_machine.gd
-class_name SlotMachine
-extends Control
+class_name SlotMachine extends Control
 
 signal spin_finished(results: Array[SymbolData])
 signal spin_start
@@ -20,8 +19,10 @@ signal player_learned_hold
 @export var lock_tex: Texture2D
 
 const SPIN_SFX_LENGTH := 1.4 # seconds — update if you swap the file
-
 const SPIN_DURATIONS := [0.6, 1.0, 1.4]
+
+var context_factory: Callable  # injected by BattleManager
+
 var _reels: Array[SlotReel] = []
 var _stopped_count: int = 0
 var is_spinning: bool = false
@@ -90,12 +91,12 @@ func _on_reel_stopped(index: int) -> void:
 		# --- PRE: TRIGGER LANDING EFFECTS EXACTLY ONCE ---
 		var popup_text := ""
 		if symbol.effect != null:
-			var dummy_ctx = BattleContext.new(_last_results)
+			var dummy_ctx = context_factory.call(_last_results)
 			var was_held: bool = logic.held_slots[index]
 			popup_text = symbol.effect.on_landed(index, was_held, dummy_ctx)
 		# -------------------------------------------------
 		
-		# 1. Update the text immediately to RAW base stats
+		# 1. Update the text to RAW base stats
 		label.text = ComboDictionary.describe_symbol(symbol)
 		label.pivot_offset = label.size * 0.5
 		
@@ -157,7 +158,7 @@ func _spawn_reel_floaty(text: String, reel_index: int) -> void:
 	
 func _update_contextual_labels() -> void:
 	# Build a basic context just for UI display purposes
-	var display_ctx = BattleContext.new(_last_results)
+	var display_ctx = context_factory.call(_last_results)
 	
 	# Fill display_ctx.buckets with all the final numbers
 	ComboDictionary.calculate(display_ctx)
@@ -173,13 +174,12 @@ func _update_contextual_labels() -> void:
 			continue  # No change, skip animation
 		
 		await get_tree().create_timer(0.2).timeout
-		if _last_results[i].effect_type == SymbolData.EffectType.MULTIPLIER:
-			label.text = new_text
-			label.pivot_offset = label.size * 0.5
-			# Small pop to draw attention to any value that changed
-			var t := label.create_tween()
-			t.tween_property(label, "scale", Vector2(1.18, 1.18), 0.07).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
-			t.chain().tween_property(label, "scale", Vector2(1.0, 1.0), 0.07).set_trans(Tween.TRANS_SINE)
+		label.text = new_text
+		label.pivot_offset = label.size * 0.5
+		# Small pop to draw attention to any value that changed
+		var t := label.create_tween()
+		t.tween_property(label, "scale", Vector2(1.18, 1.18), 0.07).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+		t.chain().tween_property(label, "scale", Vector2(1.0, 1.0), 0.07).set_trans(Tween.TRANS_SINE)
 
 
 

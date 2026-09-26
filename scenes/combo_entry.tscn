@@ -42,8 +42,8 @@ theme_override_constants/separation = 2
 
 [node name="ComboName" type="RichTextLabel" parent="MarginContainer/VBoxContainer" unique_id=1950167789]
 unique_name_in_owner = true
-clip_contents = false
 custom_minimum_size = Vector2(0, 12)
+clip_contents = false
 layout_mode = 2
 theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
 theme_override_constants/outline_size = 6

@@ -9,9 +9,10 @@
 [ext_resource type="Texture2D" uid="uid://dreyrmr2bbfut" path="res://assets/ui/reel_border.png" id="4_bjjkd"]
 [ext_resource type="Texture2D" uid="uid://cpumt4hh2wob0" path="res://assets/ui/lock_symbol.png" id="5_3ucdj"]
 [ext_resource type="FontFile" uid="uid://csmid407kor44" path="res://assets/fonts/Stacked pixel.ttf" id="6_7abct"]
-[ext_resource type="Resource" uid="uid://b5rqdu7o1qnng" path="res://resources/symbols/pain_point.tres" id="10_bjjkd"]
-[ext_resource type="Resource" uid="uid://2mykwv3odn16" path="res://resources/symbols/stake.tres" id="12_bcb0g"]
-[ext_resource type="Resource" uid="uid://diciesej1gn6x" path="res://resources/symbols/brainstorm.tres" id="12_g1le3"]
+[ext_resource type="Resource" uid="uid://dnyn4iruiaydi" path="res://resources/symbols/pizza_party.tres" id="11_r2p6a"]
+[ext_resource type="Resource" uid="uid://bonah5v6eua36" path="res://resources/symbols/synergy.tres" id="12_4gbs2"]
+[ext_resource type="Resource" uid="uid://gp76i7yqmgo0" path="res://resources/symbols/leverage.tres" id="12_bcb0g"]
+[ext_resource type="Resource" uid="uid://31gp4lfh0a50" path="res://resources/symbols/ai.tres" id="12_p2c1i"]
 
 [node name="SlotMachine" type="Control" unique_id=798385911]
 layout_mode = 3
@@ -28,7 +29,7 @@ lock_tex = ExtResource("5_3ucdj")
 
 [node name="SlotMachineLogic" type="Node" parent="." unique_id=669746294]
 script = ExtResource("1_agdmm")
-shared_pool = Array[ExtResource("3_knkoj")]([ExtResource("4_842tv"), ExtResource("10_bjjkd"), ExtResource("12_bcb0g"), ExtResource("12_g1le3")])
+shared_pool = Array[ExtResource("3_knkoj")]([ExtResource("4_842tv"), ExtResource("12_4gbs2"), ExtResource("11_r2p6a"), ExtResource("12_bcb0g"), ExtResource("12_p2c1i")])
 
 [node name="SlotMachineSprite" type="Sprite2D" parent="." unique_id=1014798497]
 

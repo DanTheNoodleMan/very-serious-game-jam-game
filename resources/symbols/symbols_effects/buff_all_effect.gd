@@ -10,15 +10,17 @@ func apply_effect(my_index: int, ctx: BattleContext) -> void:
 		if i != my_index and ctx.board[i] != null:
 			var applied = false
 			
-			# only buff the stats that the symbol actually uses
 			if ctx.board[i].base_impact > 0:
 				ctx.buckets[i]["impact"] += buff_amount
+				ctx.buckets[i]["impact_add"] += buff_amount
 				applied = true
 			if ctx.board[i].base_bandwidth > 0:
 				ctx.buckets[i]["bandwidth"] += buff_amount
+				ctx.buckets[i]["bandwidth_add"] += buff_amount
 				applied = true
 			if ctx.board[i].base_morale > 0:
 				ctx.buckets[i]["morale"] += buff_amount
+				ctx.buckets[i]["morale_add"] += buff_amount
 				applied = true
 			
 			if not applied and ctx.board[i].effect_type == SymbolData.EffectType.MULTIPLIER:

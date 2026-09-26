@@ -11,13 +11,13 @@ var current_shield: int = 0
 var _max_hp: int = 50
 var camera: Camera2D
 
-func setup(max_hp: int) -> void:
+func setup(player_hp: int, max_hp: int) -> void:
 	hp_bar.max_value = max_hp
-	hp_bar.value = max_hp
+	hp_bar.value = player_hp
 	_max_hp = max_hp
 	shield_badge.visible = false
 	player_portrait.play("idle")
-	_set_hp_text(max_hp)
+	_set_hp_text(player_hp)
 	
 	camera = get_tree().get_first_node_in_group("camera")
 

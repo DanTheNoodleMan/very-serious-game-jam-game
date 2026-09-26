@@ -3,7 +3,7 @@ class_name ScaleOnLandEffect extends SymbolEffect
 @export var scale_amount: int = 1
 
 func _init() -> void:
-	priority = 30 # priority 5 for effects that autoscale on land
+	priority = 5 # priority 5 for effects that autoscale on land
 
 func apply_effect(my_index: int, ctx: BattleContext) -> void: pass
 func on_commit(my_index: int, ctx: BattleContext) -> void: pass

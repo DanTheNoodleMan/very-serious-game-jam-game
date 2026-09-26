@@ -6,5 +6,6 @@
 [resource]
 script = ExtResource("1_t2yfc")
 icon = ExtResource("1_27hvf")
+department = 5
 base_impact = 4
 metadata/_custom_type_script = "uid://b6y6l2gtrmxlo"

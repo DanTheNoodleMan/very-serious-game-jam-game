@@ -112,6 +112,9 @@ func _compute_raw_buckets(ctx: BattleContext) -> void:
 		ctx.buckets[i]["morale"]    = ctx.board[i].base_morale
 		ctx.buckets[i]["multiplier_bonus"] = 0
 		ctx.buckets[i]["multiplier_scale"] = 1
+		for stat in ["impact", "bandwidth", "morale"]:
+			ctx.buckets[i][stat + "_add"] = 0
+			ctx.buckets[i][stat + "_mult"] = 1
 
 func _compute_buffed_buckets(ctx: BattleContext) -> void:
 	_compute_raw_buckets(ctx) # Fill with base stats first
@@ -136,9 +139,9 @@ func _compute_buffed_buckets(ctx: BattleContext) -> void:
 # ── Label Generation ──────────────────────────────────────────────────────────
 func describe_symbol(sym: SymbolData) -> String:
 	match sym.effect_type:
-		SymbolData.EffectType.DAMAGE: return "[b][color=#ff6060]" + str(sym.base_impact) + "[/color][/b][color=#cc4040] IMPACT[/color]"
+		SymbolData.EffectType.DAMAGE: return "[b][color=#ff6060]" + str(sym.base_impact) + "[/color][/b][color=#cc4040] IM[/color]"
 		SymbolData.EffectType.SHIELD: return "[b][color=#60ccff]" + str(sym.base_bandwidth) + "[/color][/b][color=#4099bb] BW[/color]"
-		SymbolData.EffectType.HEAL: return "[b][color=#60ee80]" + str(sym.base_morale) + "[/color][/b][color=#40aa60] MORALE[/color]"
+		SymbolData.EffectType.HEAL: return "[b][color=#60ee80]" + str(sym.base_morale) + "[/color][/b][color=#40aa60] MO[/color]"
 		SymbolData.EffectType.MULTIPLIER:
 			if sym.effect: return sym.effect.get_description()
 			return "[color=#ffd060]MOD[/color]"
@@ -146,17 +149,27 @@ func describe_symbol(sym: SymbolData) -> String:
 
 func get_label_for_position(ctx: BattleContext, index: int) -> String:
 	var sym: SymbolData = ctx.board[index]
-	if sym == null: return ""
+	if sym == null:
+		return ""
 
 	if sym.effect_type == SymbolData.EffectType.MULTIPLIER:
 		if sym.effect: return sym.effect.get_contextual_label(index, ctx)
 		return "[color=#ffd060]MOD[/color]"
 
 	var b: Dictionary = ctx.buckets[index]
-
 	var parts: Array[String] = []
-	if b["impact"] > 0: parts.append("[b][color=#ff6060]" + str(b["impact"]) + "[/color][/b][color=#cc4040] IMPACT[/color]")
-	if b["bandwidth"] > 0: parts.append("[b][color=#60ccff]" + str(b["bandwidth"]) + "[/color][/b][color=#4099bb] BW[/color]")
-	if b["morale"] > 0: parts.append("[b][color=#60ee80]" + str(b["morale"]) + "[/color][/b][color=#40aa60] MORALE[/color]")
 
-	return " + ".join(parts) if not parts.is_empty() else "[color=#444455]—[/color]"
+	if b["impact"] > 0:
+		parts.append(_format_stat_line(b["impact"], sym.base_impact, "#ff6060", "#cc4040", "IM"))
+	if b["bandwidth"] > 0:
+		parts.append(_format_stat_line(b["bandwidth"], sym.base_bandwidth, "#60ccff", "#4099bb", "BW"))
+	if b["morale"] > 0:
+		parts.append(_format_stat_line(b["morale"], sym.base_morale, "#60ee80", "#40aa60", "MO"))
+		
+	return " ".join(parts) if not parts.is_empty() else "[color=#444455]—[/color]"
+
+func _format_stat_line(final_value: int, base_value: int, val_color: String, tag_color: String, short_label: String) -> String:
+	var line := "[b][color=%s]%d[/color][/b][color=%s] %s[/color]" % [val_color, final_value, tag_color, short_label]
+	if final_value != base_value:
+		line += " [font_size=11][color=#ffe066]*[/color][/font_size]"  # small dot = "this is modified", nothing more
+	return line

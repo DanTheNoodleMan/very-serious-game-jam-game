@@ -6,6 +6,7 @@
 
 [sub_resource type="Resource" id="Resource_ayp64"]
 script = ExtResource("1_i1tna")
+buff_amount = 3
 metadata/_custom_type_script = "uid://blos14nhcaudv"
 
 [resource]

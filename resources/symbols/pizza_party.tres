@@ -2,12 +2,20 @@
 
 [ext_resource type="Texture2D" uid="uid://5mp4u7vkttl2" path="res://assets/symbols/pizza_party_pixel.png" id="1_0exnf"]
 [ext_resource type="Script" uid="uid://b6y6l2gtrmxlo" path="res://resources/symbol_data.gd" id="1_81fa5"]
+[ext_resource type="Script" uid="uid://r61g13tspbcd" path="res://resources/symbols/symbols_effects/pizza_effect.gd" id="1_xaxm2"]
+
+[sub_resource type="Resource" id="Resource_0exnf"]
+script = ExtResource("1_xaxm2")
+hp_threshold = 0.35
+metadata/_custom_type_script = "uid://r61g13tspbcd"
 
 [resource]
 script = ExtResource("1_81fa5")
 id = "pizza"
 symbol_name = "Pizza Party"
 icon = ExtResource("1_0exnf")
-effect_type = 2
-base_morale = 3
+effect_type = 1
+department = 2
+base_bandwidth = 4
+effect = SubResource("Resource_0exnf")
 metadata/_custom_type_script = "uid://b6y6l2gtrmxlo"
