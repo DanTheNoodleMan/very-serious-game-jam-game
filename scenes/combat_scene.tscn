@@ -346,7 +346,7 @@ background_music = ExtResource("13_pmb0h")
 boss_roster = Array[ExtResource("9_2lpl0")]([ExtResource("2_7gog2"), ExtResource("10_nwi2s"), ExtResource("10_ognr1"), SubResource("Resource_rbecj"), SubResource("Resource_v24qm"), ExtResource("11_tmhp8"), ExtResource("10_5pitx")])
 boss_music = ExtResource("15_d3gqo")
 
-[node name="ColorRect" type="ColorRect" parent="." unique_id=1417675988]
+[node name="Padding" type="ColorRect" parent="." unique_id=1417675988]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
