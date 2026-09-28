@@ -41,6 +41,14 @@ func _build_reels() -> void:
 
 	# Create 3 reels dynamically
 	for i in 3:
+		info_labels[i].mouse_filter = Control.MOUSE_FILTER_STOP
+		info_labels[i].mouse_entered.connect(func():
+			if _last_results[i] != null:
+				var ctx = context_factory.call(_last_results)
+				ComboDictionary.calculate(ctx)
+				TooltipManager.show_tooltip(info_labels[i], "The Math", ComboDictionary.build_tooltip_for_position(ctx, i), ComboDictionary.MATH_ACCENT_COLOR)
+		)
+		info_labels[i].mouse_exited.connect(func(): TooltipManager.hide_tooltip(info_labels[i]))
 		var reel := SlotReel.new()
 		reel.border_texture = border_tex
 		reel.lock_texture = lock_tex
@@ -164,12 +172,11 @@ func _update_contextual_labels() -> void:
 	ComboDictionary.calculate(display_ctx)
 
 	for i in 3:
-		if _last_results[i] == null:
-			continue
+		if _last_results[i] == null: continue
 		
 		var new_text := ComboDictionary.get_label_for_position(display_ctx, i)
 		var label := info_labels[i]
-		
+				
 		if new_text == label.text:
 			continue  # No change, skip animation
 		

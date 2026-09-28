@@ -49,6 +49,22 @@ const COMBOS: Array = [
 	},
 ]
 
+const EFFECT_COLORS := {
+	SymbolData.EffectType.DAMAGE:     Color(1.0, 0.376, 0.376),   # ff6060
+	SymbolData.EffectType.SHIELD:     Color(0.376, 0.8, 1.0),     # 60ccff
+	SymbolData.EffectType.HEAL:       Color(0.376, 0.933, 0.502), # 60ee80
+	SymbolData.EffectType.MULTIPLIER: Color(1.0, 0.816, 0.376),   # ffd060
+}
+const EFFECT_COLORS_DIM := {
+	SymbolData.EffectType.DAMAGE:     Color(0.8, 0.251, 0.251),   # cc4040
+	SymbolData.EffectType.SHIELD:     Color(0.251, 0.6, 0.733),   # 4099bb
+	SymbolData.EffectType.HEAL:       Color(0.251, 0.667, 0.376), # 40aa60
+	SymbolData.EffectType.MULTIPLIER: Color(0.8, 0.663, 0.267),   # dim gold
+}
+const DEFAULT_COLOR := Color(0.4, 0.4, 0.5)
+const MATH_ACCENT_COLOR := Color(1.0, 0.878, 0.4) # ffe066 for the math tooltip, not tied to any one effect type
+
+
 # ── Public entry point ────────────────────────────────────────────────────────
 func calculate(ctx: BattleContext) -> Dictionary:
 	# 1. Have the effects modify the context's buckets
@@ -137,39 +153,121 @@ func _compute_buffed_buckets(ctx: BattleContext) -> void:
 	
 
 # ── Label Generation ──────────────────────────────────────────────────────────
-func describe_symbol(sym: SymbolData) -> String:
+func describe_symbol(sym: SymbolData, short_labels: bool = true) -> String:
 	match sym.effect_type:
-		SymbolData.EffectType.DAMAGE: return "[b][color=#ff6060]" + str(sym.base_impact) + "[/color][/b][color=#cc4040] IM[/color]"
-		SymbolData.EffectType.SHIELD: return "[b][color=#60ccff]" + str(sym.base_bandwidth) + "[/color][/b][color=#4099bb] BW[/color]"
-		SymbolData.EffectType.HEAL: return "[b][color=#60ee80]" + str(sym.base_morale) + "[/color][/b][color=#40aa60] MO[/color]"
+		SymbolData.EffectType.DAMAGE:
+			var lbl := "IM" if short_labels else "Impact"
+			return "[b][color=%s]%d[/color][/b][color=%s] %s[/color]" % [get_effect_color_hex(sym.effect_type), sym.base_impact, get_effect_color_dim_hex(sym.effect_type), lbl]
+		SymbolData.EffectType.SHIELD:
+			var lbl := "BW" if short_labels else "Bandwidth"
+			return "[b][color=%s]%d[/color][/b][color=%s] %s[/color]" % [get_effect_color_hex(sym.effect_type), sym.base_bandwidth, get_effect_color_dim_hex(sym.effect_type), lbl]
+		SymbolData.EffectType.HEAL:
+			var lbl := "MO" if short_labels else "Morale"
+			return "[b][color=%s]%d[/color][/b][color=%s] %s[/color]" % [get_effect_color_hex(sym.effect_type), sym.base_morale, get_effect_color_dim_hex(sym.effect_type), lbl]
 		SymbolData.EffectType.MULTIPLIER:
 			if sym.effect: return sym.effect.get_description()
-			return "[color=#ffd060]MOD[/color]"
+			return "[color=%s]MOD[/color]" % get_effect_color_hex(sym.effect_type)
 		_: return "[color=#888888]???[/color]"
+
+# ComboDictionary.gd
+func build_card_description(sym: SymbolData) -> String:
+	var lines: Array[String] = []
+
+	if sym.effect_type == SymbolData.EffectType.MULTIPLIER:
+		# Multiplier symbols have no base stat of their own — the effect description IS the identity
+		if sym.effect != null:
+			lines.append(sym.effect.get_description())
+		else:
+			lines.append("[color=%s]MOD[/color]" % get_effect_color_hex(sym.effect_type))
+	else:
+		# Every other symbol: colored base-stat line first (reusing describe_symbol,
+		# so this looks identical to the reel label styling), then any extra behavior below it
+		lines.append(describe_symbol(sym, false))
+		if sym.effect != null:
+			var extra := sym.effect.get_description()
+			if extra != "":
+				lines.append("[font_size=9][color=#99a3c2]%s[/color][/font_size]" % extra)
+		elif sym.flavor_text != "":
+			# No effect script at all — the only way to give this symbol any hover text
+			lines.append("[font_size=9][i][color=#6b7593]%s[/color][/i][/font_size]" % sym.flavor_text)
+
+	return "\n".join(lines) if not lines.is_empty() else "[color=#888888]No effect[/color]"
 
 func get_label_for_position(ctx: BattleContext, index: int) -> String:
 	var sym: SymbolData = ctx.board[index]
-	if sym == null:
-		return ""
+	if sym == null: return ""
 
 	if sym.effect_type == SymbolData.EffectType.MULTIPLIER:
 		if sym.effect: return sym.effect.get_contextual_label(index, ctx)
-		return "[color=#ffd060]MOD[/color]"
+		return "[color=%s]MOD[/color]" % get_effect_color_hex(SymbolData.EffectType.MULTIPLIER)
 
 	var b: Dictionary = ctx.buckets[index]
 	var parts: Array[String] = []
 
 	if b["impact"] > 0:
-		parts.append(_format_stat_line(b["impact"], sym.base_impact, "#ff6060", "#cc4040", "IM"))
+		parts.append(_format_stat_line(b["impact"], sym.base_impact, get_stat_color_hex("impact"), get_stat_color_dim_hex("impact"), "IM"))
 	if b["bandwidth"] > 0:
-		parts.append(_format_stat_line(b["bandwidth"], sym.base_bandwidth, "#60ccff", "#4099bb", "BW"))
+		parts.append(_format_stat_line(b["bandwidth"], sym.base_bandwidth, get_stat_color_hex("bandwidth"), get_stat_color_dim_hex("bandwidth"), "BW"))
 	if b["morale"] > 0:
-		parts.append(_format_stat_line(b["morale"], sym.base_morale, "#60ee80", "#40aa60", "MO"))
-		
+		parts.append(_format_stat_line(b["morale"], sym.base_morale, get_stat_color_hex("morale"), get_stat_color_dim_hex("morale"), "MO"))
+
 	return " ".join(parts) if not parts.is_empty() else "[color=#444455]—[/color]"
+
 
 func _format_stat_line(final_value: int, base_value: int, val_color: String, tag_color: String, short_label: String) -> String:
 	var line := "[b][color=%s]%d[/color][/b][color=%s] %s[/color]" % [val_color, final_value, tag_color, short_label]
 	if final_value != base_value:
-		line += " [font_size=11][color=#ffe066]*[/color][/font_size]"  # small dot = "this is modified", nothing more
+		#line += " [font_size=11][color=#ffe066]*[/color][/font_size]"  # small dot = "this is modified", nothing more
+		line = "[b][color=%s]%d[/color][/b][color=%s] %s[/color]" % ["#ffe066", final_value, tag_color, short_label]
 	return line
+
+func build_tooltip_for_position(ctx: BattleContext, index: int) -> String:
+	var sym: SymbolData = ctx.board[index]
+	if sym == null: return ""
+
+	var blocks: Array[String] = []
+	_append_stat_block(blocks, ctx, index, "impact", sym.base_impact, "Impact")
+	_append_stat_block(blocks, ctx, index, "bandwidth", sym.base_bandwidth, "Bandwidth")
+	_append_stat_block(blocks, ctx, index, "morale", sym.base_morale, "Morale")
+	return "\n\n".join(blocks) if not blocks.is_empty() else "[color=#888888]No modifiers this spin.[/color]"
+
+func _append_stat_block(blocks: Array[String], ctx: BattleContext, index: int, stat: String, base_value: int, label: String) -> void:
+	var final_value: int = ctx.buckets[index][stat]
+	var steps: Array = ctx.stat_logs[index][stat]
+	if steps.is_empty(): return
+
+	var color := get_stat_color_hex(stat)
+	var lines: Array[String] = ["[b][color=%s]%s[/color][/b]  Base %d" % [color, label, base_value]]
+	for step in steps:
+		lines.append("  [color=#ffe066]%s[/color]" % step)
+	lines.append("[b]= %d[/b]" % final_value)
+	blocks.append("\n".join(lines))
+	
+	
+# ── COLOR SECTION ──────────────────────────────────────────────────────────
+func get_effect_color(effect_type) -> Color:
+	return EFFECT_COLORS.get(effect_type, DEFAULT_COLOR)
+
+func get_effect_color_dim(effect_type) -> Color:
+	return EFFECT_COLORS_DIM.get(effect_type, DEFAULT_COLOR)
+
+func get_effect_color_hex(effect_type) -> String:
+	return "#" + get_effect_color(effect_type).to_html(false)
+
+func get_effect_color_dim_hex(effect_type) -> String:
+	return "#" + get_effect_color_dim(effect_type).to_html(false)
+
+# Route stat coloring through the same table instead of maintaining a second mapping
+func get_stat_color_hex(stat: String) -> String:
+	match stat:
+		"impact": return get_effect_color_hex(SymbolData.EffectType.DAMAGE)
+		"bandwidth": return get_effect_color_hex(SymbolData.EffectType.SHIELD)
+		"morale": return get_effect_color_hex(SymbolData.EffectType.HEAL)
+		_: return "#888888"
+
+func get_stat_color_dim_hex(stat: String) -> String:
+	match stat:
+		"impact": return get_effect_color_dim_hex(SymbolData.EffectType.DAMAGE)
+		"bandwidth": return get_effect_color_dim_hex(SymbolData.EffectType.SHIELD)
+		"morale": return get_effect_color_dim_hex(SymbolData.EffectType.HEAL)
+		_: return "#888888"

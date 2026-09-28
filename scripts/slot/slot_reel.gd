@@ -21,6 +21,7 @@ var _hold_tween: Tween
 var is_held: bool = false
 var _is_hovered: bool = false
 
+var _current_sym: SymbolData
 var _clip_box: Control # The internal box that clips the spin
 var _border_rect: NinePatchRect # The border
 var _symbol_rect: TextureRect
@@ -98,8 +99,18 @@ func _ready() -> void:
 func initialise(pool: Array) -> void:
 	_pool = pool
 	if not _pool.is_empty():
-		_symbol_rect.texture = (_pool.pick_random() as SymbolData).icon
+		var first_sym := _pool.pick_random() as SymbolData
+		_symbol_rect.texture =first_sym.icon
 		_next_rect.texture = (_pool.pick_random() as SymbolData).icon
+		_current_sym = first_sym
+
+
+func _plain_stat_text(sym: SymbolData) -> String:
+	match sym.effect_type:
+		SymbolData.EffectType.DAMAGE: return "%d Impact" % sym.base_impact
+		SymbolData.EffectType.SHIELD: return "%d Bandwidth" % sym.base_bandwidth
+		SymbolData.EffectType.HEAL: return "%d Morale" % sym.base_morale
+		_: return "No effect"
 
 # ── The Physics-Based Spin Cycle ────────────────────────────────────────────────────────
 
@@ -142,6 +153,8 @@ func _spin_cycle(result_symbol: SymbolData, fast_time: float, decel_time: float)
 	else:
 		_symbol_rect.texture = null 
 		
+	_current_sym = result_symbol
+	
 	_next_rect.position.y = -sym_size
 	_symbol_rect.position.y = 12.0 
 	
@@ -247,10 +260,15 @@ func _gui_input(event: InputEvent) -> void:
 func _on_mouse_entered() -> void:
 	_is_hovered = true
 	_refresh_visuals()
+	if _current_sym != null:
+		var accent := ComboDictionary.get_effect_color(_current_sym.effect_type)
+		var body_text := ComboDictionary.build_card_description(_current_sym)
+		TooltipManager.show_tooltip(self, _current_sym.symbol_name, body_text, accent, _current_sym.get_department_name())
 
 func _on_mouse_exited() -> void:
 	_is_hovered = false
 	_refresh_visuals()
+	TooltipManager.hide_tooltip(self)
 
 func _refresh_visuals() -> void:
 	if is_held:

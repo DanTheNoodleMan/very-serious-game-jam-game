@@ -343,7 +343,7 @@ game_over = ExtResource("10_rbecj")
 victory = ExtResource("11_d3gqo")
 victory_music = ExtResource("12_d3gqo")
 background_music = ExtResource("13_pmb0h")
-boss_roster = Array[ExtResource("9_2lpl0")]([ExtResource("2_7gog2"), ExtResource("10_nwi2s"), ExtResource("10_ognr1"), SubResource("Resource_rbecj"), SubResource("Resource_v24qm"), ExtResource("11_tmhp8"), ExtResource("10_5pitx")])
+boss_roster = Array[ExtResource("9_2lpl0")]([ExtResource("2_7gog2"), ExtResource("10_ognr1"), ExtResource("10_nwi2s"), SubResource("Resource_rbecj"), SubResource("Resource_v24qm"), ExtResource("11_tmhp8"), ExtResource("10_5pitx")])
 boss_music = ExtResource("15_d3gqo")
 
 [node name="Padding" type="ColorRect" parent="." unique_id=1417675988]
@@ -904,6 +904,7 @@ theme_override_constants/margin_right = 9
 theme_override_constants/margin_bottom = 6
 
 [node name="VBoxContainer" type="VBoxContainer" parent="AgendaArea/MarginContainer" unique_id=1773645231]
+visible = false
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3

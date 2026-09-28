@@ -14,5 +14,6 @@ id = "ai"
 symbol_name = "AI"
 icon = ExtResource("1_u72aj")
 effect_type = 3
+department = 3
 effect = SubResource("Resource_kg026")
 metadata/_custom_type_script = "uid://b6y6l2gtrmxlo"
