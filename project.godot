@@ -24,6 +24,7 @@ buses/default_bus_layout="uid://bx21qqeuwesq2"
 SFXManager="*uid://q8xr070b4rft"
 ComboDictionary="*uid://cjble715oj7rd"
 GlobalSettings="*uid://cj5dt2jf186my"
+TooltipManager="*uid://rk21hpt5epen"
 
 [display]
 

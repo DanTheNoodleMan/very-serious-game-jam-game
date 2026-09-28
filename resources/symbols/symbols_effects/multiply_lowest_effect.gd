@@ -24,22 +24,21 @@ func apply_effect(my_index: int, ctx: BattleContext) -> void:
 	
 	if lowest_index == -1:
 		return
-		
-	var target_bucket = ctx.buckets[lowest_index]
 	
 	var bonus = ctx.buckets[my_index].get("multiplier_bonus", 0)
 	var scale = ctx.buckets[my_index].get("multiplier_scale", 1)
 	var my_power = (base_multiplier + bonus) * scale
-	
+	var src_name = ctx.board[my_index].symbol_name
+
 	if ctx.board[lowest_index] != null and ctx.board[lowest_index].effect_type == SymbolData.EffectType.MULTIPLIER:
-		target_bucket["multiplier_scale"] *= my_power
+		ctx.buckets[lowest_index]["multiplier_scale"] *= my_power
 	else:
-		target_bucket["impact"] *= my_power
-		target_bucket["bandwidth"] *= my_power
-		target_bucket["morale"] *= my_power
-		target_bucket["impact_mult"] *= my_power
-		target_bucket["bandwidth_mult"] *= my_power
-		target_bucket["morale_mult"] *= my_power
+		if ctx.board[lowest_index].base_impact > 0:
+			ctx.mult_stat(lowest_index, "impact", my_power, src_name)
+		if ctx.board[lowest_index].base_bandwidth > 0:
+			ctx.mult_stat(lowest_index, "bandwidth", my_power, src_name)
+		if ctx.board[lowest_index].base_morale > 0:
+			ctx.mult_stat(lowest_index, "morale", my_power, src_name)
 
 func get_minimum_value(symbol: SymbolData, bucket: Dictionary) -> int:
 	var active: Array = []

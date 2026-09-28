@@ -15,5 +15,6 @@ id = "leverage"
 symbol_name = "Leverage"
 icon = ExtResource("1_vsdu6")
 effect_type = 3
+department = 1
 effect = SubResource("Resource_ayp64")
 metadata/_custom_type_script = "uid://b6y6l2gtrmxlo"

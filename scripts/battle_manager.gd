@@ -73,7 +73,7 @@ var custom_font = load("uid://csmid407kor44")
 func _ready() -> void:
 	SFXManager.play_music(background_music, -20.0) # play music handles an already playing same track
 	player_max_hp += GlobalSettings.easy_mode_hp_buff
-	player_hp = player_max_hp
+	player_hp = 20
 
 	game_over_screen.visible = false
 	victory_screen.visible = false

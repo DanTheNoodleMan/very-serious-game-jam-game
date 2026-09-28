@@ -12,12 +12,11 @@ func apply_effect(my_index: int, ctx: BattleContext) -> void:
 		return
 	var hp_ratio := float(ctx.player_hp) / float(ctx.player_max_hp)
 	if hp_ratio <= hp_threshold:
-		ctx.buckets[my_index]["morale"] += heal_amount
-		ctx.buckets[my_index]["morale_add"] += heal_amount
+		ctx.add_stat(my_index, "morale", heal_amount, "Pizza Party")
 
 
 func get_description() -> String:
-	return "4 Bandwidth. If HP is below 50%, also Heal " + str(heal_amount) + " HP."
+	return "If HP is below " + str(int(hp_threshold * 100)) + "%, also heal " + str(heal_amount) + " HP."
 	
 # Used for the final calculated label
 func get_contextual_label(my_index: int, ctx: BattleContext) -> String:

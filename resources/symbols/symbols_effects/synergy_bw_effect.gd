@@ -13,14 +13,16 @@ func apply_effect(my_index: int, ctx: BattleContext) -> void:
 		departments[ctx.board[i].department] = true
 		
 	var bonus = buff_amount * departments.size()
-	print("bonus: ", bonus)
-	print(ctx.buckets[my_index]["bandwidth_add"])
-	ctx.buckets[my_index]["bandwidth"] += bonus
-	ctx.buckets[my_index]["bandwidth_add"] += bonus
-	print(ctx.buckets[my_index]["bandwidth_add"])
+	
+	#ctx.buckets[my_index]["bandwidth"] += bonus
+	#ctx.buckets[my_index]["bandwidth_add"] += bonus
+	#ctx.log_step(my_index, "bandwidth", "+%d (Synergy, +%d for each other distinct department.%%)" % [bonus, buff_amount])
+	
+	# BattleContext's add_stat/mult_stat replaces the 3 lines above, combining them all into one
+	ctx.add_stat(my_index, "bandwidth", bonus, "Synergy")
 
 func get_description() -> String:
-	return ""
-
+	return "Gains " + str(buff_amount) + " Bandwidth for each distinct Department among the other 2 symbols."
+	
 func get_contextual_label(my_index: int, ctx: BattleContext) -> String:
 	return ""

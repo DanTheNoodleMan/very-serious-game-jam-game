@@ -18,3 +18,10 @@ enum Department { NONE, FINANCE, HR, IT, MANAGEMENT, SALES }
 
 @export_group("Special Ability")
 @export var effect: SymbolEffect
+
+@export_group("Flavor")
+@export_multiline var flavor_text: String = ""
+
+# Helper functions
+func get_department_name() -> String:
+	return Department.keys()[department]
