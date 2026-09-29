@@ -8,10 +8,6 @@ const STAMP_OFFSETS := [Vector2(-64, -60), Vector2(-64, 10), Vector2(-64, -60)]
 enum GameState {PLAYER_TURN, SPINNING, RESOLVING, ENEMY_TURN, UPGRADE, GAME_OVER, VICTORY}
 var current_state: GameState = GameState.PLAYER_TURN
 
-@export var button_down_sfx: AudioStream
-@export var button_up_sfx: AudioStream
-@export var slide: AudioStream
-@export var whoosh: AudioStream
 @export var hit: AudioStream
 @export var shield_impact: AudioStream
 @export var shield_break: AudioStream
@@ -35,9 +31,7 @@ var turn_number: int = 0
 var rerolls_left: int = 1
 var base_rerolls_left: int = 2
 
-var _combat_ui_rest_x: float
 var _combo_label_rest_y: float
-var _combat_ui_tween: Tween
 var _upgrade_display_rest_x: float
 var _enemy_display_rest_y: float
 var _slot_machine_rest_y: float
@@ -46,16 +40,14 @@ var _has_learned_hold: bool = false
 
 @onready var enemy_display: EnemyDisplay = $EnemyArea
 @onready var player_display: PlayerDisplay = $PlayerArea
-@onready var combat_ui: Control = $CombatUI  # the whole button panel
+@onready var combat_ui: CombatUI = $CombatUI
+@onready var combat_vfx: Node = $CombatVFX
 
 @onready var upgrade_display: Control = $UpgradeDisplay 
 @onready var enemy_area: Control = $EnemyArea
 
 @onready var slot_machine: SlotMachine = $SlotMachine
-@onready var action_button: TextureButton = $CombatUI/ActionButton
-@onready var action_button_label: Label = $CombatUI/ActionButton/ActionButtonLabel
-@onready var lock_in_button: TextureButton = $CombatUI/LockInButton
-@onready var lock_in_button_label: Label = $CombatUI/LockInButton/LockInButtonLabel
+
 @onready var combo_label: RichTextLabel = $ComboLabel 
 @onready var pool_roster: Control = %PoolRoster
 @onready var camera: Camera2D = %Camera2D
@@ -89,17 +81,12 @@ func _ready() -> void:
 	
 	player_display.setup(player_hp, player_max_hp)
 	
+	combat_ui.reroll_pressed.connect(_on_reroll_pressed)
+	combat_ui.lock_in_pressed.connect(_on_lock_in_pressed)
+	
 	btn_restart.pressed.connect(_on_restart_pressed)
 	btn_easy.pressed.connect(_on_easy_pressed)
 	btn_victory_restart.pressed.connect(_on_restart_pressed)
-	
-	action_button.pressed.connect(_on_action_button_pressed)
-	action_button.button_down.connect(_on_action_button_down)
-	action_button.button_up.connect(_on_action_button_up)
-	
-	lock_in_button.pressed.connect(_on_lock_in_button_pressed)
-	lock_in_button.button_down.connect(_on_lock_in_button_down)
-	lock_in_button.button_up.connect(_on_lock_in_button_up)
 	
 	slot_machine.spin_finished.connect(_on_spin_finished)
 	slot_machine.spin_start.connect(_on_spin_start)
@@ -110,7 +97,6 @@ func _ready() -> void:
 	upgrade_display.visible = false
 	
 	await get_tree().process_frame
-	_combat_ui_rest_x = combat_ui.position.x
 	_combo_label_rest_y = combo_label.position.y
 	_upgrade_display_rest_x = upgrade_display.position.x
 	_enemy_display_rest_y = enemy_display.position.y
@@ -133,14 +119,15 @@ func start_player_turn() -> void:
 	player_display.clear_shield()  
 	current_state = GameState.PLAYER_TURN
 	rerolls_left = base_rerolls_left
-	_show_combat_ui()
+	combat_ui.show_ui(rerolls_left)
+	combat_ui.set_buttons_spinning()
 	combo_label.text = ""  # Clear preview from last turn
 	slot_machine.reset_all_holds()
 
 	var next_attack: int = current_boss.attack_pattern[turn_number % current_boss.attack_pattern.size()]
 	enemy_display.set_intent(next_attack)
 	
-	_set_buttons_spinning()
+	combat_ui.set_buttons_spinning()
 	current_state = GameState.SPINNING
 	await get_tree().create_timer(0.5).timeout
 	slot_machine.trigger_spin(player_hp)
@@ -154,11 +141,7 @@ func _on_spin_finished(results: Array[SymbolData]) -> void:
 	if rerolls_left > 0:
 		current_state = GameState.PLAYER_TURN
 		slot_machine.interactible = true  # Player can click reels
-		action_button.disabled = false
-		action_button_label.text = "REROLL (" + str(rerolls_left) + ")"
-		action_button_label.position.y -= 1
-		lock_in_button.disabled = false
-		lock_in_button_label.position.y -= 1
+		combat_ui.set_buttons_active(rerolls_left)
 		
 		if not _has_learned_hold:
 			hold_tutorial.modulate.a = 0.0
@@ -181,7 +164,7 @@ func resolve_player_attack() -> void:
 	current_state = GameState.RESOLVING
 	# ----------------------------
 	slot_machine.interactible = false
-	_hide_combat_ui()  # Hide buttons during resolution
+	combat_ui.hide_ui()  # Hide buttons during resolution
 
 	var final_symbols = slot_machine.logic.active_symbols
 	var ctx = create_battle_context(final_symbols)
@@ -199,20 +182,20 @@ func resolve_player_attack() -> void:
 		await show_combo_announcement(combo_result["name"])
 	
 	# Beat 2: Words fly across the screen
-	await throw_symbols_at_boss(final_symbols)
+	await combat_vfx.throw_symbols(final_symbols, slot_machine.get_reel_global_centers(), enemy_display.get_portrait_global_center())
 	
 	# Beat 3: Impact — hit animation + numbers pop simultaneously
 	var boss_center := enemy_display.get_portrait_global_center()
 	var player_center := player_display.get_global_center()
 	
 	if combo_result["impact"] > 0:
-		spawn_floating_text("[b][color=#cc5555]-" + str(combo_result["impact"]) + " HP[/color][/b]",
+		combat_vfx.spawn_floating_text("[b][color=#cc5555]-" + str(combo_result["impact"]) + " HP[/color][/b]",
 		boss_center + Vector2(128, -32))
 	if combo_result["bandwidth"] > 0:
-		spawn_floating_text("[b][color=#55aaff]+" + str(combo_result["bandwidth"]) + " BW[/color][/b]",
+		combat_vfx.spawn_floating_text("[b][color=#55aaff]+" + str(combo_result["bandwidth"]) + " BW[/color][/b]",
 		player_center + Vector2(-24, 12))
 	if combo_result["morale"] > 0:
-		spawn_floating_text("[b][color=#55ee77]+" + str(combo_result["morale"]) + " MORALE[/color][/b]",
+		combat_vfx.spawn_floating_text("[b][color=#55ee77]+" + str(combo_result["morale"]) + " MORALE[/color][/b]",
 		player_center + Vector2(0, -18))
 		
 	SFXManager.play(hit, 0.0, 0.0, -20.0, 1.5, 0.0)
@@ -277,7 +260,7 @@ func start_enemy_turn() -> void:
 		player_display.update_hp(player_hp)
 		
 		var player_center := player_display.get_global_center()
-		spawn_floating_text("[b][color=#cc5555]-" + str(hp_damage) + " HP[/color][/b]",
+		combat_vfx.spawn_floating_text("[b][color=#cc5555]-" + str(hp_damage) + " HP[/color][/b]",
 			player_center + Vector2(-24, 12))   # change "BW" to "HP" for clarity
 		SFXManager.play(hit, 0.0, 0.0, -20.0, 1.0, 0.0)
 		await player_display.play_hit()
@@ -306,12 +289,6 @@ func create_battle_context(board: Array[SymbolData]) -> BattleContext:
 	ctx.rerolls_left = rerolls_left
 	return ctx
 
-func _set_buttons_spinning() -> void:
-	action_button.disabled = true
-	lock_in_button.disabled = true
-	action_button_label.text = "SPINNING..."
-	action_button_label.position.y = 8
-	lock_in_button_label.position.y = 8
 
 # Inside battle_manager.gd
 
@@ -369,76 +346,6 @@ func _update_combo_label(results: Array[SymbolData], combo: Dictionary) -> void:
 	t.tween_property(combo_label, "scale", Vector2(1.08, 1.08), 0.10).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 	t.chain().tween_property(combo_label, "scale", Vector2(1.0, 1.0), 0.08)
 	t.parallel().tween_property(combo_label, "rotation", 0.0, 0.1)
-
-
-func throw_symbols_at_boss(symbols: Array[SymbolData]) -> void:
-	var origins: Array[Vector2] = slot_machine.get_reel_global_centers()
-	var target: Vector2 = enemy_display.get_portrait_global_center()
-	
-	for i in 3:
-		SFXManager.play(whoosh, 0.0, 0.0, -20.0, 1.0, 0.0) 
-		await get_tree().create_timer(0.09).timeout  # Stagger launches
-		_launch_word_projectile(symbols[i], origins[i], target, STAMP_OFFSETS[i])
-	
-	await get_tree().create_timer(0.09 * 3).timeout  # Last one finishes
-
-func _launch_word_projectile(sym: SymbolData, from: Vector2, to: Vector2, stamp_offset: Vector2) -> void:
-	var flight_time := 0.26
-	
-	# --- Icon: flies fast and shrinks into the target ---
-	var icon := TextureRect.new()
-	icon.texture = sym.icon
-	icon.custom_minimum_size = Vector2(40, 40)
-	icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-	icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-	icon.z_index = 100
-	icon.pivot_offset = Vector2(20, 20)
-	get_tree().root.add_child(icon)
-	icon.global_position = from - Vector2(20, 20)
-	
-	var icon_t := icon.create_tween()
-	icon_t.tween_property(icon, "global_position", to - Vector2(20, 20), flight_time).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
-	icon_t.parallel().tween_property(icon, "scale", Vector2(0.1, 0.1), flight_time)
-	icon_t.parallel().tween_property(icon, "rotation", randf_range(-0.5, 0.5), flight_time)
-	icon_t.tween_callback(icon.queue_free)
-	
-	# --- Word stamp: fires after icon arrives ---
-	var stamp_pos := from + stamp_offset
-	var delay_t := create_tween()
-	delay_t.tween_interval(flight_time)
-	delay_t.tween_callback(func(): _spawn_word_stamp(sym.symbol_name.to_upper(), stamp_pos))
-
-func _spawn_word_stamp(word: String, pos: Vector2) -> void:
-	var rtl := RichTextLabel.new()
-	rtl.bbcode_enabled = true
-	rtl.fit_content = true
-	rtl.autowrap_mode = TextServer.AUTOWRAP_OFF 
-	rtl.scroll_active = false
-	rtl.text = "[b][shake rate=10 level=5][color=#cbf9ff]" + word + "[/color][/shake][/b]"
-	rtl.z_index = 110
-	rtl.scale = Vector2(2.8, 2.8)
-	rtl.modulate.a = 0.0
-	rtl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	rtl.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	rtl.add_theme_font_override("normal_font", custom_font)
-	rtl.add_theme_font_override("bold_font", custom_font)
-	rtl.add_theme_font_size_override("normal_font_size", 16)
-	rtl.add_theme_font_size_override("bold_font_size", 22)
-	rtl.add_theme_constant_override("outline_size", 6)
-	rtl.add_theme_color_override("font_outline_color", Color.BLACK)
-	get_tree().root.add_child(rtl)
-	
-	await get_tree().process_frame  # Let layout run so size is valid
-	await get_tree().process_frame  # RTL sometimes needs two frames to finalize BBCode layout
-	rtl.pivot_offset = rtl.size * 0.5
-	rtl.global_position = pos - rtl.size * 0.5
-	
-	var t := rtl.create_tween()
-	t.tween_property(rtl, "scale", Vector2(1.0, 1.0), 0.12).set_trans(Tween.TRANS_BOUNCE).set_ease(Tween.EASE_OUT)
-	t.parallel().tween_property(rtl, "modulate:a", 1.0, 0.06)
-	t.tween_interval(0.7)  # Shake for a moment while visible
-	t.chain().tween_property(rtl, "modulate:a", 0.0, 0.2)
-	t.tween_callback(rtl.queue_free)
 
 func show_combo_announcement(combo_name: String) -> void:
 	SFXManager.play(preload("uid://b4nmr0ovmbky3"), 0.0, 0.05, -2.0, 1.0)
@@ -515,38 +422,6 @@ func show_combo_announcement(combo_name: String) -> void:
 
 	await t.finished
 
-func spawn_floating_text(bbcode: String, global_pos: Vector2, drift: Vector2 = Vector2.ZERO) -> void:
-	var rtl := RichTextLabel.new()
-	rtl.bbcode_enabled = true
-	rtl.fit_content = true
-	rtl.autowrap_mode = TextServer.AUTOWRAP_OFF
-	rtl.scroll_active = false
-	rtl.text = bbcode
-	rtl.z_index = 150
-	rtl.scale = Vector2(0.1, 0.1)
-	rtl.modulate.a = 0.0
-	rtl.add_theme_font_override("normal_font", custom_font)
-	rtl.add_theme_font_override("bold_font", custom_font)
-	rtl.add_theme_font_size_override("normal_font_size", 16)
-	rtl.add_theme_font_size_override("bold_font_size", 22)
-	rtl.add_theme_constant_override("outline_size", 6)
-	rtl.add_theme_color_override("font_outline_color", Color.BLACK)
-	get_tree().root.add_child(rtl)
-
-	await get_tree().process_frame
-	await get_tree().process_frame
-	rtl.pivot_offset = rtl.size * 0.5
-	rtl.global_position = global_pos - rtl.size * 0.5
-
-	var t := rtl.create_tween()
-	t.tween_property(rtl, "scale", Vector2(1.45, 1.45), 0.09).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
-	t.parallel().tween_property(rtl, "modulate:a", 1.0, 0.06)
-	t.chain().tween_property(rtl, "scale", Vector2(1.0, 1.0), 0.08)
-	t.parallel().tween_property(rtl, "modulate:a", 0.0, 0.45).set_delay(0.8)
-	t.parallel().tween_property(rtl, "scale", Vector2(0.5, 0.5), 0.45).set_delay(0.8)
-	t.tween_callback(rtl.queue_free)
-
-
 func _hide_combo_label() -> void:
 	if combo_label.text.is_empty():
 		return
@@ -574,38 +449,6 @@ func _hide_combo_label() -> void:
 	)
 	
 
-func _show_combat_ui() -> void:
-	if is_instance_valid(_combat_ui_tween):
-		_combat_ui_tween.kill()
-	
-	combat_ui.position.x = _combat_ui_rest_x + combat_ui.size.x + 16.0
-	combat_ui.visible = true
-	
-	var overshoot := 6.0
-	
-	SFXManager.play(slide, 0.0, 0.0, -10.0, 0.75, 0.0) 
-
-	_combat_ui_tween = create_tween()
-	# Step 1: slide in and slightly past the rest position
-	_combat_ui_tween.tween_property(combat_ui, "position:x", _combat_ui_rest_x - overshoot, 0.28) \
-		.set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
-	# Step 2: spring back to the true rest position
-	_combat_ui_tween.chain().tween_property(combat_ui, "position:x", _combat_ui_rest_x, 0.12) \
-		.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
-
-
-func _hide_combat_ui() -> void:
-	if not combat_ui.visible: return
-	if is_instance_valid(_combat_ui_tween):
-		_combat_ui_tween.kill()
-	
-	SFXManager.play(slide, 0.0, 0.0, -10.0, 1.5, 0.0) 
-	_combat_ui_tween = create_tween()
-	_combat_ui_tween.tween_property(
-		combat_ui, "position:x",
-		_combat_ui_rest_x + combat_ui.size.x + 16.0, 0.15
-	).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN)
-	_combat_ui_tween.tween_callback(func(): combat_ui.visible = false)
 	
 
 func _transition_to_upgrade() -> void:
@@ -615,7 +458,7 @@ func _transition_to_upgrade() -> void:
 	
 	SFXManager.play(win_fight, 0.0, 0.0, -10.0 , 1.0, 0.0)
 
-	_hide_combat_ui()
+	combat_ui.hide_ui()
 	combo_label.text = ""
 	
 
@@ -758,7 +601,7 @@ func _transition_to_victory() -> void:
 	await get_tree().create_timer(1.2).timeout
 	SFXManager.stop_music()
 	SFXManager.play_music(victory_music, -15.0)
-	_hide_combat_ui()
+	combat_ui.hide_ui()
 	combo_label.text = ""
 
 	# Slide everything off screen cleanly
@@ -786,32 +629,16 @@ func _on_spin_start() -> void:
 	if combo_label:
 		_hide_combo_label()
 
-func _on_action_button_pressed() -> void:
+func _on_reroll_pressed() -> void:
 	if current_state != GameState.PLAYER_TURN: return
 	rerolls_left -= 1
-	_set_buttons_spinning()
+	combat_ui.set_buttons_spinning()
 	current_state = GameState.SPINNING
 	slot_machine.trigger_spin(player_hp)
 
-func _on_lock_in_button_pressed() -> void:
+func _on_lock_in_pressed() -> void:
 	if current_state != GameState.PLAYER_TURN: return
 	resolve_player_attack()
-
-func _on_action_button_down() -> void:
-	action_button_label.position.y += 2 
-	SFXManager.play(button_down_sfx, 0.1, 0.05, -15.0, 1.0)
-
-func _on_action_button_up() -> void:
-	action_button_label.position.y -= 2 
-	SFXManager.play(button_up_sfx, 0.1, 0.05, -15.0, 1.0)
-
-func _on_lock_in_button_down() -> void:
-	lock_in_button_label.position.y += 2
-	SFXManager.play(button_down_sfx, 0.1, 0.05, -15.0, 1.0)
-
-func _on_lock_in_button_up() -> void:
-	lock_in_button_label.position.y -= 2
-	SFXManager.play(button_up_sfx, 0.1, 0.05, -15.0, 1.0)
 
 func _on_player_learned_hold() -> void:
 	if not _has_learned_hold:

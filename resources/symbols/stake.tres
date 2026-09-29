@@ -2,7 +2,7 @@
 
 [ext_resource type="Script" uid="uid://b6y6l2gtrmxlo" path="res://resources/symbol_data.gd" id="1_fcmfo"]
 [ext_resource type="Script" uid="uid://bd5gcfn2a3l24" path="res://resources/symbols/symbols_effects/scale_on_play_effect.gd" id="1_tnbid"]
-[ext_resource type="Texture2D" uid="uid://drwy0v1pp845m" path="res://icon.svg" id="2_e5i6q"]
+[ext_resource type="Texture2D" uid="uid://g1bopa1hrs65" path="res://assets/symbols/stake_pixel.png" id="2_tnbid"]
 
 [sub_resource type="Resource" id="Resource_2qx1d"]
 script = ExtResource("1_tnbid")
@@ -13,8 +13,9 @@ metadata/_custom_type_script = "uid://bd5gcfn2a3l24"
 [resource]
 script = ExtResource("1_fcmfo")
 id = "stake"
-symbol_name = "STAKE"
-icon = ExtResource("2_e5i6q")
+symbol_name = "Stake"
+icon = ExtResource("2_tnbid")
+department = 1
 base_impact = 1
 effect = SubResource("Resource_2qx1d")
 metadata/_custom_type_script = "uid://b6y6l2gtrmxlo"

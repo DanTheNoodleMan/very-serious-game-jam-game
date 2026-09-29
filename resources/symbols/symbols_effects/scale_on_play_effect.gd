@@ -9,12 +9,12 @@ func _init() -> void:
 func apply_effect(my_index: int, ctx: BattleContext) -> void:
 	pass
 
-# We permanently buff it right as the attack happens!
 func on_commit(my_index: int, ctx: BattleContext) -> void:
 	ctx.board[my_index].base_impact += scale_amount
+	ctx.log_step(my_index, "impact", "+%d (Stake, +2 when Locked In.%%)" % scale_amount)
 
 func get_description() -> String:
-	return "[color=#ffd060]Gains +" + str(scale_amount) + " Impact when played[/color]"
+	return "[color=#ffd060]Gains +" + str(scale_amount) + " Impact when Locked In[/color]"
 
 # Used for the final calculated label
 func get_contextual_label(my_index: int, ctx: BattleContext) -> String:

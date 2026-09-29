@@ -11,7 +11,7 @@
 [ext_resource type="Resource" uid="uid://dnyn4iruiaydi" path="res://resources/symbols/pizza_party.tres" id="11_r2p6a"]
 [ext_resource type="Resource" uid="uid://bonah5v6eua36" path="res://resources/symbols/synergy.tres" id="12_4gbs2"]
 [ext_resource type="Resource" uid="uid://gp76i7yqmgo0" path="res://resources/symbols/leverage.tres" id="12_bcb0g"]
-[ext_resource type="Resource" uid="uid://diciesej1gn6x" path="res://resources/symbols/brainstorm.tres" id="12_g1le3"]
+[ext_resource type="Resource" uid="uid://2mykwv3odn16" path="res://resources/symbols/stake.tres" id="12_g1le3"]
 [ext_resource type="Resource" uid="uid://31gp4lfh0a50" path="res://resources/symbols/ai.tres" id="12_p2c1i"]
 
 [node name="SlotMachine" type="Control" unique_id=798385911]

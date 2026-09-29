@@ -6,6 +6,7 @@
 
 [sub_resource type="Resource" id="Resource_kg026"]
 script = ExtResource("1_052a6")
+buff_amount = 2
 metadata/_custom_type_script = "uid://ci5buup8kt6jc"
 
 [resource]
@@ -15,6 +16,6 @@ symbol_name = "Synergy"
 icon = ExtResource("1_of0xb")
 effect_type = 1
 department = 2
-base_bandwidth = 5
+base_bandwidth = 3
 effect = SubResource("Resource_kg026")
 metadata/_custom_type_script = "uid://b6y6l2gtrmxlo"
