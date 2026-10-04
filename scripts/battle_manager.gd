@@ -31,7 +31,6 @@ var turn_number: int = 0
 var rerolls_left: int = 1
 var base_rerolls_left: int = 2
 
-var _combo_label_rest_y: float
 var _upgrade_display_rest_x: float
 var _enemy_display_rest_y: float
 var _slot_machine_rest_y: float
@@ -48,7 +47,6 @@ var _has_learned_hold: bool = false
 
 @onready var slot_machine: SlotMachine = $SlotMachine
 
-@onready var combo_label: RichTextLabel = $ComboLabel 
 @onready var pool_roster: Control = %PoolRoster
 @onready var camera: Camera2D = %Camera2D
 @onready var hold_tutorial: RichTextLabel = $HoldTutorialLabel
@@ -65,12 +63,10 @@ var custom_font = load("uid://csmid407kor44")
 func _ready() -> void:
 	SFXManager.play_music(background_music, -20.0) # play music handles an already playing same track
 	player_max_hp += GlobalSettings.easy_mode_hp_buff
-	player_hp = 20
+	player_hp = player_max_hp
 
 	game_over_screen.visible = false
 	victory_screen.visible = false
-	
-	_play_scene_reveal()
 	
 	if boss_roster.size() > 0:
 		current_boss = boss_roster[0]
@@ -97,7 +93,7 @@ func _ready() -> void:
 	upgrade_display.visible = false
 	
 	await get_tree().process_frame
-	_combo_label_rest_y = combo_label.position.y
+	combat_vfx._combo_label_rest_y = combat_vfx.combo_label.position.y
 	_upgrade_display_rest_x = upgrade_display.position.x
 	_enemy_display_rest_y = enemy_display.position.y
 	_slot_machine_rest_y = slot_machine.position.y
@@ -114,6 +110,7 @@ func _ready() -> void:
 	pool_roster.refresh(slot_machine.logic.shared_pool)
 	start_player_turn()
 
+
 func start_player_turn() -> void:
 	player_turn.emit()
 	player_display.clear_shield()  
@@ -121,7 +118,7 @@ func start_player_turn() -> void:
 	rerolls_left = base_rerolls_left
 	combat_ui.show_ui(rerolls_left)
 	combat_ui.set_buttons_spinning()
-	combo_label.text = ""  # Clear preview from last turn
+	combat_vfx.combo_label.text = ""  # Clear preview from last turn
 	slot_machine.reset_all_holds()
 
 	var next_attack: int = current_boss.attack_pattern[turn_number % current_boss.attack_pattern.size()]
@@ -131,30 +128,6 @@ func start_player_turn() -> void:
 	current_state = GameState.SPINNING
 	await get_tree().create_timer(0.5).timeout
 	slot_machine.trigger_spin(player_hp)
-
-func _on_spin_finished(results: Array[SymbolData]) -> void:
-	# Update combo preview
-	var ctx = create_battle_context(results)
-	var combo = ComboDictionary.calculate(ctx)
-	_update_combo_label(results, combo)
-
-	if rerolls_left > 0:
-		current_state = GameState.PLAYER_TURN
-		slot_machine.interactible = true  # Player can click reels
-		combat_ui.set_buttons_active(rerolls_left)
-		
-		if not _has_learned_hold:
-			hold_tutorial.modulate.a = 0.0
-			hold_tutorial.visible = true
-			create_tween().tween_property(hold_tutorial, "modulate:a", 1.0, 0.4)
-	else:
-		# Auto-resolve
-		slot_machine.interactible = false # Lock reels so they can't click during wait
-		await get_tree().create_timer(1.25).timeout
-		
-		# Only resolve if the player hasn't somehow already resolved it
-		if current_state != GameState.RESOLVING and current_state != GameState.UPGRADE:
-			resolve_player_attack()
 
 
 func resolve_player_attack() -> void:
@@ -226,6 +199,7 @@ func resolve_player_attack() -> void:
 	await get_tree().create_timer(1.0).timeout
 	start_enemy_turn()
 
+
 func start_enemy_turn() -> void:
 	boss_turn.emit() # for small things like changing ui stuff like mic from enemy_display
 	current_state = GameState.ENEMY_TURN
@@ -277,7 +251,8 @@ func start_enemy_turn() -> void:
 	turn_number += 1
 	start_player_turn()
 
-# --- Helpers ------------------------------------------- IMPORTANT CONTEXT CREATOR
+# --- Helpers -------------------------------------------
+#  IMPORTANT CONTEXT CREATOR
 func create_battle_context(board: Array[SymbolData]) -> BattleContext:
 	var ctx = BattleContext.new(board)
 	ctx.player_max_hp = player_max_hp
@@ -288,64 +263,6 @@ func create_battle_context(board: Array[SymbolData]) -> BattleContext:
 	ctx.turn_number = turn_number
 	ctx.rerolls_left = rerolls_left
 	return ctx
-
-
-# Inside battle_manager.gd
-
-func _update_combo_label(results: Array[SymbolData], combo: Dictionary) -> void:
-	var new_text := ""
-
-	if combo["is_combo"]:
-		SFXManager.play(preload("uid://b4nmr0ovmbky3"), 0.0, 0.05, -5.0, 1.0)
-		camera.screen_shake(6, 0.1)
-		new_text = "[wave color=#ffffff amp=2 freq=10.0][b][color=#ffe135]* " + combo["name"].to_upper() + " *[/color][/b][/wave]   "
-
-	var parts: Array[String] = []
-
-	# Build IMPACT string
-	if combo["impact"] > 0:
-		if combo["impact"] > combo["base_impact"]:
-			# FORMAT: 16 IMPACT (Base 5)
-			parts.append("[wave amp=2 freq=5.0][color=#ffd060][b]" + str(combo["impact"]) + "[/b][/color] [color=#ff7777]IMPACT[/color] [color=#ffd060]([color=#ff7777]" + str(combo["base_impact"]) + "[/color])[/color][/wave]")
-		else:
-			parts.append("[wave amp=2 freq=5.0][color=#ff7777][b]" + str(combo["impact"]) + "[/b][/color] [color=#ff7777]IMPACT[/color][/wave]")
-
-	# Build BANDWIDTH string
-	if combo["bandwidth"] > 0:
-		if combo["bandwidth"] > combo["base_bandwidth"]:
-			# FORMAT: 8 BW (Base 4)
-			parts.append("[wave amp=2 freq=5.0][color=#ffd060][b]" + str(combo["bandwidth"]) + "[/b][/color] [color=#77aaff]BW[/color] [color=#ffd060]([color=#77aaff]" + str(combo["base_bandwidth"]) + "[/color])[/color][/wave]")
-		else:
-			parts.append("[wave amp=2 freq=5.0][color=#77aaff][b]" + str(combo["bandwidth"]) + "[/b][/color] [color=#77aaff]BW[/color][/wave]")
-
-	# Build MORALE string
-	if combo["morale"] > 0:
-		if combo["morale"] > combo["base_morale"]:
-			# FORMAT: 20 MORALE (Base 8)
-			parts.append("[wave amp=2 freq=5.0][color=#ffd060][b]" + str(combo["morale"]) + "[/b][/color] [color=#77ee99]MORALE[/color] [color=#ffd060]([color=#77ee99]" + str(combo["base_morale"]) + "[/color])[/color][/wave]")
-		else:
-			parts.append("[wave amp=2 freq=5.0][color=#77ee99][b]" + str(combo["morale"]) + "[/b][/color] [color=#77ee99]MORALE[/color][/wave]")
-
-	if parts.is_empty():
-		new_text += "[color=#44445a]no effect[/color]"
-	else:
-		new_text += " + ".join(parts)
-
-	combo_label.text = new_text
-	combo_label.scale = Vector2(0.75, 0.75)
-	combo_label.rotation = deg_to_rad(randf_range(-2, 2))
-
-	if combo_label.has_meta("active_tween"):
-		var old_t = combo_label.get_meta("active_tween") as Tween
-		if old_t and old_t.is_valid():
-			old_t.kill()
-
-	var t := combo_label.create_tween()
-	combo_label.set_meta("active_tween", t)
-	
-	t.tween_property(combo_label, "scale", Vector2(1.08, 1.08), 0.10).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
-	t.chain().tween_property(combo_label, "scale", Vector2(1.0, 1.0), 0.08)
-	t.parallel().tween_property(combo_label, "rotation", 0.0, 0.1)
 
 func show_combo_announcement(combo_name: String) -> void:
 	SFXManager.play(preload("uid://b4nmr0ovmbky3"), 0.0, 0.05, -2.0, 1.0)
@@ -421,35 +338,11 @@ func show_combo_announcement(combo_name: String) -> void:
 	t.tween_callback(rtl.queue_free)
 
 	await t.finished
-
-func _hide_combo_label() -> void:
-	if combo_label.text.is_empty():
-		return
-
-	if combo_label.has_meta("active_tween"):
-		var old_t = combo_label.get_meta("active_tween") as Tween
-		if old_t and old_t.is_valid():
-			old_t.kill()
-
-	combo_label.modulate = Color.WHITE
-
-	var t := combo_label.create_tween()
-	combo_label.set_meta("active_tween", t)
-
-	# Mirror of the pop-in, reversed
-	t.tween_property(combo_label, "scale", Vector2(1.08, 1.08), 0.08)
-	t.chain().tween_property(combo_label, "scale", Vector2(0.75, 0.75), 0.10).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_IN)
-	t.parallel().tween_property(combo_label, "rotation", deg_to_rad(randf_range(-2, 2)), 0.10)
-
-	t.tween_callback(func():
-		combo_label.text = ""
-		combo_label.scale = Vector2.ONE
-		combo_label.rotation = 0.0
-		combo_label.modulate = Color.WHITE
-	)
 	
 
-	
+# -------------------------------------------------------
+# --- UPGRADE SCREEN ------------------------------------
+# -------------------------------------------------------
 
 func _transition_to_upgrade() -> void:
 	# "Call ended" on the nameplate first, brief pause for drama
@@ -459,7 +352,7 @@ func _transition_to_upgrade() -> void:
 	SFXManager.play(win_fight, 0.0, 0.0, -10.0 , 1.0, 0.0)
 
 	combat_ui.hide_ui()
-	combo_label.text = ""
+	combat_vfx.combo_label.text = ""
 	
 
 	# Slide enemy UP and slot machine DOWN simultaneously
@@ -470,12 +363,10 @@ func _transition_to_upgrade() -> void:
 	t.parallel().tween_property(slot_machine, "position:y",
 		slot_machine.position.y + 320, 0.4) \
 		.set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_IN)
-	t.parallel().tween_property(combo_label, "position:y",
-		combo_label.position.y + 320, 0.4) \
+	t.parallel().tween_property(combat_vfx.combo_label, "position:y",
+		combat_vfx.combo_label.position.y + 320, 0.4) \
 		.set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_IN)
 	await t.finished
-
-# --- UPGRADE SCREEN ------------------------------------
 
 func start_upgrade_phase() -> void:
 	current_state = GameState.UPGRADE
@@ -525,7 +416,7 @@ func _advance_to_next_boss() -> void:
 	
 	current_boss_index += 1
 	if current_boss_index >= boss_roster.size():
-		combo_label.text = "[center][wave]YOU ARE THE CEO NOW.[/wave][/center]"
+		combat_vfx.combo_label.text = "[center][wave]YOU ARE THE CEO NOW.[/wave][/center]"
 		current_state = GameState.GAME_OVER
 		return
 
@@ -554,8 +445,8 @@ func _advance_to_next_boss() -> void:
 		_slot_machine_rest_y, 0.4) \
 		.set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT) \
 		.set_delay(0.08)
-	t.parallel().tween_property(combo_label, "position:y",
-		_combo_label_rest_y, 0.4) \
+	t.parallel().tween_property(combat_vfx.combo_label, "position:y",
+		combat_vfx.combo_label_rest_y, 0.4) \
 		.set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 	await t.finished
 	
@@ -563,35 +454,6 @@ func _advance_to_next_boss() -> void:
 	await enemy_display.play_reconnected()
 
 	start_player_turn()
-
-
-func _play_scene_reveal() -> void:
-	var overlay := ColorRect.new()
-	overlay.set_anchors_preset(Control.PRESET_FULL_RECT)
-	overlay.color = Color(0.05, 0.08, 0.15)
-	overlay.z_index = 2000
-	overlay.mouse_filter = Control.MOUSE_FILTER_IGNORE
-
-	var mat := ShaderMaterial.new()
-	mat.shader = preload("uid://dxafux475kdqv")
-	mat.set_shader_parameter("transition_type", 3)
-	mat.set_shader_parameter("sectors", 1)
-	mat.set_shader_parameter("position", Vector2(0.5, 0.5))
-	mat.set_shader_parameter("progress", 1.0)  # start fully covering
-	
-	overlay.material = mat
-	add_child(overlay)
-	
-	# CRITICAL: Wait 1 frame so the black screen renders BEFORE the scene starts revealing
-	await get_tree().process_frame
-
-	# Wipe away to reveal the combat scene
-	var t := create_tween().set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
-	t.tween_method(
-		func(v: float): mat.set_shader_parameter("progress", v),
-		1.0, 0.0, 0.55
-	)
-	t.tween_callback(overlay.queue_free)
 
 
 func _transition_to_victory() -> void:
@@ -602,7 +464,7 @@ func _transition_to_victory() -> void:
 	SFXManager.stop_music()
 	SFXManager.play_music(victory_music, -15.0)
 	combat_ui.hide_ui()
-	combo_label.text = ""
+	combat_vfx.combo_label.text = ""
 
 	# Slide everything off screen cleanly
 	var t := create_tween()
@@ -623,11 +485,38 @@ func _transition_to_victory() -> void:
 	var portrait = %VictoryPortrait
 	portrait.play("idle")
 
-	
+
+# --------------------------------------------------------
 # --- Signal receivers -----------------------------------
+# --------------------------------------------------------
+
 func _on_spin_start() -> void:
-	if combo_label:
-		_hide_combo_label()
+	if combat_vfx.combo_label:
+		combat_vfx._hide_combo_label()
+
+func _on_spin_finished(results: Array[SymbolData]) -> void:
+	# Update combo preview
+	var ctx = create_battle_context(results)
+	var combo = ComboDictionary.calculate(ctx)
+	combat_vfx._update_combo_label(results, combo)
+
+	if rerolls_left > 0:
+		current_state = GameState.PLAYER_TURN
+		slot_machine.interactible = true  # Player can click reels
+		combat_ui.set_buttons_active(rerolls_left)
+		
+		if not _has_learned_hold:
+			hold_tutorial.modulate.a = 0.0
+			hold_tutorial.visible = true
+			create_tween().tween_property(hold_tutorial, "modulate:a", 1.0, 0.4)
+	else:
+		# Auto-resolve
+		slot_machine.interactible = false # Lock reels so they can't click during wait
+		await get_tree().create_timer(1.25).timeout
+		
+		# Only resolve if the player hasn't somehow already resolved it
+		if current_state != GameState.RESOLVING and current_state != GameState.UPGRADE:
+			resolve_player_attack()
 
 func _on_reroll_pressed() -> void:
 	if current_state != GameState.PLAYER_TURN: return

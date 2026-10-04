@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="SymbolData" format=3 uid="uid://riarammpdiml"]
+
+[ext_resource type="Script" uid="uid://b6y6l2gtrmxlo" path="res://resources/symbol_data.gd" id="1_2lwus"]
+[ext_resource type="Texture2D" uid="uid://cyco6b1map0mi" path="res://assets/symbols/nda_pixel.png" id="1_6oeh2"]
+
+[resource]
+script = ExtResource("1_2lwus")
+id = "nda"
+symbol_name = "NDA"
+icon = ExtResource("1_6oeh2")
+effect_type = 1
+department = 4
+base_bandwidth = 7
+flavor_text = "Don't tell anyone what goes on here."
+metadata/_custom_type_script = "uid://b6y6l2gtrmxlo"

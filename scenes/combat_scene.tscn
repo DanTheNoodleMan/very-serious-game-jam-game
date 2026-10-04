@@ -392,25 +392,6 @@ scroll_active = false
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="ComboLabel" type="RichTextLabel" parent="." unique_id=430376861]
-z_index = 50
-layout_mode = 1
-offset_left = 198.0
-offset_top = 230.0
-offset_right = 625.0
-offset_bottom = 256.0
-mouse_filter = 2
-theme_override_colors/font_outline_color = Color(0.1254902, 0.08235294, 0.2, 1)
-theme_override_constants/outline_size = 6
-theme_override_fonts/normal_font = ExtResource("16_qmjfx")
-theme_override_fonts/bold_font = ExtResource("16_qmjfx")
-theme_override_font_sizes/normal_font_size = 10
-theme_override_font_sizes/bold_font_size = 20
-bbcode_enabled = true
-text = "fffgf"
-fit_content = true
-scroll_active = false
-
 [node name="EnemyArea" type="Control" parent="." unique_id=43949672]
 layout_mode = 1
 anchors_preset = 10
@@ -607,6 +588,24 @@ vertical_alignment = 1
 
 [node name="CombatVFX" type="Node" parent="." unique_id=632699271]
 script = ExtResource("30_o0r20")
+
+[node name="ComboLabel" type="RichTextLabel" parent="CombatVFX" unique_id=430376861]
+z_index = 50
+offset_left = 198.0
+offset_top = 230.0
+offset_right = 625.0
+offset_bottom = 256.0
+mouse_filter = 2
+theme_override_colors/font_outline_color = Color(0.1254902, 0.08235294, 0.2, 1)
+theme_override_constants/outline_size = 6
+theme_override_fonts/normal_font = ExtResource("16_qmjfx")
+theme_override_fonts/bold_font = ExtResource("16_qmjfx")
+theme_override_font_sizes/normal_font_size = 10
+theme_override_font_sizes/bold_font_size = 20
+bbcode_enabled = true
+text = "fffgf"
+fit_content = true
+scroll_active = false
 
 [node name="CombatUI" type="Control" parent="." unique_id=251974575]
 layout_mode = 1
