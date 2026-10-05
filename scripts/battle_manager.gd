@@ -60,6 +60,7 @@ var _has_learned_hold: bool = false
 
 var custom_font = load("uid://csmid407kor44")
 
+
 func _ready() -> void:
 	SFXManager.play_music(background_music, -20.0) # play music handles an already playing same track
 	player_max_hp += GlobalSettings.easy_mode_hp_buff
@@ -93,7 +94,7 @@ func _ready() -> void:
 	upgrade_display.visible = false
 	
 	await get_tree().process_frame
-	combat_vfx._combo_label_rest_y = combat_vfx.combo_label.position.y
+	combat_vfx.combo_label_rest_y = combat_vfx.combo_label.position.y
 	_upgrade_display_rest_x = upgrade_display.position.x
 	_enemy_display_rest_y = enemy_display.position.y
 	_slot_machine_rest_y = slot_machine.position.y

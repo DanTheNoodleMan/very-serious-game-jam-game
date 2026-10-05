@@ -43,49 +43,79 @@ func _check_overflow() -> void:
 		_scroll_tween.tween_property(chip_row, "position:x", 0.0, duration).set_trans(Tween.TRANS_LINEAR)
 
 func _make_chip(sym: SymbolData, count: int) -> Control:
-	var panel := PanelContainer.new()
+	# 1. Main Chip Base
+	var chip := PanelContainer.new()
 	var style := StyleBoxFlat.new()
-	style.bg_color = "#201533"
+	style.bg_color = Color("#171124")
 	style.border_color = ComboDictionary.get_effect_color(sym.effect_type)
 	style.set_border_width_all(1)
-	style.set_corner_radius_all(2)
-	style.set_content_margin_all(4)
-	panel.add_theme_stylebox_override("panel", style)
-	panel.mouse_filter = Control.MOUSE_FILTER_STOP  # chip catches hover
+	style.set_corner_radius_all(3)
+	style.set_content_margin_all(2)
+	chip.add_theme_stylebox_override("panel", style)
+	chip.custom_minimum_size = Vector2(26, 26)
+	chip.mouse_filter = Control.MOUSE_FILTER_STOP
 
-	# Wire hover
-	panel.mouse_entered.connect(func(): _show_tooltip(sym, panel))
-	panel.mouse_exited.connect(func(): _hide_tooltip(panel))
+	# Wire hover tooltips
+	chip.mouse_entered.connect(func(): _show_tooltip(sym, chip))
+	chip.mouse_exited.connect(func(): _hide_tooltip(chip))
 
-	var vbox := VBoxContainer.new()
-	vbox.alignment = BoxContainer.ALIGNMENT_CENTER
-	vbox.mouse_filter = Control.MOUSE_FILTER_PASS  # pass through to panel
-	panel.add_child(vbox)
+	# 2. Layering Container (Icon + Overlay Badge)
+	var canvas := Control.new()
+	canvas.custom_minimum_size = Vector2(22, 22)
+	canvas.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	chip.add_child(canvas)
 
+	# 3. Symbol Icon (Centered, full-bleed)
 	var icon := TextureRect.new()
 	icon.texture = sym.icon
-	icon.custom_minimum_size = Vector2(20, 20)
+	icon.set_anchors_preset(Control.PRESET_FULL_RECT)
 	icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-	icon.mouse_filter = Control.MOUSE_FILTER_PASS  # pass through to panel
-	vbox.add_child(icon)
+	icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	canvas.add_child(icon)
+
+	# 4. Corner Count Badge (Sleek pill pinned to bottom-right)
+	var badge := PanelContainer.new()
+	var badge_style := StyleBoxFlat.new()
+	badge_style.bg_color = Color("#0b0714")
+	badge_style.border_color = Color("#3f3354") if count == 1 else ComboDictionary.get_effect_color(sym.effect_type)
+	badge_style.set_border_width_all(1)
+	badge_style.set_corner_radius_all(2)
+	badge_style.content_margin_left = 2
+	badge_style.content_margin_right = 2
+	badge_style.content_margin_top = 0
+	badge_style.content_margin_bottom = 0
+	badge.add_theme_stylebox_override("panel", badge_style)
+	badge.mouse_filter = Control.MOUSE_FILTER_IGNORE
+
+	# Position badge to overlap bottom-right corner
+	badge.set_anchors_preset(Control.PRESET_BOTTOM_RIGHT)
+	badge.grow_horizontal = Control.GROW_DIRECTION_BEGIN
+	badge.grow_vertical = Control.GROW_DIRECTION_BEGIN
+	badge.position = Vector2(2, 2) # Slight overhang for high-end UI feel
 
 	var lbl := Label.new()
-	lbl.text = "×" + str(count)
-	lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	lbl.add_theme_font_size_override("font_size", 10)
-	lbl.add_theme_font_size_override("bold_font_size", 10)
-	lbl.add_theme_color_override("font_color", Color(0.7, 0.8, 1.0))
+	lbl.text = str(count)
 	lbl.add_theme_font_override("font", custom_font)
-	lbl.mouse_filter = Control.MOUSE_FILTER_PASS  # pass through to panel
-	vbox.add_child(lbl)
+	lbl.add_theme_font_size_override("font_size", 8)
+	# Dim count of 1; brightly highlight multiple copies
+	lbl.add_theme_color_override("font_color", Color(0.6, 0.6, 0.7) if count == 1 else Color(1.0, 1.0, 1.0))
+	lbl.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	badge.add_child(lbl)
 
-	return panel
+	canvas.add_child(badge)
+
+	return chip
 
 # ── Tooltip logic ─────────────────────────────────────────────────────────────
 
 func _show_tooltip(sym: SymbolData, chip: Control) -> void:
-	TooltipManager.show_tooltip(chip, sym.symbol_name, ComboDictionary.build_card_description(sym), ComboDictionary.get_effect_color(sym.effect_type))
+	TooltipManager.show_tooltip(
+		chip, 
+		sym.symbol_name, 
+		ComboDictionary.build_card_description(sym), 
+		ComboDictionary.get_effect_color(sym.effect_type)
+	)
 
 func _hide_tooltip(chip: Control) -> void:
 	TooltipManager.hide_tooltip(chip)

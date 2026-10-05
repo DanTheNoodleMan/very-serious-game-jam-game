@@ -2,12 +2,12 @@ class_name EnemyDisplay
 extends Control
 
 @onready var enemy_portrait: AnimatedSprite2D = $EnemyPortrait
-@onready var hp_bar: TextureProgressBar = $EnemyHPBar
+@onready var hp_bar: TextureProgressBar = %EnemyHPBar
 @onready var intent_label: RichTextLabel = $IntentBox/IntentLabel
 @onready var enemy_name: RichTextLabel = $EnemyNameContainer/HBoxContainer/NameContainer/EnemyName
 @onready var mic: TextureRect = $EnemyNameContainer/HBoxContainer/MicContainer/Mic
 @onready var talking_border: TextureRect = $TalkingBorder
-@onready var enemy_hp_label: RichTextLabel = $EnemyHPBar/EnemyHPLabel
+@onready var enemy_hp_label: RichTextLabel = %EnemyHPLabel
 
 const REACTIONS_MILD := {
 	"default": [

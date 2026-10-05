@@ -5,7 +5,7 @@ class_name CombatVFX extends Node
 
 @onready var camera_2d: Camera2D = %Camera2D
 
-var _combo_label_rest_y: float
+var combo_label_rest_y: float
 
 var custom_font = preload("uid://csmid407kor44")
 const STAMP_OFFSETS := [Vector2(-64, -60), Vector2(-64, 10), Vector2(-64, -60)]
@@ -28,7 +28,7 @@ func _update_combo_label(results: Array[SymbolData], combo: Dictionary) -> void:
 	if combo["impact"] > 0:
 		if combo["impact"] > combo["base_impact"]:
 			# FORMAT: 16 IMPACT (Base 5)
-			parts.append("[wave amp=2 freq=5.0][color=#ffd060][b]" + str(combo["impact"]) + "[/b][/color] [color=#ff7777]IMPACT[/color] [color=#ffd060]([color=#ff7777]" + str(combo["base_impact"]) + "[/color])[/color][/wave]")
+			parts.append("[wave amp=2 freq=5.0][color=#ffd060][b]" + str(combo["impact"]) + "[/b][/color] [color=#ff7777]IMPACT[/color][/wave]")
 		else:
 			parts.append("[wave amp=2 freq=5.0][color=#ff7777][b]" + str(combo["impact"]) + "[/b][/color] [color=#ff7777]IMPACT[/color][/wave]")
 
@@ -36,7 +36,7 @@ func _update_combo_label(results: Array[SymbolData], combo: Dictionary) -> void:
 	if combo["bandwidth"] > 0:
 		if combo["bandwidth"] > combo["base_bandwidth"]:
 			# FORMAT: 8 BW (Base 4)
-			parts.append("[wave amp=2 freq=5.0][color=#ffd060][b]" + str(combo["bandwidth"]) + "[/b][/color] [color=#77aaff]BW[/color] [color=#ffd060]([color=#77aaff]" + str(combo["base_bandwidth"]) + "[/color])[/color][/wave]")
+			parts.append("[wave amp=2 freq=5.0][color=#ffd060][b]" + str(combo["bandwidth"]) + "[/b][/color] [color=#77aaff]BW[/color][/wave]")
 		else:
 			parts.append("[wave amp=2 freq=5.0][color=#77aaff][b]" + str(combo["bandwidth"]) + "[/b][/color] [color=#77aaff]BW[/color][/wave]")
 
@@ -44,7 +44,7 @@ func _update_combo_label(results: Array[SymbolData], combo: Dictionary) -> void:
 	if combo["morale"] > 0:
 		if combo["morale"] > combo["base_morale"]:
 			# FORMAT: 20 MORALE (Base 8)
-			parts.append("[wave amp=2 freq=5.0][color=#ffd060][b]" + str(combo["morale"]) + "[/b][/color] [color=#77ee99]MORALE[/color] [color=#ffd060]([color=#77ee99]" + str(combo["base_morale"]) + "[/color])[/color][/wave]")
+			parts.append("[wave amp=2 freq=5.0][color=#ffd060][b]" + str(combo["morale"]) + "[/b][/color] [color=#77ee99]MORALE[/color] [/wave]")
 		else:
 			parts.append("[wave amp=2 freq=5.0][color=#77ee99][b]" + str(combo["morale"]) + "[/b][/color] [color=#77ee99]MORALE[/color][/wave]")
 
