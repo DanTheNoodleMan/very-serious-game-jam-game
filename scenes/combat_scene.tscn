@@ -27,7 +27,6 @@
 [ext_resource type="Texture2D" uid="uid://csite2sa0gul7" path="res://assets/ui/talking_border.png" id="11_b4bhy"]
 [ext_resource type="AudioStream" uid="uid://4btcaotcg4eq" path="res://assets/sounds/win/victory_1.ogg" id="11_d3gqo"]
 [ext_resource type="PackedScene" uid="uid://twq2fsikmerm" path="res://scenes/slot_machine.tscn" id="11_ji6bj"]
-[ext_resource type="Texture2D" uid="uid://dqdq1268rbgwc" path="res://assets/ui/layout_6.png" id="11_tm7qj"]
 [ext_resource type="Resource" uid="uid://cprjdjskyhrmx" path="res://resources/enemies/finance_bro.tres" id="11_tmhp8"]
 [ext_resource type="AudioStream" uid="uid://c0yevdv3rcbxr" path="res://assets/sounds/win/victory_music.ogg" id="12_d3gqo"]
 [ext_resource type="AudioStream" uid="uid://mp0cg8n3wx1r" path="res://assets/sounds/PixelJazz_Loop.ogg" id="13_pmb0h"]
@@ -41,19 +40,21 @@
 [ext_resource type="Texture2D" uid="uid://dr1btcl7di1om" path="res://assets/ui/panels/player_background.png" id="18_xwdjj"]
 [ext_resource type="Texture2D" uid="uid://c48n4u3ngs05e" path="res://assets/ui/buttons/button_hovered.png" id="19_4g358"]
 [ext_resource type="Texture2D" uid="uid://pgxqjkw8j6qs" path="res://assets/ui/buttons/button_disabled_2.png" id="20_aora4"]
-[ext_resource type="Texture2D" uid="uid://cw4sk3bjuf1hk" path="res://assets/ui/panels/panel_6.png" id="21_60sab"]
 [ext_resource type="Texture2D" uid="uid://dkmk53d5mjic0" path="res://assets/ui/panels/player_cam_4.png" id="22_aora4"]
+[ext_resource type="Texture2D" uid="uid://cj3mxm1ti122n" path="res://player_area_panel.png" id="29_o0r20"]
 [ext_resource type="Script" uid="uid://cv3hts36fy0q2" path="res://scripts/ui/combat_vfx.gd" id="30_o0r20"]
 [ext_resource type="Texture2D" uid="uid://bhbcxs2joq34h" path="res://assets/player/player_idle_hat.png" id="31_8o0a2"]
 [ext_resource type="Script" uid="uid://cfwhtr2tx5jgs" path="res://scripts/ui/combat_ui.gd" id="33_iws8m"]
 [ext_resource type="Texture2D" uid="uid://ckrg3xokkc1d" path="res://assets/ui/panels/agenda_panel.png" id="34_60sab"]
 [ext_resource type="Script" uid="uid://c7ug25uvefd4c" path="res://scripts/ui/agenda_area.gd" id="34_gkwxr"]
+[ext_resource type="Texture2D" uid="uid://c23ddtc1om0wd" path="res://assets/ui/panels/panel_1.png" id="34_kg026"]
 [ext_resource type="PackedScene" uid="uid://qvgtwnrcvw7m" path="res://scenes/combo_entry.tscn" id="35_kpklt"]
 [ext_resource type="Script" uid="uid://57ie8umjxy6y" path="res://scripts/pool_roster.gd" id="38_8o0a2"]
 [ext_resource type="Script" uid="uid://duxj3ox7eyota" path="res://scripts/upgrade_display.gd" id="38_f4pwu"]
 [ext_resource type="Texture2D" uid="uid://cxtc11chnjuw7" path="res://assets/player/player_victory_hat.png" id="38_rbecj"]
 [ext_resource type="PackedScene" uid="uid://c0grhwl3tyrdh" path="res://scenes/upgrade_card.tscn" id="39_tm7qj"]
 [ext_resource type="Script" uid="uid://cu4s7j7675ht2" path="res://scripts/utils/camera_shake.gd" id="41_r20up"]
+[ext_resource type="Texture2D" uid="uid://dbuejvmu5c6dh" path="res://assets/ui/panels/nameplate.png" id="44_iws8m"]
 [ext_resource type="Texture2D" uid="uid://d1wadlytwoqw7" path="res://assets/ui/panels/pattern.png" id="48_v24qm"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_cvcst"]
@@ -342,6 +343,7 @@ victory_music = ExtResource("12_d3gqo")
 background_music = ExtResource("13_pmb0h")
 boss_roster = Array[ExtResource("9_2lpl0")]([ExtResource("2_7gog2"), ExtResource("10_ognr1"), ExtResource("10_nwi2s"), SubResource("Resource_rbecj"), SubResource("Resource_v24qm"), ExtResource("11_tmhp8"), ExtResource("10_5pitx")])
 boss_music = ExtResource("15_d3gqo")
+metadata/_edit_vertical_guides_ = [320.0]
 
 [node name="ColorRect" type="ColorRect" parent="." unique_id=1417675988]
 layout_mode = 1
@@ -363,20 +365,38 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-texture = ExtResource("11_tm7qj")
+texture = ExtResource("48_v24qm")
+
+[node name="PlayerStatsContainer2" type="MarginContainer" parent="." unique_id=1550931427]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_bottom = 22.0
+grow_horizontal = 2
+
+[node name="Nameplate" type="NinePatchRect" parent="PlayerStatsContainer2" unique_id=2047867038]
+modulate = Color(0, 0, 0, 1)
+layout_mode = 2
+texture = ExtResource("44_iws8m")
+region_rect = Rect2(0, 0, 53, 15)
+patch_margin_left = 4
+patch_margin_top = 4
+patch_margin_right = 4
+patch_margin_bottom = 4
 
 [node name="HoldTutorialLabel" type="RichTextLabel" parent="." unique_id=1255642044]
+z_index = 10
 clip_contents = false
 layout_mode = 1
-anchors_preset = -1
-anchor_left = 0.46800002
+anchors_preset = 7
+anchor_left = 0.5
 anchor_top = 1.0
-anchor_right = 0.46800002
+anchor_right = 0.5
 anchor_bottom = 1.0
-offset_left = -106.52002
-offset_top = -17.0
-offset_right = 106.47998
-offset_bottom = -2.0
+offset_left = -106.5
+offset_top = -34.0
+offset_right = 106.5
+offset_bottom = -19.0
 grow_horizontal = 2
 grow_vertical = 0
 theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
@@ -396,10 +416,8 @@ vertical_alignment = 1
 layout_mode = 1
 anchors_preset = 10
 anchor_right = 1.0
-offset_left = 193.0
 offset_top = 14.0
-offset_right = -16.0
-offset_bottom = 208.0
+offset_bottom = 197.0
 grow_horizontal = 2
 script = ExtResource("3_ji6bj")
 
@@ -410,7 +428,8 @@ anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 offset_left = -2.0
-offset_bottom = -19.0
+offset_top = 8.0
+offset_bottom = 163.0
 grow_horizontal = 2
 grow_vertical = 2
 texture = ExtResource("5_kciku")
@@ -422,26 +441,31 @@ anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 offset_left = -2.0
-offset_top = -14.0
+offset_top = -18.0
 offset_right = 1.0
-offset_bottom = 10.0
+offset_bottom = 78.0
 grow_horizontal = 2
 grow_vertical = 2
 texture = ExtResource("6_kciku")
 
 [node name="EnemyPortrait" type="AnimatedSprite2D" parent="EnemyArea" unique_id=287608916]
-position = Vector2(223, 92)
+position = Vector2(320, 104)
 scale = Vector2(1.3, 1.3)
 sprite_frames = SubResource("SpriteFrames_7gog2")
 
 [node name="EnemyNameContainer" type="MarginContainer" parent="EnemyArea" unique_id=351663617]
-layout_mode = 0
-offset_left = -3.0
-offset_top = 175.0
-offset_right = 431.0
-offset_bottom = 196.0
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -115.0
+offset_top = 8.0
+offset_right = 115.0
+offset_bottom = 49.0
+grow_horizontal = 2
 
 [node name="Nameplate" type="NinePatchRect" parent="EnemyArea/EnemyNameContainer" unique_id=1340406265]
+modulate = Color(0, 0, 0, 1)
 layout_mode = 2
 texture = ExtResource("9_b4bhy")
 region_rect = Rect2(0, 0, 53, 15)
@@ -450,10 +474,11 @@ patch_margin_top = 4
 patch_margin_right = 4
 patch_margin_bottom = 4
 
-[node name="HBoxContainer" type="HBoxContainer" parent="EnemyArea/EnemyNameContainer" unique_id=1157661479]
+[node name="HBoxContainer" type="VBoxContainer" parent="EnemyArea/EnemyNameContainer" unique_id=1038653339]
 layout_mode = 2
 
 [node name="MicContainer" type="MarginContainer" parent="EnemyArea/EnemyNameContainer/HBoxContainer" unique_id=572495917]
+visible = false
 layout_mode = 2
 theme_override_constants/margin_left = 4
 theme_override_constants/margin_top = 4
@@ -466,8 +491,10 @@ expand_mode = 2
 
 [node name="NameContainer" type="MarginContainer" parent="EnemyArea/EnemyNameContainer/HBoxContainer" unique_id=1461736862]
 layout_mode = 2
-theme_override_constants/margin_top = 2
+size_flags_horizontal = 3
+theme_override_constants/margin_top = 6
 theme_override_constants/margin_right = 2
+theme_override_constants/margin_bottom = 0
 
 [node name="EnemyName" type="RichTextLabel" parent="EnemyArea/EnemyNameContainer/HBoxContainer/NameContainer" unique_id=1411591132]
 layout_mode = 2
@@ -482,17 +509,18 @@ autowrap_mode = 0
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="EnemyHPBar" type="TextureProgressBar" parent="EnemyArea" unique_id=903020479]
-layout_mode = 1
-anchors_preset = -1
-anchor_left = 1.0
-anchor_right = 1.0
-offset_left = -158.0
-offset_top = 157.0
-offset_right = -4.0
-offset_bottom = 170.0
-grow_horizontal = 2
-grow_vertical = 2
+[node name="MarginContainer" type="MarginContainer" parent="EnemyArea/EnemyNameContainer/HBoxContainer" unique_id=881346344]
+custom_minimum_size = Vector2(120, 15)
+layout_mode = 2
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 2
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 2
+
+[node name="EnemyHPBar" type="TextureProgressBar" parent="EnemyArea/EnemyNameContainer/HBoxContainer/MarginContainer" unique_id=903020479]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 3
 nine_patch_stretch = true
 stretch_margin_left = 2
 stretch_margin_top = 2
@@ -502,7 +530,8 @@ texture_under = ExtResource("4_ji6bj")
 texture_over = ExtResource("4_hvv87")
 texture_progress = ExtResource("5_oc8fh")
 
-[node name="EnemyHPLabel" type="RichTextLabel" parent="EnemyArea/EnemyHPBar" unique_id=690398806]
+[node name="EnemyHPLabel" type="RichTextLabel" parent="EnemyArea/EnemyNameContainer/HBoxContainer/MarginContainer/EnemyHPBar" unique_id=690398806]
+unique_name_in_owner = true
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -523,6 +552,7 @@ horizontal_alignment = 1
 vertical_alignment = 1
 
 [node name="TalkingBorder" type="TextureRect" parent="EnemyArea" unique_id=756266938]
+visible = false
 layout_mode = 1
 anchors_preset = -1
 anchor_right = 1.0
@@ -554,6 +584,23 @@ bbcode_enabled = true
 fit_content = true
 scroll_active = false
 
+[node name="ButtonBackground" type="NinePatchRect" parent="EnemyArea" unique_id=1714760379]
+modulate = Color(0.51636857, 0.24895424, 0.25310433, 1)
+layout_mode = 1
+anchors_preset = -1
+anchor_top = 0.21400002
+anchor_right = 1.033
+anchor_bottom = 0.82900006
+offset_left = 371.883
+offset_top = 40.837997
+offset_right = -161.12
+offset_bottom = -23.707016
+texture = ExtResource("34_kg026")
+patch_margin_left = 10
+patch_margin_top = 10
+patch_margin_right = 10
+patch_margin_bottom = 10
+
 [node name="IntentBox" type="MarginContainer" parent="EnemyArea" unique_id=1140138163]
 layout_mode = 1
 anchors_preset = 3
@@ -561,9 +608,10 @@ anchor_left = 1.0
 anchor_top = 1.0
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = -139.0
-offset_top = -19.0
-offset_bottom = 3.0
+offset_left = -287.0
+offset_top = -91.0
+offset_right = -148.0
+offset_bottom = -69.0
 grow_horizontal = 0
 grow_vertical = 0
 localize_numeral_system = false
@@ -586,15 +634,44 @@ autowrap_mode = 0
 horizontal_alignment = 2
 vertical_alignment = 1
 
+[node name="ButtonBackground" type="NinePatchRect" parent="." unique_id=1137125582]
+modulate = Color(0.52906644, 0.5290668, 0.52906656, 1)
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -329.0
+offset_top = -160.0
+offset_right = 329.0
+offset_bottom = 4.0
+grow_horizontal = 2
+grow_vertical = 0
+texture = ExtResource("29_o0r20")
+region_rect = Rect2(0, 0, 458, 140)
+patch_margin_left = 8
+patch_margin_top = 10
+patch_margin_right = 8
+axis_stretch_horizontal = 1
+axis_stretch_vertical = 1
+
 [node name="CombatVFX" type="Node" parent="." unique_id=632699271]
 script = ExtResource("30_o0r20")
 
 [node name="ComboLabel" type="RichTextLabel" parent="CombatVFX" unique_id=430376861]
 z_index = 50
-offset_left = 198.0
-offset_top = 230.0
-offset_right = 625.0
-offset_bottom = 256.0
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -205.0
+offset_top = 28.0
+offset_right = 205.0
+offset_bottom = 54.0
+grow_horizontal = 2
+grow_vertical = 2
 mouse_filter = 2
 theme_override_colors/font_outline_color = Color(0.1254902, 0.08235294, 0.2, 1)
 theme_override_constants/outline_size = 6
@@ -606,6 +683,8 @@ bbcode_enabled = true
 text = "fffgf"
 fit_content = true
 scroll_active = false
+horizontal_alignment = 1
+vertical_alignment = 1
 
 [node name="CombatUI" type="Control" parent="." unique_id=251974575]
 layout_mode = 1
@@ -613,10 +692,10 @@ anchor_left = 1.0
 anchor_top = 0.794
 anchor_right = 1.0
 anchor_bottom = 0.794
-offset_left = -223.0
-offset_top = -65.84
-offset_right = -132.0
-offset_bottom = 74.16
+offset_left = -181.0
+offset_top = -89.84
+offset_right = -90.0
+offset_bottom = 50.160004
 grow_horizontal = 0
 grow_vertical = 0
 script = ExtResource("33_iws8m")
@@ -625,15 +704,16 @@ button_up_sfx = ExtResource("3_pxf7c")
 slide = ExtResource("4_hv2jr")
 
 [node name="ButtonBackground" type="NinePatchRect" parent="CombatUI" unique_id=502633575]
+modulate = Color(0.7024225, 0.7024225, 0.7024223, 1)
 layout_mode = 1
 anchors_preset = -1
 anchor_top = 0.21400002
-anchor_right = 1.187
+anchor_right = 1.033
 anchor_bottom = 0.82900006
 offset_top = 0.0399971
-offset_right = -0.01700592
+offset_right = -0.002998352
 offset_bottom = -0.060005188
-texture = ExtResource("21_60sab")
+texture = ExtResource("34_kg026")
 patch_margin_left = 10
 patch_margin_top = 10
 patch_margin_right = 10
@@ -715,19 +795,17 @@ vertical_alignment = 1
 
 [node name="PlayerArea" type="Control" parent="." unique_id=1026676407]
 layout_mode = 1
-anchors_preset = 12
-anchor_top = 1.0
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_left = 514.0
-offset_top = -125.0
-offset_right = -15.0
-offset_bottom = -14.0
+anchor_left = 0.0015625
+anchor_top = 0.8972222
+anchor_right = 0.315625
+anchor_bottom = 0.96666664
 grow_horizontal = 2
 grow_vertical = 0
 script = ExtResource("8_obqq3")
+metadata/_edit_use_anchors_ = true
 
 [node name="PlayerCam" type="TextureRect" parent="PlayerArea" unique_id=231918537]
+visible = false
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -768,6 +846,7 @@ texture = ExtResource("18_xwdjj")
 expand_mode = 1
 
 [node name="PlayerNameContainer" type="MarginContainer" parent="PlayerArea" unique_id=946557039]
+visible = false
 layout_mode = 1
 anchors_preset = 12
 anchor_top = 1.0
@@ -787,21 +866,43 @@ patch_margin_right = 4
 patch_margin_bottom = 4
 
 [node name="PlayerPortrait" type="AnimatedSprite2D" parent="PlayerArea" unique_id=2052682189]
+visible = false
 position = Vector2(56, 51)
 scale = Vector2(1.5, 1.5)
 sprite_frames = SubResource("SpriteFrames_lthmb")
 animation = &"idle"
 
+[node name="PlayerStatsContainer" type="MarginContainer" parent="PlayerArea" unique_id=169972188]
+layout_mode = 1
+anchors_preset = -1
+anchor_right = 0.92
+anchor_bottom = 1.0
+offset_right = 0.08000183
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Nameplate" type="NinePatchRect" parent="PlayerArea/PlayerStatsContainer" unique_id=300359306]
+modulate = Color(0, 0, 0, 1)
+layout_mode = 2
+texture = ExtResource("44_iws8m")
+region_rect = Rect2(0, 0, 53, 15)
+patch_margin_left = 4
+patch_margin_top = 4
+patch_margin_right = 4
+patch_margin_bottom = 4
+
 [node name="PlayerHPLabel" type="RichTextLabel" parent="PlayerArea" unique_id=810932695]
 layout_mode = 1
-anchors_preset = 3
-anchor_left = 1.0
+anchors_preset = 7
+anchor_left = 0.5
 anchor_top = 1.0
-anchor_right = 1.0
+anchor_right = 0.5
 anchor_bottom = 1.0
-offset_left = -35.0
-offset_top = -12.0
-grow_horizontal = 0
+offset_left = -94.5
+offset_top = -19.0
+offset_right = -59.5
+offset_bottom = -7.0
+grow_horizontal = 2
 grow_vertical = 0
 theme_override_colors/font_outline_color = Color(0.050980393, 0.023529412, 0.09019608, 1)
 theme_override_constants/outline_size = 4
@@ -823,10 +924,10 @@ anchor_left = 0.5
 anchor_top = 1.0
 anchor_right = 0.5
 anchor_bottom = 1.0
-offset_left = -49.5
-offset_top = -10.0
-offset_right = 19.5
-offset_bottom = -2.0
+offset_left = -55.5
+offset_top = -17.0
+offset_right = 66.5
+offset_bottom = -9.0
 grow_horizontal = 2
 grow_vertical = 0
 nine_patch_stretch = true
@@ -839,25 +940,25 @@ texture_over = ExtResource("4_hvv87")
 texture_progress = ExtResource("7_c531c")
 
 [node name="ShieldBadge" type="TextureRect" parent="PlayerArea" unique_id=477156201]
-visible = false
 layout_mode = 1
-offset_left = -6.0
-offset_top = -8.0
-offset_right = 16.0
-offset_bottom = 16.0
+offset_left = 164.0
+offset_top = 1.9999905
+offset_right = 183.0
+offset_bottom = 22.727264
 texture = ExtResource("17_kciku")
+expand_mode = 1
 
 [node name="ShieldAmount" type="RichTextLabel" parent="PlayerArea/ShieldBadge" unique_id=966535148]
 layout_mode = 1
-anchors_preset = 15
+anchors_preset = -1
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 theme_override_fonts/normal_font = ExtResource("16_qmjfx")
 theme_override_fonts/bold_font = ExtResource("16_qmjfx")
-theme_override_font_sizes/normal_font_size = 16
-theme_override_font_sizes/bold_font_size = 16
+theme_override_font_sizes/normal_font_size = 14
+theme_override_font_sizes/bold_font_size = 14
 text = "1"
 fit_content = true
 scroll_active = false
@@ -870,12 +971,13 @@ layout_mode = 1
 anchors_preset = 14
 anchor_top = 0.5
 anchor_bottom = 0.5
-offset_left = 190.0
-offset_top = 72.0
-offset_right = -450.0
-offset_bottom = 72.0
+offset_left = 207.0
+offset_top = 51.0
+offset_right = -433.0
+offset_bottom = 51.0
 
 [node name="AgendaArea" type="Control" parent="." unique_id=1596377603]
+visible = false
 anchors_preset = 0
 offset_right = 174.0
 offset_bottom = 360.0
@@ -907,7 +1009,6 @@ theme_override_constants/margin_right = 9
 theme_override_constants/margin_bottom = 6
 
 [node name="VBoxContainer" type="VBoxContainer" parent="AgendaArea/MarginContainer" unique_id=1773645231]
-visible = false
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
@@ -956,24 +1057,8 @@ theme_override_fonts/normal_font = ExtResource("16_qmjfx")
 theme_override_fonts/bold_font = ExtResource("16_qmjfx")
 text = "Symbols"
 
-[node name="PoolRoster" type="Control" parent="AgendaArea/MarginContainer/VBoxContainer" unique_id=79252817]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(160, 50)
-clip_contents = true
-layout_mode = 2
-size_flags_horizontal = 0
-size_flags_vertical = 3
-script = ExtResource("38_8o0a2")
-
-[node name="ChipRow" type="HBoxContainer" parent="AgendaArea/MarginContainer/VBoxContainer/PoolRoster" unique_id=1805548403]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-
 [node name="UpgradeDisplay" type="Control" parent="." unique_id=265490971]
+visible = false
 layout_mode = 1
 anchor_left = 0.29200003
 anchor_right = 1.0
@@ -1195,3 +1280,32 @@ sprite_frames = SubResource("SpriteFrames_rbecj")
 animation = &"idle"
 frame = 2
 frame_progress = 0.45865297
+
+[node name="Line2D" type="Line2D" parent="." unique_id=1319676253]
+visible = false
+position = Vector2(320, 0)
+points = PackedVector2Array(0, 0, 0, 360)
+width = 1.0
+
+[node name="PoolRoster" type="Control" parent="." unique_id=79252817]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(160, 50)
+clip_contents = true
+anchors_preset = 0
+offset_left = 5.5
+offset_top = 291.0
+offset_right = 165.5
+offset_bottom = 341.0
+size_flags_horizontal = 0
+size_flags_vertical = 3
+script = ExtResource("38_8o0a2")
+
+[node name="ChipRow" type="HBoxContainer" parent="PoolRoster" unique_id=1805548403]
+layout_mode = 1
+anchors_preset = -1
+anchor_right = 1.041
+anchor_bottom = 0.546
+offset_right = -0.05999756
+offset_bottom = -2.2999992
+grow_horizontal = 2
+grow_vertical = 2
