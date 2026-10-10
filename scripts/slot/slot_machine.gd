@@ -20,14 +20,44 @@ signal player_learned_hold
 
 const SPIN_SFX_LENGTH := 1.4 # seconds — update if you swap the file
 const SPIN_DURATIONS := [0.6, 1.0, 1.4]
+const POPUP_COLORS := {
+	ReelPopup.Style.BUFF: Color(1.0, 0.8, 0.2),
+	ReelPopup.Style.DEBUFF: Color(1.0, 0.4, 0.4),
+	ReelPopup.Style.INFO: Color(0.7, 0.85, 1.0),
+}
 
-var context_factory: Callable  # injected by BattleManager
+var combat: CombatContext
+var _rules: Array[ReelRules] = [ReelRules.new(), ReelRules.new(), ReelRules.new()]
 
 var _reels: Array[SlotReel] = []
 var _stopped_count: int = 0
 var is_spinning: bool = false
 var interactible: bool = false # BattleManager controls this
 var _last_results: Array[SymbolData] = []
+var _labels_settled := false
+
+func setup(c: CombatContext) -> void:
+	combat = c
+	logic.shared_pool = c.run.symbol_pool     # reels now cycle the run's real pool
+	logic.reset_holds()
+	logic.active_symbols = [null, null, null] # nothing carries over from the previous fight
+	_last_results = []
+	_labels_settled = false
+	for label in info_labels:
+		label.text = ""
+	for reel in _reels:
+		reel.initialise(logic.shared_pool)
+	apply_reel_rules([ReelRules.new(), ReelRules.new(), ReelRules.new()])
+
+func apply_reel_rules(rules: Array[ReelRules]) -> void:
+	_rules = rules
+	logic.reel_rules = rules
+	for i in 3:
+		_reels[i].apply_rules(rules[i])
+
+func _can_hold(i: int) -> bool:
+	return _rules[i].can_spin and _rules[i].enabled
+
 
 func _ready() -> void:
 	# Listen for when the math is done
@@ -43,8 +73,10 @@ func _build_reels() -> void:
 	for i in 3:
 		info_labels[i].mouse_filter = Control.MOUSE_FILTER_STOP
 		info_labels[i].mouse_entered.connect(func():
+			if not _labels_settled or combat == null or i >= _last_results.size() or _last_results[i] == null:
+				return
 			if _last_results[i] != null:
-				var ctx = context_factory.call(_last_results)
+				var ctx = combat.make_battle_context(_last_results)
 				ComboDictionary.calculate(ctx)
 				TooltipManager.show_tooltip(info_labels[i], "The Math", ComboDictionary.build_tooltip_for_position(ctx, i), ComboDictionary.MATH_ACCENT_COLOR)
 		)
@@ -66,6 +98,7 @@ func trigger_spin(player_hp: int = 100) -> void:
 	if is_spinning: return
 	spin_start.emit()
 	is_spinning = true
+	_labels_settled = false
 	interactible = false # locked during spin
 	_stopped_count = 0
 	for label in info_labels:
@@ -87,7 +120,8 @@ func _on_spin_calculated(results: Array[SymbolData]) -> void:
 	_last_results = results
 	# Tell the visual reels to start spinning to the chosen symbols
 	for i in 3:
-		_reels[i].spin_to(results[i], SPIN_DURATIONS[i])
+		var stay := logic.kept_slots[i] or not _rules[i].enabled
+		_reels[i].spin_to(results[i], SPIN_DURATIONS[i], stay)
 
 func _on_reel_stopped(index: int) -> void:
 	_stopped_count += 1
@@ -96,59 +130,50 @@ func _on_reel_stopped(index: int) -> void:
 	var symbol = _last_results[index]
 	
 	if symbol != null:
-		# --- PRE: TRIGGER LANDING EFFECTS EXACTLY ONCE ---
-		var popup_text := ""
-		if symbol.effect != null:
-			var dummy_ctx = context_factory.call(_last_results)
-			var was_held: bool = logic.held_slots[index]
-			popup_text = symbol.effect.on_landed(index, was_held, dummy_ctx)
-		# -------------------------------------------------
+		var ctx = combat.make_battle_context(_last_results)
+		var was_held: bool = logic.held_slots[index] or not _rules[index].can_spin
 		
-		# 1. Update the text to RAW base stats
-		label.text = ComboDictionary.describe_symbol(symbol)
+		if symbol.effect != null:
+			symbol.effect.on_landed(index, was_held, ctx)
+		#combat.player_statuses.on_symbol_landed(index, was_held, ctx)    # relics/statuses react too
+		var popups := ctx.drain_popups()
+		
+		# Update the text to RAW base stats
+		label.text = ComboDictionary.describe_symbol(symbol, true, combat)
 		label.pivot_offset = label.size * 0.5
 		
-		var base_pitch := 0.9 + 0.1 * (_stopped_count - 1)
-		base_pitch += randf_range(-0.03, 0.03)
-		var t := create_tween()
-		
-		if popup_text != "":
-			# --- THE MASSIVE LEVEL-UP POP ---
-			SFXManager.play(reel_thump, 0.0, 0.05, 5.0, base_pitch + 0.8) # Much louder, much higher!
-			
-			label.scale = Vector2(1.8, 1.8) # Start HUGE
-			label.modulate = Color(1.5, 1.3, 0.4, 1.0) # Start fully OPAQUE Gold
-			
-			t.tween_property(label, "scale", Vector2(1.0, 1.0), 0.4).set_trans(Tween.TRANS_BOUNCE).set_ease(Tween.EASE_OUT)
-			t.parallel().tween_property(label, "modulate", Color.WHITE, 0.4).set_delay(0.1) # Fade back to white slowly
-			
-			# --- SPAWN THE FLOATING "+1" TEXT ---
-			_spawn_reel_floaty(popup_text, index)
-			
+		var base_pitch := 0.9 + 0.1 * (_stopped_count - 1) + randf_range(-0.03, 0.03)		
+		if not popups.is_empty():
+			SFXManager.play(reel_thump, 0.0, 0.05, 5.0, base_pitch + 0.8)
+			_pulse_info_label(index)
+			for p in popups:
+				_spawn_reel_floaty(p.text, p.reel_index, p.style)
 		else:
 			# --- THE NORMAL THUMP ---
 			SFXManager.play(reel_thump, 0.0, 0.05, -2.0, base_pitch)
 			label.scale = Vector2(0.5, 0.5)
 			label.modulate = Color(1, 1, 1, 0)
 			
+			var t := create_tween()
 			t.tween_property(label, "scale", Vector2(1.2, 1.2), 0.08).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 			t.parallel().tween_property(label, "modulate:a", 1.0, 0.08)
 			t.chain().tween_property(label, "scale", Vector2(1.0, 1.0), 0.06).set_trans(Tween.TRANS_SINE)
 		
 		
-
 	# If this was the last reel, finish the spin and update labels
 	if _stopped_count == 3:
 		is_spinning = false
 		await _update_contextual_labels() # wait for animations to finish
+		_labels_settled = true
 		spin_finished.emit(_last_results)
+		
 # A tiny helper function to handle the floating text!
-func _spawn_reel_floaty(text: String, reel_index: int) -> void:
+func _spawn_reel_floaty(text: String, reel_index: int, style: ReelPopup.Style = ReelPopup.Style.BUFF) -> void:
 	var floaty := Label.new()
 	floaty.text = text
 	floaty.add_theme_font_override("font", load("uid://csmid407kor44")) # Your custom font
 	floaty.add_theme_font_size_override("font_size", 24)
-	floaty.add_theme_color_override("font_color", Color(1.0, 0.8, 0.2)) # Bright Gold
+	floaty.add_theme_color_override("font_color", POPUP_COLORS[style]) # Bright Gold
 	floaty.add_theme_color_override("font_outline_color", Color.BLACK)
 	floaty.add_theme_constant_override("outline_size", 6)
 	
@@ -162,11 +187,31 @@ func _spawn_reel_floaty(text: String, reel_index: int) -> void:
 	# Float up and fade out!
 	ft.tween_property(floaty, "scale", Vector2(1.0, 1.0), 0.4).set_trans(Tween.TRANS_BOUNCE).set_ease(Tween.EASE_OUT)
 	ft.parallel().tween_property(floaty, "modulate:a", 0.0, 0.6).set_delay(0.2)
+	ft.parallel().tween_property(floaty, "position:y", floaty.position.y - 18, 0.8)
 	ft.tween_callback(floaty.queue_free)
+
+func _pulse_info_label(index: int) -> void:
+	var label := info_labels[index]
+	label.pivot_offset = label.size * 0.5
+	label.scale = Vector2(1.8, 1.8)
+	label.modulate = Color(1.5, 1.3, 0.4, 1.0)
+	var t := create_tween()
+	t.tween_property(label, "scale", Vector2.ONE, 0.4).set_trans(Tween.TRANS_BOUNCE).set_ease(Tween.EASE_OUT)
+	t.parallel().tween_property(label, "modulate", Color.WHITE, 0.4).set_delay(0.1)
+
+# Used for popups that happen outside a landing (lock-in, etc.)
+func play_popups(popups: Array[ReelPopup]) -> void:
+	if popups.is_empty(): return
+	for p in popups:
+		_pulse_info_label(p.reel_index)
+		_spawn_reel_floaty(p.text, p.reel_index, p.style)
+		SFXManager.play(reel_thump, 0.0, 0.05, 2.0, 1.6)
+		await get_tree().create_timer(0.12).timeout
+	await get_tree().create_timer(0.3).timeout
 	
 func _update_contextual_labels() -> void:
 	# Build a basic context just for UI display purposes
-	var display_ctx = context_factory.call(_last_results)
+	var display_ctx = combat.make_battle_context(_last_results)
 	
 	# Fill display_ctx.buckets with all the final numbers
 	ComboDictionary.calculate(display_ctx)
@@ -192,6 +237,7 @@ func _update_contextual_labels() -> void:
 
 func _on_reel_clicked(index: int) -> void:
 	if not interactible or is_spinning: return
+	if not _can_hold(index): return
 	player_learned_hold.emit()
 	var is_now_held = logic.toggle_hold(index)
 	_reels[index].set_held(is_now_held, true)
@@ -206,7 +252,7 @@ func _input(event: InputEvent) -> void:
 	elif event.is_action_pressed("hold_2"): pressed = 1
 	elif event.is_action_pressed("hold_3"): pressed = 2
 	
-	if pressed != -1:
+	if pressed != -1 and _can_hold(pressed):
 		# Toggle in logic, get the result, and apply to visual reel
 		player_learned_hold.emit()
 		var is_now_held = logic.toggle_hold(pressed)

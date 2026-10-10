@@ -5,29 +5,42 @@ signal spin_calculated(results: Array[SymbolData])
 var active_symbols: Array[SymbolData] = [null, null, null]
 var held_slots: Array[bool] = [false, false, false] 
 
+var reel_rules: Array[ReelRules] = []
+var kept_slots: Array[bool] = [false, false, false]   # reels that kept their symbol because of a JAM (not a hold)
+
 # Single pool of symbols (put tres files here in the editor)
 @export var shared_pool: Array[SymbolData] = []
 
+func _rules_for(i: int) -> ReelRules:
+	return reel_rules[i] if i < reel_rules.size() else ReelRules.new()
+
 func trigger_spin(player_hp: int = 100) -> void:
 	var result: Array[SymbolData] = [null, null, null]
+	var blocked: Array[bool] = [false, false, false]
+	kept_slots = [false, false, false]
 	var needs_pity = player_hp <= 30
 	var held_count = 0
 	
-	# Step 1: Lock in held symbols
+	# Step 1: keep held/jammed symbols, skip blacked-out reels
 	for i in 3:
-		if held_slots[i] and active_symbols[i] != null:
-			# Keep the held symbol
+		var rules := _rules_for(i)
+		if not rules.enabled:
+			blocked[i] = true
+			continue
+		var jammed := not rules.can_spin
+		if (held_slots[i] or jammed) and active_symbols[i] != null:
 			result[i] = active_symbols[i]
 			held_count += 1
+			kept_slots[i] = jammed
 			
-	# Step 2: Rig the game if they are dying AND they locked 2 symbols
+	# Step 2: pity only makes sense on a fully working machine
 	var pity_triggered = false
-	if needs_pity and held_count == 2:
+	if needs_pity and held_count == 2 and not blocked.has(true):
 		pity_triggered = _try_pity_roll(result)
 		
-	# Step 3: Fill any remaining empty slots normally
+	# Step 3: fill the rest (never a blacked-out reel)
 	for i in 3:
-		if result[i] == null:
+		if result[i] == null and not blocked[i]:
 			result[i] = shared_pool.pick_random()
 	
 	active_symbols = result

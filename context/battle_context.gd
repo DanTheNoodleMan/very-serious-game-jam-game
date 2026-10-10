@@ -3,7 +3,11 @@ class_name BattleContext extends RefCounted
 var board: Array[SymbolData]
 var buckets: Array[Dictionary] = []
 var stat_logs: Array[Dictionary] = []  # per index: {"impact": [], "bandwidth": [], "morale": []}
+var popups: Array[ReelPopup] = []
 
+var combat: CombatContext
+var reel_rules: Array[ReelRules] = []
+var status_sources: Array[StatusContainer] = []
 # --- Useful Game State Data ---
 var player_max_hp: int = 0
 var player_hp: int = 0
@@ -44,3 +48,20 @@ func mult_stat(index: int, stat: String, factor: int, source: String) -> void:
 	buckets[index][stat] *= factor
 	buckets[index][stat + "_mult"] *= factor
 	log_step(index, stat, "×%d (%s)" % [factor, source])
+
+func scale_symbol(index: int, stat: String, amount: int, source: String, permanent := false) -> void:
+	var sym := board[index]
+	if sym == null: return
+	if permanent or combat == null:   # no combat (e.g. a unit test) falls back to base
+		var prop := "base_" + stat
+		sym.set(prop, sym.get(prop) + amount)
+	else:
+		combat.add_symbol_bonus(sym, stat, amount, source)
+
+func popup(index: int, text: String, style: ReelPopup.Style = ReelPopup.Style.BUFF) -> void:
+	popups.append(ReelPopup.new(index, text, style))
+
+func drain_popups() -> Array[ReelPopup]:
+	var out := popups
+	popups = []
+	return out

@@ -100,6 +100,7 @@ func _hide_combo_label() -> void:
 #-------------------------
 func throw_symbols(symbols: Array[SymbolData], origins: Array[Vector2], target: Vector2) -> void:
 	for i in 3:
+		if symbols[i] == null: continue
 		SFXManager.play(whoosh_sfx, 0.0, 0.0, -20.0, 1.0, 0.0) 
 		await get_tree().create_timer(0.09).timeout 
 		_launch_word_projectile(symbols[i], origins[i], target, STAMP_OFFSETS[i])

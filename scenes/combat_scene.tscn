@@ -32,6 +32,7 @@
 [ext_resource type="AudioStream" uid="uid://c0yevdv3rcbxr" path="res://assets/sounds/win/victory_music.ogg" id="12_d3gqo"]
 [ext_resource type="AudioStream" uid="uid://mp0cg8n3wx1r" path="res://assets/sounds/PixelJazz_Loop.ogg" id="13_pmb0h"]
 [ext_resource type="AudioStream" uid="uid://bi7shxg68uknr" path="res://assets/sounds/background_music.ogg" id="15_d3gqo"]
+[ext_resource type="Script" uid="uid://6yhhb4nfl66n" path="res://resources/actions/enemy_actions/enemy_action.gd" id="15_o0r20"]
 [ext_resource type="Texture2D" uid="uid://dvce760xiccd8" path="res://assets/ui/panels/player_cam.png" id="15_o7yjl"]
 [ext_resource type="Texture2D" uid="uid://d0qe6lbuvx0cm" path="res://assets/enemies/salaryman_idle_2.png" id="15_v24qm"]
 [ext_resource type="FontFile" uid="uid://csmid407kor44" path="res://assets/fonts/Stacked pixel.ttf" id="16_qmjfx"]
@@ -124,7 +125,6 @@ animations = [{
 script = ExtResource("9_2lpl0")
 boss_id = "salaryman"
 boss_name = "Salaryman"
-max_hp = 60
 attack_pattern = Array[int]([6, 6, 7, 7, 5, 5, 15])
 animations = SubResource("SpriteFrames_j3ll6")
 metadata/_custom_type_script = "uid://c48xf5y2x8myd"
@@ -133,7 +133,6 @@ metadata/_custom_type_script = "uid://c48xf5y2x8myd"
 script = ExtResource("9_2lpl0")
 boss_id = "salaryman"
 boss_name = "Salaryman"
-max_hp = 80
 attack_pattern = Array[int]([8, 9, 8, 6, 10, 8, 7, 15])
 animations = SubResource("SpriteFrames_j3ll6")
 metadata/_custom_type_script = "uid://c48xf5y2x8myd"
@@ -340,8 +339,8 @@ game_over = ExtResource("10_rbecj")
 victory = ExtResource("11_d3gqo")
 victory_music = ExtResource("12_d3gqo")
 background_music = ExtResource("13_pmb0h")
-boss_roster = Array[ExtResource("9_2lpl0")]([ExtResource("2_7gog2"), ExtResource("10_ognr1"), ExtResource("10_nwi2s"), SubResource("Resource_rbecj"), SubResource("Resource_v24qm"), ExtResource("11_tmhp8"), ExtResource("10_5pitx")])
 boss_music = ExtResource("15_d3gqo")
+boss_roster = Array[ExtResource("9_2lpl0")]([ExtResource("2_7gog2"), ExtResource("10_ognr1"), ExtResource("10_nwi2s"), SubResource("Resource_rbecj"), SubResource("Resource_v24qm"), ExtResource("11_tmhp8"), ExtResource("10_5pitx")])
 
 [node name="ColorRect" type="ColorRect" parent="." unique_id=1417675988]
 layout_mode = 1
@@ -483,6 +482,7 @@ horizontal_alignment = 1
 vertical_alignment = 1
 
 [node name="EnemyHPBar" type="TextureProgressBar" parent="EnemyArea" unique_id=903020479]
+unique_name_in_owner = true
 layout_mode = 1
 anchors_preset = -1
 anchor_left = 1.0
@@ -503,6 +503,7 @@ texture_over = ExtResource("4_hvv87")
 texture_progress = ExtResource("5_oc8fh")
 
 [node name="EnemyHPLabel" type="RichTextLabel" parent="EnemyArea/EnemyHPBar" unique_id=690398806]
+unique_name_in_owner = true
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -907,7 +908,6 @@ theme_override_constants/margin_right = 9
 theme_override_constants/margin_bottom = 6
 
 [node name="VBoxContainer" type="VBoxContainer" parent="AgendaArea/MarginContainer" unique_id=1773645231]
-visible = false
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3

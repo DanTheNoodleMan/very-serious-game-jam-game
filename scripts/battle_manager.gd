@@ -1,9 +1,14 @@
 extends Node
+## Combat scene controller.
+## Rules live in CombatContext. This script only sequences beats (awaits) and drives the displays.
+## Inject with setup(CombatContext) BEFORE add_child(). If nothing is injected (F6 on this scene),
+## it builds its own throwaway run from the exports below so the scene still plays on its own.
+
 
 signal boss_turn
 signal player_turn
-
-const STAMP_OFFSETS := [Vector2(-64, -60), Vector2(-64, 10), Vector2(-64, -60)]
+## Fired after a won fight AND its reward pick. Main listens to this to go back to the map.
+signal combat_finished(victory: bool, cash_reward: int)
 
 enum GameState {PLAYER_TURN, SPINNING, RESOLVING, ENEMY_TURN, UPGRADE, GAME_OVER, VICTORY}
 var current_state: GameState = GameState.PLAYER_TURN
@@ -16,21 +21,20 @@ var current_state: GameState = GameState.PLAYER_TURN
 @export var victory: AudioStream
 @export var victory_music: AudioStream
 @export var background_music: AudioStream
-@export var boss_roster: Array[BossData] = []
-
 @export var boss_music: AudioStream
 
-var current_boss_index: int = 0
-var current_boss: BossData
-var player_hp: int = 100
-var player_max_hp: int = 100
-var player_shield: int = 0   # resets each enemy turn after absorbing
-var boss_hp: int = 100
-var boss_max_hp: int = 100
-var turn_number: int = 0
-var rerolls_left: int = 1
-var base_rerolls_left: int = 2
+@export_group("Standalone testing (F6)")
+## Only used when no CombatContext was injected. Fights these in order.
+@export var boss_roster: Array[BossData] = []
+## Empty = use whatever is assigned on SlotMachineLogic.shared_pool in the editor.
+@export var dev_starter_pool: Array[SymbolData] = []
 
+var combat: CombatContext
+var run: RunState:
+	get:
+		return combat.run
+
+var _dev_boss_index: int = 0
 var _upgrade_display_rest_x: float
 var _enemy_display_rest_y: float
 var _slot_machine_rest_y: float
@@ -61,22 +65,27 @@ var _has_learned_hold: bool = false
 var custom_font = load("uid://csmid407kor44")
 
 
-func _ready() -> void:
-	SFXManager.play_music(background_music, -20.0) # play music handles an already playing same track
-	player_max_hp += GlobalSettings.easy_mode_hp_buff
-	player_hp = player_max_hp
+# ---------------------------------------------------------------------------
+# Setup
+# ---------------------------------------------------------------------------
 
+func setup(c: CombatContext) -> void:
+	combat = c
+
+func _ready() -> void:
+	if combat == null:
+		_build_dev_combat()
+	combat.passive_damage.connect(_on_passive_damage)
+	run.pool_changed.connect(func(): pool_roster.refresh(run.symbol_pool))
+	
+	_play_combat_music()
+	
 	game_over_screen.visible = false
 	victory_screen.visible = false
 	
-	if boss_roster.size() > 0:
-		current_boss = boss_roster[0]
-		boss_hp = current_boss.max_hp
-		boss_max_hp = current_boss.max_hp
-	enemy_display.setup(current_boss)
+	enemy_display.setup(combat.enemy)
 	enemy_display.show_name_immediate()
-	
-	player_display.setup(player_hp, player_max_hp)
+	player_display.setup(run.hp, run.max_hp)
 	
 	combat_ui.reroll_pressed.connect(_on_reroll_pressed)
 	combat_ui.lock_in_pressed.connect(_on_lock_in_pressed)
@@ -88,7 +97,7 @@ func _ready() -> void:
 	slot_machine.spin_finished.connect(_on_spin_finished)
 	slot_machine.spin_start.connect(_on_spin_start)
 	slot_machine.player_learned_hold.connect(_on_player_learned_hold)
-	slot_machine.context_factory = Callable(self, "create_battle_context")
+	slot_machine.setup(combat)
 	
 	upgrade_display.upgrade_chosen.connect(_on_upgrade_chosen)
 	upgrade_display.visible = false
@@ -101,34 +110,40 @@ func _ready() -> void:
 	combat_ui.visible = false  # Start hidden, first show comes from start_player_turn
 	upgrade_display.visible = false
 	
-	# IMPORTANT FIX: Clone the symbol pool so upgrades don't persist after restart
-	var cloned_pool: Array[SymbolData] = []
-	for sym in slot_machine.logic.shared_pool:
-		cloned_pool.append(sym.duplicate(true)) # THIS UPGRADES 1 INSTANCE OF A SYMBOL. IF I HAVE 
-												# MULTIPLE INSTANCES ONLY 1 WILL BE UPGRADED. TODO: SEE IF THIS IS WHAT I ACTUALLY WANT
-	slot_machine.logic.shared_pool = cloned_pool
-	
-	pool_roster.refresh(slot_machine.logic.shared_pool)
+	pool_roster.refresh(run.symbol_pool)
 	start_player_turn()
 
 
+func _play_combat_music() -> void:
+	if combat.enemy.boss_id == "boss":
+		SFXManager.play_music(boss_music, -15.0)
+	else:
+		SFXManager.play_music(background_music, -20.0)  # handles "already playing"
+
+
+# ---------------------------------------------------------------------------
+# Player turn
+# ---------------------------------------------------------------------------
+
 func start_player_turn() -> void:
+	current_state = GameState.PLAYER_TURN   # must be set BEFORE _check_combat_over()
+	
+	combat.begin_player_turn()  # shield reset, rerolls, picks enemy action, start-of-turn ticks
+	if _check_combat_over():
+		return
+
 	player_turn.emit()
 	player_display.clear_shield()  
-	current_state = GameState.PLAYER_TURN
-	rerolls_left = base_rerolls_left
-	combat_ui.show_ui(rerolls_left)
+	combat_ui.show_ui(combat.rerolls_left)
 	combat_ui.set_buttons_spinning()
 	combat_vfx.combo_label.text = ""  # Clear preview from last turn
 	slot_machine.reset_all_holds()
-
-	var next_attack: int = current_boss.attack_pattern[turn_number % current_boss.attack_pattern.size()]
-	enemy_display.set_intent(next_attack)
+	slot_machine.apply_reel_rules(combat.get_reel_rules())
+	enemy_display.set_intent(combat.next_action, combat)
 	
-	combat_ui.set_buttons_spinning()
 	current_state = GameState.SPINNING
 	await get_tree().create_timer(0.5).timeout
-	slot_machine.trigger_spin(player_hp)
+	slot_machine.trigger_spin(run.hp)
 
 
 func resolve_player_attack() -> void:
@@ -140,8 +155,8 @@ func resolve_player_attack() -> void:
 	slot_machine.interactible = false
 	combat_ui.hide_ui()  # Hide buttons during resolution
 
-	var final_symbols = slot_machine.logic.active_symbols
-	var ctx = create_battle_context(final_symbols)
+	var final_symbols: Array[SymbolData] = slot_machine.logic.active_symbols
+	var ctx := combat.make_battle_context(final_symbols)
 	var combo_result = ComboDictionary.calculate(ctx)
 	
 	# --- COMMIT PHASE ---
@@ -149,22 +164,31 @@ func resolve_player_attack() -> void:
 	for i in 3:
 		if ctx.board[i] != null and ctx.board[i].effect != null:
 			ctx.board[i].effect.on_commit(i, ctx)
+	#combat.player_statuses.on_lock_in(ctx)
+	await slot_machine.play_popups(ctx.drain_popups())
 	# ------------------------
 	
-	# Beat 1: Combo announcement (if earned)
+	# Beat 1: combo announcement (if earned)
 	if combo_result["is_combo"]:
 		await show_combo_announcement(combo_result["name"])
 	
-	# Beat 2: Words fly across the screen
+	# Beat 2: words fly across the screen (throw_symbols must skip null reels)
 	await combat_vfx.throw_symbols(final_symbols, slot_machine.get_reel_global_centers(), enemy_display.get_portrait_global_center())
 	
-	# Beat 3: Impact — hit animation + numbers pop simultaneously
+	# Beat 3: impact. Rules first (state), then show it
 	var boss_center := enemy_display.get_portrait_global_center()
 	var player_center := player_display.get_global_center()
 	
-	if combo_result["impact"] > 0:
-		combat_vfx.spawn_floating_text("[b][color=#cc5555]-" + str(combo_result["impact"]) + " HP[/color][/b]",
+	var enemy_hit := combat.damage_enemy(combo_result["impact"])
+	combat.add_player_shield(combo_result["bandwidth"])
+	combat.heal_player(combo_result["morale"])
+
+	if enemy_hit.hp_damage > 0:
+		combat_vfx.spawn_floating_text("[b][color=#cc5555]-" + str(enemy_hit.hp_damage) + " HP[/color][/b]",
 		boss_center + Vector2(128, -32))
+	if enemy_hit.absorbed > 0:
+		combat_vfx.spawn_floating_text("[b][color=#55aaff]+" + str(enemy_hit.absorbed) + " BLOCKED[/color][/b]",
+		player_center + Vector2(128, -8))
 	if combo_result["bandwidth"] > 0:
 		combat_vfx.spawn_floating_text("[b][color=#55aaff]+" + str(combo_result["bandwidth"]) + " BW[/color][/b]",
 		player_center + Vector2(-24, 12))
@@ -174,96 +198,133 @@ func resolve_player_attack() -> void:
 		
 	SFXManager.play(hit, 0.0, 0.0, -20.0, 1.5, 0.0)
 	await enemy_display.play_hit()  # Wait for hit anim to finish
-
-	boss_hp -= combo_result["impact"]
-	enemy_display.update_hp(boss_hp)
 	
-	player_shield += combo_result["bandwidth"]
-	player_display.set_shield(player_display.current_shield + combo_result["bandwidth"])
+	enemy_display.update_hp(combat.enemy_hp)
+	enemy_display.set_shield(combat.enemy_shield)
+	player_display.set_shield(combat.player_shield)
+	player_display.update_hp(run.hp)
 	
-	player_hp = min(player_hp + combo_result["morale"], player_max_hp)  # Cap at max
-	player_display.update_hp(player_hp)
-
-	# Beat 4: Boss mumbles defeated corporate speak
+	# Beat 4: boss mumbles defeated corporate speak
 	enemy_display.show_reaction(combo_result["impact"])
-	if boss_hp <= 0:
-		# Check if this is the final boss in the array
-		if current_boss_index >= boss_roster.size() - 1:
-			current_state = GameState.VICTORY
-			await _transition_to_victory()
-		else:
-			current_state = GameState.UPGRADE
-			await _transition_to_upgrade()
-			start_upgrade_phase()
+	if _check_combat_over():
 		return
-
+	
 	await get_tree().create_timer(1.0).timeout
+	combat.end_player_turn()  # player/machine statuses tick + expire
+	slot_machine.apply_reel_rules(combat.get_reel_rules())    # clear stamps that just expired
+	if _check_combat_over():
+		return
 	start_enemy_turn()
 
+# ---------------------------------------------------------------------------
+# Enemy turn
+# ---------------------------------------------------------------------------
 
 func start_enemy_turn() -> void:
-	boss_turn.emit() # for small things like changing ui stuff like mic from enemy_display
+	combat.begin_enemy_turn()
+	boss_turn.emit() # small UI things, e.g. mic on the enemy display
 	current_state = GameState.ENEMY_TURN
-	await get_tree().create_timer(0.5).timeout # for mic to change 
+	enemy_display.clear_shield()
+	await get_tree().create_timer(0.5).timeout
 
-	var attack_dmg = current_boss.attack_pattern[turn_number % current_boss.attack_pattern.size()]
 	await enemy_display.play_attack() 
+	await _execute_enemy_action(combat.next_action)
+	if _check_combat_over():
+			return
 	
-	# Shield absorbs first
-	var prev_shield = player_display.current_shield
-	var hp_damage = player_display.absorb_damage(attack_dmg)
-	var shield_broke = (prev_shield > 0 && player_display.current_shield == 0)
-	var exact_break = (shield_broke && attack_dmg == prev_shield)
+	combat.end_enemy_turn()  # enemy statuses tick here, turn_number increments
+	if _check_combat_over():
+			return
+	await get_tree().create_timer(0.5).timeout
+	start_player_turn()
 	
-	if hp_damage <= 0:
-		# Fully blocked
-		if shield_broke:
-			# Shield was exactly depleted
-			await player_display.play_shield_break(prev_shield, exact_break)
-			SFXManager.play(shield_impact, 0.0, 0.0, -20.0, 1.0, 0.0) 
-		else:
-			# Shield still has points left
+
+func _execute_enemy_action(action: EnemyAction) -> void:
+	var boss_center := enemy_display.get_portrait_global_center()
+	
+	if action.shield > 0:
+		combat.add_enemy_shield(action.shield)
+		enemy_display.set_shield(combat.enemy_shield)
+		combat_vfx.spawn_floating_text("[b][color=#55aaff]+" + str(action.shield) + " BW[/color][/b]", boss_center + Vector2(128, -32))
+	if action.heal > 0:
+		combat.heal_enemy(action.heal)
+		enemy_display.update_hp(combat.enemy_hp)
+		combat_vfx.spawn_floating_text("[b][color=#55ee77]+" + str(action.heal) + " MORALE[/color][/b]", boss_center + Vector2(128, -32))
+	if action.damage > 0:
+		var dmg := combat.enemy_statuses.modify_damage_dealt(action.damage)
+		await _play_player_damage(combat.damage_player(dmg))
+	
+	if not action.effects.is_empty():
+		for effect in action.effects:
+			effect.apply(combat)
+		slot_machine.apply_reel_rules(combat.get_reel_rules())  # sabotage stamps slam in right now
+		await get_tree().create_timer(0.4).timeout
+
+# Read shield/HP block from the DamageResult instead of computing it
+func _play_player_damage(r: DamageResult) -> void:
+	player_display.set_shield(r.shield_after)  # what absorb_damage() used to do visually
+	
+	if r.shield_broke:
+		await player_display.play_shield_break(r.shield_before, r.exact_break)
+ 
+	if r.hp_damage <= 0:
+		if not r.shield_broke:
 			await player_display.play_blocked()
-			SFXManager.play(shield_impact, 0.0, 0.0, -20.0, 1.0, 0.0) 
+		SFXManager.play(shield_impact, 0.0, 0.0, -20.0, 1.0, 0.0)
 	else:
-		# HP damage taken (shield may have broken or not)
-		if shield_broke:
-			await player_display.play_shield_break(prev_shield, exact_break)
-			SFXManager.play(shield_break, 0.0, 0.0, -20.0, 1.0, 0.0) 
-		# Now apply HP damage and play hit animation
-		player_hp -= hp_damage
-		player_display.update_hp(player_hp)
-		
-		var player_center := player_display.get_global_center()
-		combat_vfx.spawn_floating_text("[b][color=#cc5555]-" + str(hp_damage) + " HP[/color][/b]",
-			player_center + Vector2(-24, 12))   # change "BW" to "HP" for clarity
+		if r.shield_broke:
+			SFXManager.play(shield_break, 0.0, 0.0, -20.0, 1.0, 0.0)
+		player_display.update_hp(run.hp)
+		combat_vfx.spawn_floating_text("[b][color=#cc5555]-" + str(r.hp_damage) + " HP[/color][/b]",
+			player_display.get_global_center() + Vector2(-24, 12))
 		SFXManager.play(hit, 0.0, 0.0, -20.0, 1.0, 0.0)
 		await player_display.play_hit()
 
-	if player_hp <= 0:
-		current_state = GameState.GAME_OVER
-		game_over_screen.modulate.a = 0.0
-		game_over_screen.visible = true
-		create_tween().tween_property(game_over_screen, "modulate:a", 1.0, 1.5)
-		SFXManager.play(game_over, 0.0, 0.0, -15.0, 1.0, 0.0)
+# Damage caused by statuses announced by CombatContext
+func _on_passive_damage(side: int, r: DamageResult, source: String) -> void:
+	if r.hp_damage <= 0:
 		return
+	var text := "[b][color=#cc5555]-%d HP[/color][/b] [color=#99a3c2](%s)[/color]" % [r.hp_damage, source]
+	if side == StatusContainer.Side.PLAYER:
+		player_display.update_hp(run.hp)
+		combat_vfx.spawn_floating_text(text, player_display.get_global_center() + Vector2(-24, 12))
+	else:
+		enemy_display.update_hp(combat.enemy_hp)
+		combat_vfx.spawn_floating_text(text, enemy_display.get_portrait_global_center() + Vector2(128, -32))
 
-	await get_tree().create_timer(0.5).timeout
-	turn_number += 1
-	start_player_turn()
 
-# --- Helpers -------------------------------------------
-#  IMPORTANT CONTEXT CREATOR
-func create_battle_context(board: Array[SymbolData]) -> BattleContext:
-	var ctx = BattleContext.new(board)
-	ctx.player_max_hp = player_max_hp
-	ctx.player_hp = player_hp
-	ctx.boss_max_hp = boss_max_hp
-	ctx.boss_hp = boss_hp
-	ctx.player_shield = player_shield
-	ctx.turn_number = turn_number
-	ctx.rerolls_left = rerolls_left
-	return ctx
+# ---------------------------------------------------------------------------
+# End-of-combat checks
+# ---------------------------------------------------------------------------
+## True if the fight is over (and the right flow has been started).
+func _check_combat_over() -> bool:
+	if current_state == GameState.GAME_OVER or current_state == GameState.VICTORY or current_state == GameState.UPGRADE:
+		return true
+	if combat.is_player_dead():
+		_trigger_game_over()
+		return true
+	if combat.is_enemy_dead():
+		_on_enemy_defeated()
+		return true
+	return false
+
+func _trigger_game_over() -> void:
+	current_state = GameState.GAME_OVER
+	game_over_screen.modulate.a = 0.0
+	game_over_screen.visible = true
+	create_tween().tween_property(game_over_screen, "modulate:a", 1.0, 1.5)
+	SFXManager.play(game_over, 0.0, 0.0, -15.0, 1.0, 0.0)
+ 
+func _on_enemy_defeated() -> void:
+	if combat.is_final_boss:
+		current_state = GameState.VICTORY
+		await _transition_to_victory()
+	else:
+		current_state = GameState.UPGRADE
+		await _transition_to_upgrade()
+		start_upgrade_phase()
+
+# --- Helpers ---------------------------------------------------------------
 
 func show_combo_announcement(combo_name: String) -> void:
 	SFXManager.play(preload("uid://b4nmr0ovmbky3"), 0.0, 0.05, -2.0, 1.0)
@@ -342,7 +403,7 @@ func show_combo_announcement(combo_name: String) -> void:
 	
 
 # -------------------------------------------------------
-# --- UPGRADE SCREEN ------------------------------------
+# --- UPGRADE SCREEN (will move to its own reward scene) 
 # -------------------------------------------------------
 
 func _transition_to_upgrade() -> void:
@@ -355,7 +416,6 @@ func _transition_to_upgrade() -> void:
 	combat_ui.hide_ui()
 	combat_vfx.combo_label.text = ""
 	
-
 	# Slide enemy UP and slot machine DOWN simultaneously
 	var t := create_tween()
 	t.tween_property(enemy_display, "position:y",
@@ -369,9 +429,10 @@ func _transition_to_upgrade() -> void:
 		.set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_IN)
 	await t.finished
 
+
 func start_upgrade_phase() -> void:
 	current_state = GameState.UPGRADE
-	upgrade_display.show_upgrades(slot_machine.logic.shared_pool, base_rerolls_left)
+	upgrade_display.show_upgrades(run.symbol_pool, run.base_rerolls)
 
 	# Start offscreen to the right, then slide in
 	upgrade_display.position.x = get_viewport().get_visible_rect().size.x + 200
@@ -386,11 +447,11 @@ func start_upgrade_phase() -> void:
 func _on_upgrade_chosen(type: String, data: Variant) -> void:
 	match type:
 		"add":
-			slot_machine.logic.shared_pool.append(data as SymbolData)
+			run.add_symbol(data as SymbolData)
 		"remove":
-			slot_machine.logic.shared_pool.erase(data as SymbolData)
+			run.remove_symbol(data as SymbolData)
 		"reroll":
-			base_rerolls_left += 1
+			run.base_rerolls += 1
 		"upgrade_normal":
 			var sym := data as SymbolData
 			# Buff the correct specific stat
@@ -401,60 +462,17 @@ func _on_upgrade_chosen(type: String, data: Variant) -> void:
 			ComboDictionary.dictionary_updated.emit() 
 		"upgrade_multiplier":
 			var sym := data as SymbolData
-			# Check which specific effect script is attached to this symbol # TODO: make it not hard coded
+			# TODO: make it not hard coded
 			if sym.effect is MultiplyLeftEffect:
 				sym.effect.base_multiplier += 2
 			elif sym.effect is BuffAllEffect:
 				sym.effect.buff_amount += 2
 			ComboDictionary.dictionary_updated.emit()
 	
-	pool_roster.refresh(slot_machine.logic.shared_pool)
-	
+	pool_roster.refresh(run.symbol_pool)
 	upgrade_display.visible = false
-	_advance_to_next_boss()
-
-func _advance_to_next_boss() -> void:
-	
-	current_boss_index += 1
-	if current_boss_index >= boss_roster.size():
-		combat_vfx.combo_label.text = "[center][wave]YOU ARE THE CEO NOW.[/wave][/center]"
-		current_state = GameState.GAME_OVER
-		return
-
-	# Slide upgrade panel back out to the right
-	var out := create_tween()
-	out.tween_property(upgrade_display, "position:x",
-		get_viewport().get_visible_rect().size.x + 200, 0.3) \
-		.set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN)
-	await out.finished
-	upgrade_display.visible = false
-
-	# Load new boss data
-	current_boss = boss_roster[current_boss_index]
-	if current_boss.boss_id == "ceo":
-		print("Ceo")
-		SFXManager.play_music(boss_music, -15.0)
-	boss_hp = current_boss.max_hp
-	turn_number = 0
-	enemy_display.setup(current_boss)
-
-	# Slide enemy and slot machine back in with a slight stagger
-	var t := create_tween()
-	t.tween_property(enemy_display, "position:y", _enemy_display_rest_y, 0.4) \
-		.set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
-	t.parallel().tween_property(slot_machine, "position:y",
-		_slot_machine_rest_y, 0.4) \
-		.set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT) \
-		.set_delay(0.08)
-	t.parallel().tween_property(combat_vfx.combo_label, "position:y",
-		combat_vfx.combo_label_rest_y, 0.4) \
-		.set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
-	await t.finished
-	
-	# Play connecting animation
-	await enemy_display.play_reconnected()
-
-	start_player_turn()
+	# Whoever owns the run loop (Main, or the dev harness below) takes it from here.
+	combat_finished.emit(true, combat.enemy.cash_reward)
 
 
 func _transition_to_victory() -> void:
@@ -497,14 +515,14 @@ func _on_spin_start() -> void:
 
 func _on_spin_finished(results: Array[SymbolData]) -> void:
 	# Update combo preview
-	var ctx = create_battle_context(results)
+	var ctx = combat.make_battle_context(results)
 	var combo = ComboDictionary.calculate(ctx)
 	combat_vfx._update_combo_label(results, combo)
 
-	if rerolls_left > 0:
+	if combat.rerolls_left > 0:
 		current_state = GameState.PLAYER_TURN
 		slot_machine.interactible = true  # Player can click reels
-		combat_ui.set_buttons_active(rerolls_left)
+		combat_ui.set_buttons_active(combat.rerolls_left)
 		
 		if not _has_learned_hold:
 			hold_tutorial.modulate.a = 0.0
@@ -513,7 +531,7 @@ func _on_spin_finished(results: Array[SymbolData]) -> void:
 	else:
 		# Auto-resolve
 		slot_machine.interactible = false # Lock reels so they can't click during wait
-		await get_tree().create_timer(1.25).timeout
+		await get_tree().create_timer(1.0).timeout
 		
 		# Only resolve if the player hasn't somehow already resolved it
 		if current_state != GameState.RESOLVING and current_state != GameState.UPGRADE:
@@ -521,10 +539,10 @@ func _on_spin_finished(results: Array[SymbolData]) -> void:
 
 func _on_reroll_pressed() -> void:
 	if current_state != GameState.PLAYER_TURN: return
-	rerolls_left -= 1
+	combat.rerolls_left -= 1
 	combat_ui.set_buttons_spinning()
 	current_state = GameState.SPINNING
-	slot_machine.trigger_spin(player_hp)
+	slot_machine.trigger_spin(run.hp)
 
 func _on_lock_in_pressed() -> void:
 	if current_state != GameState.PLAYER_TURN: return
@@ -538,9 +556,60 @@ func _on_player_learned_hold() -> void:
 		t.tween_property(hold_tutorial, "modulate:a", 0.0, 0.3)
 		t.tween_callback(func(): hold_tutorial.visible = false)
 
+# Reloading the current scene reloads Main once it exists, which = a fresh run. Same call works in both modes.
 func _on_restart_pressed() -> void:
 	get_tree().reload_current_scene()
 
 func _on_easy_pressed() -> void:
 	GlobalSettings.easy_mode_hp_buff += 25
 	get_tree().reload_current_scene()
+
+# --------------------------------------------------------
+# --- DEV HARNESS (delete once Main owns the run loop) ----
+# --------------------------------------------------------
+# Lets this scene run on its own: builds a RunState, and after each reward pick
+# starts the next boss in boss_roster, same loop as the jam build.
+ 
+func _build_dev_combat() -> void:
+	assert(not boss_roster.is_empty(), "Standalone mode needs boss_roster filled in on the combat scene")
+	var pool: Array[SymbolData] = dev_starter_pool
+	if pool.is_empty():
+		pool = slot_machine.logic.shared_pool
+	var new_run := RunState.create(pool, GlobalSettings.easy_mode_hp_buff)
+	combat = _dev_make_combat(new_run)
+	combat_finished.connect(_dev_on_combat_finished)
+ 
+func _dev_make_combat(r: RunState) -> CombatContext:
+	var c := CombatContext.new(r, boss_roster[_dev_boss_index])
+	c.is_final_boss = _dev_boss_index >= boss_roster.size() - 1
+	return c
+ 
+func _dev_on_combat_finished(won: bool, cash: int) -> void:
+	if not won:
+		return
+	var r := run
+	r.add_cash(cash)
+	_dev_boss_index += 1
+	combat = _dev_make_combat(r)
+	combat.passive_damage.connect(_on_passive_damage)
+	slot_machine.setup(combat)
+ 
+	_play_combat_music()
+	enemy_display.setup(combat.enemy)
+ 
+	# Slide enemy and slot machine back in with a slight stagger
+	var t := create_tween()
+	t.tween_property(enemy_display, "position:y", _enemy_display_rest_y, 0.4) \
+		.set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	t.parallel().tween_property(slot_machine, "position:y",
+		_slot_machine_rest_y, 0.4) \
+		.set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT) \
+		.set_delay(0.08)
+	t.parallel().tween_property(combat_vfx.combo_label, "position:y",
+		combat_vfx.combo_label_rest_y, 0.4) \
+		.set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	await t.finished
+ 
+	await enemy_display.play_reconnected()
+	start_player_turn()
+ 

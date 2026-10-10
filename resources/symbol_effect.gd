@@ -14,8 +14,8 @@ func on_commit(my_index: int, ctx: BattleContext) -> void:
 	pass
 	
 # Runs ONCE when a reel physically stops spinning
-func on_landed(my_index: int, is_held: bool, ctx: BattleContext) -> String:
-	return ""
+func on_landed(my_index: int, is_held: bool, ctx: BattleContext) -> void:
+	pass
 
 # --------- Aux functions ---------
 

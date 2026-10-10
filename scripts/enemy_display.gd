@@ -8,6 +8,8 @@ extends Control
 @onready var mic: TextureRect = $EnemyNameContainer/HBoxContainer/MicContainer/Mic
 @onready var talking_border: TextureRect = $TalkingBorder
 @onready var enemy_hp_label: RichTextLabel = %EnemyHPLabel
+@onready var shield_badge: TextureRect = get_node_or_null("ShieldBadge")
+@onready var shield_label: RichTextLabel = get_node_or_null("ShieldBadge/ShieldAmount")
 
 const REACTIONS_MILD := {
 	"default": [
@@ -130,10 +132,10 @@ func setup(boss: BossData) -> void:
 	enemy_portrait.sprite_frames = boss.animations
 	enemy_portrait.play("idle")
 
-	_max_hp = boss.max_hp
-	hp_bar.max_value = boss.max_hp
-	hp_bar.value = boss.max_hp
-	_set_hp_text(boss.max_hp)
+	_max_hp = boss.boss_max_hp
+	hp_bar.max_value = boss.boss_max_hp
+	hp_bar.value = boss.boss_max_hp
+	_set_hp_text(boss.boss_max_hp)
 
 
 func show_name_immediate() -> void:
@@ -148,8 +150,6 @@ func _set_hp_text(current_val: int) -> void:
 
 
 func update_hp(new_hp: int) -> void:
-	print("NEW HP: ", new_hp)
-
 	# Center pivot for scale animation
 	enemy_hp_label.pivot_offset = enemy_hp_label.size / 2.0
 
@@ -171,6 +171,18 @@ func update_hp(new_hp: int) -> void:
 	pop_tween.parallel().tween_property(enemy_hp_label, "scale", Vector2(1.0, 1.0), 0.25)\
 		.set_trans(Tween.TRANS_BOUNCE).set_ease(Tween.EASE_OUT)
 
+func set_shield(amount: int) -> void:
+	if shield_badge == null: return          # no badge node yet, so no-op rather than crash
+	if amount <= 0:
+		shield_badge.visible = false
+		return
+	shield_label.text = str(amount)
+	shield_badge.pivot_offset = shield_badge.size / 2.0
+	shield_badge.visible = true
+	shield_badge.scale = Vector2(1.3, 1.3)
+	create_tween().tween_property(shield_badge, "scale", Vector2.ONE, 0.15).set_trans(Tween.TRANS_BOUNCE)
+
+func clear_shield() -> void: set_shield(0)
 
 func play_hit() -> void:
 	camera.screen_shake(6, 0.1)
@@ -203,15 +215,8 @@ func play_attack() -> void:
 		await t.finished
 
 
-func set_intent(next_attack: int) -> void:
-	var new_text := ""
-	var parts: Array[String] = []
-
-	if next_attack > 0:
-		parts.append("[color=#cc5555][b]" + str(next_attack) + "[/b] IMPACT[/color]")
-
-	new_text = " + ".join(parts) if not parts.is_empty() else "[color=#44445a]no effect[/color]"
-
+func set_intent(action: EnemyAction, combat: CombatContext) -> void:
+	var new_text := action.get_intent_bbcode(combat)
 	var full_text = "[shake rate=10.0 level=2][color=#ffffff][font_size=16]Intent: [/font_size][/color]" + new_text + "[/shake]"
 	intent_label.text = full_text
 	intent_label.scale = Vector2(0.75, 0.75)

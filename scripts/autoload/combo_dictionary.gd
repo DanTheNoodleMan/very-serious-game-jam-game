@@ -69,7 +69,9 @@ const MATH_ACCENT_COLOR := Color(1.0, 0.878, 0.4) # ffe066 for the math tooltip,
 func calculate(ctx: BattleContext) -> Dictionary:
 	# 1. Have the effects modify the context's buckets
 	_compute_buffed_buckets(ctx)
-
+	for source in ctx.status_sources:
+		source.modify_battle(ctx)
+		
 	# 2. Check for combos
 	var combo = _check_combos(ctx.board)
 	
@@ -131,6 +133,11 @@ func _compute_raw_buckets(ctx: BattleContext) -> void:
 		for stat in ["impact", "bandwidth", "morale"]:
 			ctx.buckets[i][stat + "_add"] = 0
 			ctx.buckets[i][stat + "_mult"] = 1
+		if ctx.combat != null:
+			for stat in ["impact", "bandwidth", "morale"]:
+				var sources := ctx.combat.get_symbol_bonus_sources(ctx.board[i], stat)
+				for source in sources:
+					ctx.add_stat(i, stat, sources[source], source)
 
 func _compute_buffed_buckets(ctx: BattleContext) -> void:
 	_compute_raw_buckets(ctx) # Fill with base stats first
@@ -153,21 +160,26 @@ func _compute_buffed_buckets(ctx: BattleContext) -> void:
 	
 
 # ── Label Generation ──────────────────────────────────────────────────────────
-func describe_symbol(sym: SymbolData, short_labels: bool = true) -> String:
+func describe_symbol(sym: SymbolData, short_labels: bool = true, combat: CombatContext = null) -> String:
+	var stat := ""
+	var base := 0
+	var lbl := ""
 	match sym.effect_type:
 		SymbolData.EffectType.DAMAGE:
-			var lbl := "IM" if short_labels else "Impact"
-			return "[b][color=%s]%d[/color][/b][color=%s] %s[/color]" % [get_effect_color_hex(sym.effect_type), sym.base_impact, get_effect_color_dim_hex(sym.effect_type), lbl]
+			stat = "impact"; base = sym.base_impact; lbl = "IM" if short_labels else "Impact"
 		SymbolData.EffectType.SHIELD:
-			var lbl := "BW" if short_labels else "Bandwidth"
-			return "[b][color=%s]%d[/color][/b][color=%s] %s[/color]" % [get_effect_color_hex(sym.effect_type), sym.base_bandwidth, get_effect_color_dim_hex(sym.effect_type), lbl]
+			stat = "bandwidth"; base = sym.base_bandwidth; lbl = "BW" if short_labels else "Bandwidth"
 		SymbolData.EffectType.HEAL:
-			var lbl := "MO" if short_labels else "Morale"
-			return "[b][color=%s]%d[/color][/b][color=%s] %s[/color]" % [get_effect_color_hex(sym.effect_type), sym.base_morale, get_effect_color_dim_hex(sym.effect_type), lbl]
+			stat = "morale"; base = sym.base_morale; lbl = "MO" if short_labels else "Morale"
 		SymbolData.EffectType.MULTIPLIER:
 			if sym.effect: return sym.effect.get_description()
 			return "[color=%s]MOD[/color]" % get_effect_color_hex(sym.effect_type)
-		_: return "[color=#888888]???[/color]"
+		_:
+			return "[color=#888888]???[/color]"
+
+	var bonus := combat.get_symbol_bonus(sym, stat) if combat != null else 0
+	var val_color := "#ffe066" if bonus > 0 else get_effect_color_hex(sym.effect_type)
+	return "[b][color=%s]%d[/color][/b][color=%s] %s[/color]" % [val_color, base + bonus, get_effect_color_dim_hex(sym.effect_type), lbl]
 
 # ComboDictionary.gd
 func build_card_description(sym: SymbolData) -> String:
@@ -188,7 +200,7 @@ func build_card_description(sym: SymbolData) -> String:
 			if extra != "":
 				lines.append("[font_size=9][color=#99a3c2]%s[/color][/font_size]" % extra)
 		elif sym.flavor_text != "":
-			# No effect script at all — the only way to give this symbol any hover text
+			# the only way to give this symbol any hover text
 			lines.append("[font_size=9][i][color=#6b7593]%s[/color][/i][/font_size]" % sym.flavor_text)
 
 	return "\n".join(lines) if not lines.is_empty() else "[color=#888888]No effect[/color]"

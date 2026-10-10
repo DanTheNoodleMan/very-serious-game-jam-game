@@ -20,6 +20,7 @@ var _hold_tween: Tween
 
 var is_held: bool = false
 var _is_hovered: bool = false
+var _is_spinning := false
 
 var _current_sym: SymbolData
 var _clip_box: Control # The internal box that clips the spin
@@ -27,6 +28,10 @@ var _border_rect: NinePatchRect # The border
 var _symbol_rect: TextureRect
 var _next_rect: TextureRect 
 var _lock_icon: TextureRect
+
+var _blackout_rect: ColorRect
+var _stamp_label: Label
+var _status_hint := ""
 
 func _ready() -> void:
 	# clip_contents is NOT on 'self' anymore so the border can render outside
@@ -61,7 +66,13 @@ func _ready() -> void:
 	# ── Overlay rectangles ──
 	# Modified _make_overlay to add them to _clip_box
 	_flash_rect = _make_overlay(Color(1.0, 0.95, 0.55, 0.0))
-		
+	
+	_blackout_rect = ColorRect.new()
+	_blackout_rect.color = Color(0.03, 0.03, 0.06, 0.94)
+	_blackout_rect.size = Vector2(sym_size, sym_size)
+	_blackout_rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_blackout_rect.visible = false
+	_clip_box.add_child(_blackout_rect)
 	# ── The NinePatchRect Border ──
 	_border_rect = NinePatchRect.new()
 	if border_texture:
@@ -92,6 +103,21 @@ func _ready() -> void:
 
 	add_child(_border_rect)
 	
+	_stamp_label = Label.new()
+	_stamp_label.size = Vector2(sym_size, sym_size)
+	_stamp_label.pivot_offset = _stamp_label.size * 0.5
+	_stamp_label.rotation = deg_to_rad(-14)
+	_stamp_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_stamp_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	_stamp_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_stamp_label.add_theme_font_override("font", load("uid://csmid407kor44"))
+	_stamp_label.add_theme_font_size_override("font_size", 10)
+	_stamp_label.add_theme_color_override("font_color", Color(1.0, 0.35, 0.35))
+	_stamp_label.add_theme_color_override("font_outline_color", Color.BLACK)
+	_stamp_label.add_theme_constant_override("outline_size", 4)
+	_stamp_label.visible = false
+	add_child(_stamp_label)
+	
 	mouse_entered.connect(_on_mouse_entered)
 	mouse_exited.connect(_on_mouse_exited)
 	_refresh_visuals()
@@ -99,10 +125,9 @@ func _ready() -> void:
 func initialise(pool: Array) -> void:
 	_pool = pool
 	if not _pool.is_empty():
-		var first_sym := _pool.pick_random() as SymbolData
-		_symbol_rect.texture =first_sym.icon
+		_symbol_rect.texture = (_pool.pick_random() as SymbolData).icon
 		_next_rect.texture = (_pool.pick_random() as SymbolData).icon
-		_current_sym = first_sym
+		_current_sym = null
 
 
 func _plain_stat_text(sym: SymbolData) -> String:
@@ -154,6 +179,7 @@ func _spin_cycle(result_symbol: SymbolData, fast_time: float, decel_time: float)
 		_symbol_rect.texture = null 
 		
 	_current_sym = result_symbol
+	_is_spinning = false
 	
 	_next_rect.position.y = -sym_size
 	_symbol_rect.position.y = 12.0 
@@ -178,22 +204,52 @@ func _make_overlay(col: Color) -> ColorRect:
 	_clip_box.add_child(r)
 	return r
 
-func spin_to(result_symbol: SymbolData, duration: float) -> void:
-	_spin_coroutine = null
+func apply_rules(rules: ReelRules) -> void:
+	var lines: Array[String] = []
+	if not rules.enabled:
+		lines.append("OFFLINE")
+	else:
+		if not rules.can_spin: lines.append("JAMMED")
+		if not rules.department_bonus: lines.append("UNDER\nREVIEW")
+	_status_hint = "\n".join(rules.notes)
 
-	if is_held:
+	_blackout_rect.visible = not rules.enabled
+	if not rules.enabled:
+		_symbol_rect.texture = null
+		_next_rect.texture = null
+		_current_sym = null
+
+	var text := "\n".join(lines)
+	if text == _stamp_label.text:
+		return                       # unchanged, don't re-slam
+	_stamp_label.text = text
+	_stamp_label.visible = text != ""
+	if text != "":
+		_stamp_label.scale = Vector2(2.2, 2.2)
+		create_tween().tween_property(_stamp_label, "scale", Vector2.ONE, 0.18) \
+			.set_trans(Tween.TRANS_BOUNCE).set_ease(Tween.EASE_OUT)
+
+
+func spin_to(result_symbol: SymbolData, duration: float, stay: bool = false) -> void:
+	_spin_coroutine = null
+	if is_held or stay:
 		reel_stopped.emit()
 		return
-
+	
+	_is_spinning = true
+	_current_sym = null
+	TooltipManager.hide_tooltip(self)   # in case the mouse was already over it
+	
 	var fast_time := duration * 0.7
 	var decel_time := duration * 0.3
-
 	_spin_coroutine = await _spin_cycle.bind(result_symbol, fast_time, decel_time).call()
 
 func _on_landed() -> void:
 	_squeeze_pop()
 	_flash_lock_in()
 	reel_stopped.emit()
+	if _is_hovered:
+		_show_tooltip()
 
 func _squeeze_pop() -> void:
 	var t := create_tween()
@@ -260,15 +316,23 @@ func _gui_input(event: InputEvent) -> void:
 func _on_mouse_entered() -> void:
 	_is_hovered = true
 	_refresh_visuals()
-	if _current_sym != null:
-		var accent := ComboDictionary.get_effect_color(_current_sym.effect_type)
-		var body_text := ComboDictionary.build_card_description(_current_sym)
-		TooltipManager.show_tooltip(self, _current_sym.symbol_name, body_text, accent, _current_sym.get_department_name())
+	_show_tooltip()
 
 func _on_mouse_exited() -> void:
 	_is_hovered = false
 	_refresh_visuals()
 	TooltipManager.hide_tooltip(self)
+
+func _show_tooltip() -> void:
+	if _is_spinning: return
+	if _current_sym != null:
+		var accent := ComboDictionary.get_effect_color(_current_sym.effect_type)
+		var body_text := ComboDictionary.build_card_description(_current_sym)
+		if _status_hint != "":
+			body_text += "\n\n[color=#cc77dd]" + _status_hint + "[/color]"
+		TooltipManager.show_tooltip(self, _current_sym.symbol_name, body_text, accent, _current_sym.get_department_name())
+	elif _status_hint != "":
+		TooltipManager.show_tooltip(self, "Reel Offline", _status_hint, Color(0.8, 0.47, 0.87))
 
 func _refresh_visuals() -> void:
 	if is_held:
