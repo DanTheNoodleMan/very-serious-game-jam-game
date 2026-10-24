@@ -127,7 +127,7 @@ func _launch_word_projectile(sym: SymbolData, from: Vector2, to: Vector2, stamp_
 	var stamp_pos := from + stamp_offset
 	var delay_t := create_tween()
 	delay_t.tween_interval(flight_time)
-	delay_t.tween_callback(func(): _spawn_word_stamp(sym.symbol_name.to_upper(), stamp_pos))
+	#delay_t.tween_callback(func(): _spawn_word_stamp(sym.symbol_name.to_upper(), stamp_pos))
 
 func _spawn_word_stamp(word: String, pos: Vector2) -> void:
 	var rtl := RichTextLabel.new()

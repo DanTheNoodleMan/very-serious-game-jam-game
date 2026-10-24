@@ -4,6 +4,7 @@ class_name SlotMachine extends Control
 signal spin_finished(results: Array[SymbolData])
 signal spin_start
 signal player_learned_hold
+signal global_popup_requested(text: String, style: ReelPopup.Style)
 
 @onready var logic: SlotMachineLogic = $SlotMachineLogic
 @onready var reels_box: HBoxContainer = $MarginContainer/Reels
@@ -21,9 +22,11 @@ signal player_learned_hold
 const SPIN_SFX_LENGTH := 1.4 # seconds — update if you swap the file
 const SPIN_DURATIONS := [0.6, 1.0, 1.4]
 const POPUP_COLORS := {
-	ReelPopup.Style.BUFF: Color(1.0, 0.8, 0.2),
-	ReelPopup.Style.DEBUFF: Color(1.0, 0.4, 0.4),
-	ReelPopup.Style.INFO: Color(0.7, 0.85, 1.0),
+	ReelPopup.Style.BUFF:       Color(1.0, 0.8, 0.2),
+	ReelPopup.Style.DEBUFF:     Color(1.0, 0.4, 0.4),
+	ReelPopup.Style.INFO:       Color(0.7, 0.85, 1.0),
+	ReelPopup.Style.SHIELD:     Color(0.376, 0.8, 1.0),     # 60ccff
+	ReelPopup.Style.HEAL:       Color(0.376, 0.933, 0.502), # 60ee80
 }
 
 var combat: CombatContext
@@ -135,7 +138,7 @@ func _on_reel_stopped(index: int) -> void:
 		
 		if symbol.effect != null:
 			symbol.effect.on_landed(index, was_held, ctx)
-		#combat.player_statuses.on_symbol_landed(index, was_held, ctx)    # relics/statuses react too
+		combat.player_statuses.on_symbol_landed(index, was_held, ctx)    # relics/statuses react too
 		var popups := ctx.drain_popups()
 		
 		# Update the text to RAW base stats
@@ -203,10 +206,15 @@ func _pulse_info_label(index: int) -> void:
 func play_popups(popups: Array[ReelPopup]) -> void:
 	if popups.is_empty(): return
 	for p in popups:
-		_pulse_info_label(p.reel_index)
-		_spawn_reel_floaty(p.text, p.reel_index, p.style)
-		SFXManager.play(reel_thump, 0.0, 0.05, 2.0, 1.6)
-		await get_tree().create_timer(0.12).timeout
+		if p.reel_index == -1:
+			# It's a UI popup! Tell the BattleManager to handle it.
+			global_popup_requested.emit(p.text, p.style)
+			SFXManager.play(reel_thump, 0.0, 0.05, 2.0, 1.6)
+		else:
+			# It's a normal Reel popup!
+			_pulse_info_label(p.reel_index)
+			_spawn_reel_floaty(p.text, p.reel_index, p.style)
+			SFXManager.play(reel_thump, 0.0, 0.05, 2.0, 1.6)
 	await get_tree().create_timer(0.3).timeout
 	
 func _update_contextual_labels() -> void:

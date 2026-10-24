@@ -1,5 +1,6 @@
 [gd_resource type="Resource" script_class="BossData" format=3 uid="uid://crf6xkisrsu8p"]
 
+[ext_resource type="Script" uid="uid://6yhhb4nfl66n" path="res://resources/actions/enemy_actions/enemy_action.gd" id="1_aiod3"]
 [ext_resource type="Texture2D" uid="uid://ch47pw8fstcfu" path="res://assets/enemies/senior_partner.png" id="1_ak50m"]
 [ext_resource type="Script" uid="uid://c48xf5y2x8myd" path="res://resources/boss_data.gd" id="1_nchak"]
 
@@ -71,7 +72,6 @@ animations = [{
 script = ExtResource("1_nchak")
 boss_id = "senior_partner"
 boss_name = "Senior Partner"
-max_hp = 150
 attack_pattern = Array[int]([10, 11, 25, 6, 0, 30, 0, 5, 35])
 animations = SubResource("SpriteFrames_u8m6e")
 metadata/_custom_type_script = "uid://c48xf5y2x8myd"

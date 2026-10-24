@@ -6,6 +6,10 @@ class_name CombatContext extends RefCounted
 ## Damage caused by a status/relic (not by a beat the manager is sequencing).
 signal passive_damage(side: int, result: DamageResult, source: String)
 
+## Emitted when a Relic or Status wants to show floating text over a character
+## target: 0 = Player, 1 = Enemy
+signal popup_requested(text: String, target: int)
+
 var run: RunState
 var enemy: BossData
 var is_final_boss: bool = false
@@ -17,6 +21,7 @@ var player_shield := 0
 var turn_number: int = 0
 var rerolls_left: int = 0
 var next_action: EnemyAction
+var ended := false
 
 var player_statuses := StatusContainer.new(StatusContainer.Side.PLAYER)
 var enemy_statuses := StatusContainer.new(StatusContainer.Side.ENEMY)
@@ -30,15 +35,27 @@ func _init(_run: RunState, _enemy: BossData) -> void:
 	enemy = _enemy
 	enemy_max_hp = _enemy.boss_max_hp
 	enemy_hp = enemy_max_hp
+	for r in run.relics:
+		player_statuses.apply(r, 1, -1)
+		print(player_statuses.all().map(func(s): return s.effect.id))
  
 # ---- Queries ---------------------------------------------------------------
 func is_player_dead() -> bool: return run.hp <= 0
 func is_enemy_dead() -> bool: return enemy_hp <= 0
 
 # ---- Turn flow (rules only, no visuals) ------------------------------------
+func begin_combat() -> void:
+	player_statuses.tick_combat_start(self)
+
+func end_combat(victory: bool) -> void:
+	if ended: return
+	ended = true
+	player_statuses.on_combat_end(self, victory)
+
+
 func begin_player_turn() -> void:
 	player_shield = 0
-	rerolls_left = run.base_rerolls
+	rerolls_left = player_statuses.modify_rerolls(run.base_rerolls)
 	next_action = enemy.pick_action(self)   # picked once, so the intent shown == what actually happens
 	player_statuses.tick_turn_start(self)
 	machine_statuses.tick_turn_start(self)
@@ -55,14 +72,26 @@ func end_enemy_turn() -> void:
 	enemy_statuses.tick_turn_end(self)
 	turn_number += 1
 
+func get_cash_reward() -> int:
+	return maxi(player_statuses.modify_cash_gain(enemy.cash_reward), 0)
 
 # ---- Damage / shield / heal ------------------------------------------------
 func damage_player(amount: int, true_damage := false, source := "") -> DamageResult:
+	var original_attack_amount = amount # Save the number before relics touch it
+	
 	if not true_damage:
 		amount = player_statuses.modify_damage_taken(amount)
+	
 	var r := _resolve_damage(amount, player_shield, true_damage)
+	r.attempted = original_attack_amount
+	
 	player_shield = r.shield_after
 	run.take_damage(r.hp_damage)
+	r.source = source
+	
+	# If an attack was attempted at all, relics see the result, relics decide themselves to check whatever they want
+	if r.attempted > 0:
+		player_statuses.on_damage_taken(self, r)
 	if source != "":
 		passive_damage.emit(StatusContainer.Side.PLAYER, r, source)
 	return r
@@ -73,6 +102,9 @@ func damage_enemy(amount: int, true_damage := false, source := "") -> DamageResu
 	var r := _resolve_damage(amount, enemy_shield, true_damage)
 	enemy_shield = r.shield_after
 	enemy_hp = maxi(enemy_hp - r.hp_damage, 0)
+	r.source = source
+	if r.incoming > 0:
+		enemy_statuses.on_damage_taken(self, r)
 	if source != "":
 		passive_damage.emit(StatusContainer.Side.ENEMY, r, source)
 	return r

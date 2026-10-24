@@ -40,6 +40,7 @@ folder_colors={
 "res://resources/": "blue",
 "res://resources/actions/enemy_actions/": "orange",
 "res://resources/enemies/": "red",
+"res://resources/relics/": "purple",
 "res://resources/status/": "teal",
 "res://resources/status/status_effects/": "gray",
 "res://resources/symbols/": "yellow",

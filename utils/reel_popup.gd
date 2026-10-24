@@ -1,6 +1,6 @@
 class_name ReelPopup extends RefCounted
 
-enum Style { BUFF, DEBUFF, INFO }
+enum Style { BUFF, DEBUFF, INFO, HEAL, SHIELD }
 
 var reel_index: int
 var text: String

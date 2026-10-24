@@ -28,6 +28,7 @@ var current_state: GameState = GameState.PLAYER_TURN
 @export var boss_roster: Array[BossData] = []
 ## Empty = use whatever is assigned on SlotMachineLogic.shared_pool in the editor.
 @export var dev_starter_pool: Array[SymbolData] = []
+@export var dev_relics: Array[RelicData] = []
 
 var combat: CombatContext
 var run: RunState:
@@ -76,6 +77,7 @@ func _ready() -> void:
 	if combat == null:
 		_build_dev_combat()
 	combat.passive_damage.connect(_on_passive_damage)
+	combat.popup_requested.connect(_on_popup_requested)
 	run.pool_changed.connect(func(): pool_roster.refresh(run.symbol_pool))
 	
 	_play_combat_music()
@@ -97,7 +99,10 @@ func _ready() -> void:
 	slot_machine.spin_finished.connect(_on_spin_finished)
 	slot_machine.spin_start.connect(_on_spin_start)
 	slot_machine.player_learned_hold.connect(_on_player_learned_hold)
+	slot_machine.global_popup_requested.connect(_on_global_popup_requested) #TODO HELLO FROM HERE CAN PROBABLY REMOIVE IN FAVOR OF OTHER NEW POPUP REQUESTED
 	slot_machine.setup(combat)
+	
+	combat.begin_combat() # call relic effects to kick in
 	
 	upgrade_display.upgrade_chosen.connect(_on_upgrade_chosen)
 	upgrade_display.visible = false
@@ -129,6 +134,7 @@ func start_player_turn() -> void:
 	current_state = GameState.PLAYER_TURN   # must be set BEFORE _check_combat_over()
 	
 	combat.begin_player_turn()  # shield reset, rerolls, picks enemy action, start-of-turn ticks
+	player_display.update_hp(run.hp)   # shows heals from combat-start / turn-start relics
 	if _check_combat_over():
 		return
 
@@ -164,7 +170,7 @@ func resolve_player_attack() -> void:
 	for i in 3:
 		if ctx.board[i] != null and ctx.board[i].effect != null:
 			ctx.board[i].effect.on_commit(i, ctx)
-	#combat.player_statuses.on_lock_in(ctx)
+	combat.player_statuses.on_lock_in(ctx)
 	await slot_machine.play_popups(ctx.drain_popups())
 	# ------------------------
 	
@@ -183,12 +189,12 @@ func resolve_player_attack() -> void:
 	combat.add_player_shield(combo_result["bandwidth"])
 	combat.heal_player(combo_result["morale"])
 
+	# TODO: probably dont need this or something mre simple
 	if enemy_hit.hp_damage > 0:
 		combat_vfx.spawn_floating_text("[b][color=#cc5555]-" + str(enemy_hit.hp_damage) + " HP[/color][/b]",
 		boss_center + Vector2(128, -32))
 	if enemy_hit.absorbed > 0:
-		combat_vfx.spawn_floating_text("[b][color=#55aaff]+" + str(enemy_hit.absorbed) + " BLOCKED[/color][/b]",
-		player_center + Vector2(128, -8))
+		pass
 	if combo_result["bandwidth"] > 0:
 		combat_vfx.spawn_floating_text("[b][color=#55aaff]+" + str(combo_result["bandwidth"]) + " BW[/color][/b]",
 		player_center + Vector2(-24, 12))
@@ -309,6 +315,7 @@ func _check_combat_over() -> bool:
 	return false
 
 func _trigger_game_over() -> void:
+	combat.end_combat(false)
 	current_state = GameState.GAME_OVER
 	game_over_screen.modulate.a = 0.0
 	game_over_screen.visible = true
@@ -316,6 +323,8 @@ func _trigger_game_over() -> void:
 	SFXManager.play(game_over, 0.0, 0.0, -15.0, 1.0, 0.0)
  
 func _on_enemy_defeated() -> void:
+	combat.end_combat(true)
+	player_display.update_hp(run.hp)   # shows heals from end-of-combat relics
 	if combat.is_final_boss:
 		current_state = GameState.VICTORY
 		await _transition_to_victory()
@@ -472,7 +481,7 @@ func _on_upgrade_chosen(type: String, data: Variant) -> void:
 	pool_roster.refresh(run.symbol_pool)
 	upgrade_display.visible = false
 	# Whoever owns the run loop (Main, or the dev harness below) takes it from here.
-	combat_finished.emit(true, combat.enemy.cash_reward)
+	combat_finished.emit(true, combat.get_cash_reward())
 
 
 func _transition_to_victory() -> void:
@@ -564,6 +573,30 @@ func _on_easy_pressed() -> void:
 	GlobalSettings.easy_mode_hp_buff += 25
 	get_tree().reload_current_scene()
 
+func _on_global_popup_requested(text: String, style: int) -> void:
+	# Format the color based on the style
+	var color_hex = "#ffffff"
+	
+	if style == ReelPopup.Style.SHIELD: color_hex = "#55aaff"
+	# TODO: Add other colors
+	
+	var bbcode_text = "[b][color=" + color_hex + "]" + text + "[/color][/b]"
+	
+	# Spawn it right above your Combat UI (where the Reroll buttons are!)
+	var spawn_pos = combat_ui.global_position + Vector2(100, 20)
+	combat_vfx.spawn_floating_text(bbcode_text, spawn_pos)
+
+func _on_popup_requested(text: String, target: int) -> void:
+	var popup_pos: Vector2
+	if target == 0:
+		# Player target (pop up slightly above player's health)
+		popup_pos = player_display.get_global_center() + Vector2(0, -40)
+	else:
+		# Enemy target
+		popup_pos = enemy_display.get_portrait_global_center() + Vector2(128, -32)
+		
+	combat_vfx.spawn_floating_text(text, popup_pos)
+
 # --------------------------------------------------------
 # --- DEV HARNESS (delete once Main owns the run loop) ----
 # --------------------------------------------------------
@@ -576,6 +609,7 @@ func _build_dev_combat() -> void:
 	if pool.is_empty():
 		pool = slot_machine.logic.shared_pool
 	var new_run := RunState.create(pool, GlobalSettings.easy_mode_hp_buff)
+	for r in dev_relics: new_run.add_relic(r)
 	combat = _dev_make_combat(new_run)
 	combat_finished.connect(_dev_on_combat_finished)
  
@@ -594,6 +628,8 @@ func _dev_on_combat_finished(won: bool, cash: int) -> void:
 	combat.passive_damage.connect(_on_passive_damage)
 	slot_machine.setup(combat)
  
+	combat.begin_combat()
+
 	_play_combat_music()
 	enemy_display.setup(combat.enemy)
  
@@ -613,3 +649,15 @@ func _dev_on_combat_finished(won: bool, cash: int) -> void:
 	await enemy_display.play_reconnected()
 	start_player_turn()
  
+
+# ---
+func _unhandled_input(event: InputEvent) -> void:
+	if not OS.is_debug_build() or not (event is InputEventKey and event.pressed): return
+	match event.keycode:
+		KEY_F1: print("cash=", run.petty_cash, " relic_state=", run.relic_state)
+		KEY_F2:
+			run.heal(999)
+			player_display.update_hp(run.hp)
+		KEY_F3:
+			combat.damage_enemy(9999, true, "debug")   # instant kill, to test end-of-combat relics
+			_check_combat_over()

@@ -11,15 +11,24 @@ enum Stacking { INTENSITY, DURATION, REPLACE }
 ## -1 = lasts until combat ends
 @export var default_duration: int = 1
 
-# ---- Hooks: override what you need ----
+func is_relic() -> bool: return false # relics return true
+
+# ---- Hooks ----
 func on_turn_start(status: ActiveStatus, combat: CombatContext) -> void: pass
 func on_turn_end(status: ActiveStatus, combat: CombatContext) -> void: pass
+func on_combat_start(status: ActiveStatus, combat: CombatContext) -> void: pass
+func on_lock_in(status: ActiveStatus, ctx: BattleContext) -> void: pass
+func on_symbol_landed(status: ActiveStatus, index: int, was_held: bool, ctx: BattleContext) -> void: pass
+func on_combat_end(status: ActiveStatus, combat: CombatContext, victory: bool) -> void: pass
+func on_damage_taken(status: ActiveStatus, combat: CombatContext, result: DamageResult) -> void: pass
 
 ## Spin math. Called on every preview, so it must only touch ctx.
 func modify_battle(status: ActiveStatus, ctx: BattleContext) -> void: pass
 
 func modify_damage_taken(status: ActiveStatus, amount: int) -> int: return amount
 func modify_damage_dealt(status: ActiveStatus, amount: int) -> int: return amount
+func modify_rerolls(status: ActiveStatus, rerolls: int) -> int: return rerolls
+func modify_cash_gain(status: ActiveStatus, amount: int) -> int: return amount
 
 ## Machine sabotage: edit the rules for one reel. Preview-safe, like modify_battle.
 func modify_reel_rules(status: ActiveStatus, reel_index: int, rules: ReelRules) -> void: pass

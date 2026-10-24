@@ -1,6 +1,7 @@
 [gd_resource type="Resource" script_class="BossData" format=3 uid="uid://cprjdjskyhrmx"]
 
 [ext_resource type="Texture2D" uid="uid://d24rqu2tksbo" path="res://assets/enemies/finance_bro_idle.png" id="1_81w2s"]
+[ext_resource type="Script" uid="uid://6yhhb4nfl66n" path="res://resources/actions/enemy_actions/enemy_action.gd" id="1_ah6m8"]
 [ext_resource type="Script" uid="uid://c48xf5y2x8myd" path="res://resources/boss_data.gd" id="1_nk358"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_ah6m8"]
@@ -71,7 +72,6 @@ animations = [{
 script = ExtResource("1_nk358")
 boss_id = "finance_bro"
 boss_name = "Finance Bro"
-max_hp = 99
 attack_pattern = Array[int]([0, 9, 0, 14, 0, 19, 0, 24])
 animations = SubResource("SpriteFrames_vr2ti")
 metadata/_custom_type_script = "uid://c48xf5y2x8myd"

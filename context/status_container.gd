@@ -67,6 +67,29 @@ func tick_turn_end(combat: CombatContext) -> void:
 	changed.emit()
 
 # ---- Aggregators ----
+func on_combat_end(combat: CombatContext, victory: bool) -> void:
+	for s in _list.duplicate(): s.effect.on_combat_end(s, combat, victory)
+
+func on_damage_taken(combat: CombatContext, result: DamageResult) -> void:
+	for s in _list.duplicate(): s.effect.on_damage_taken(s, combat, result)
+	
+func tick_combat_start(combat: CombatContext) -> void:
+	for s in _list.duplicate(): s.effect.on_combat_start(s, combat)
+
+func on_lock_in(ctx: BattleContext) -> void:
+	for s in _list.duplicate(): s.effect.on_lock_in(s, ctx)
+
+func on_symbol_landed(index: int, was_held: bool, ctx: BattleContext) -> void:
+	for s in _list.duplicate(): s.effect.on_symbol_landed(s, index, was_held, ctx)
+
+func modify_rerolls(n: int) -> int:
+	for s in _list: n = s.effect.modify_rerolls(s, n)
+	return n
+
+func modify_cash_gain(n: int) -> int:
+	for s in _list: n = s.effect.modify_cash_gain(s, n)
+	return n
+
 func modify_battle(ctx: BattleContext) -> void:
 	for s in _list: s.effect.modify_battle(s, ctx)
 
