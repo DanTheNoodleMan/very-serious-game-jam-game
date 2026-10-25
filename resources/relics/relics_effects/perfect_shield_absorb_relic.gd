@@ -5,4 +5,4 @@ class_name PerfectShieldAbsorbRelic extends RelicData
 func on_damage_taken(status: ActiveStatus, combat: CombatContext, result: DamageResult) -> void:
 	if result.exact_break == true:
 		combat.run.add_cash(cash_gain)
-		ctx.popup(index, "+$%d" % cash)
+		combat.popup_requested.emit("[b][color=#ffd060]+$%d![/color][/b]" % cash_gain, 0)

@@ -27,8 +27,10 @@ static func create(starter_pool: Array[SymbolData], hp_bonus: int = 0) -> RunSta
 	return r
 
 func add_cash(amount: int) -> void:
+	print("YOO")
 	petty_cash += amount
 	cash_changed.emit(petty_cash)
+	print(petty_cash)
 
 func spend_cash(amount: int) -> bool:
 	if petty_cash < amount: return false

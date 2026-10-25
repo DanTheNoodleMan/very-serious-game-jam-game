@@ -43,8 +43,7 @@
 [ext_resource type="Texture2D" uid="uid://c48n4u3ngs05e" path="res://assets/ui/buttons/button_hovered.png" id="19_4g358"]
 [ext_resource type="Script" uid="uid://d1h2n04vt3n1v" path="res://resources/relics/relic_data.gd" id="19_vavxu"]
 [ext_resource type="Texture2D" uid="uid://pgxqjkw8j6qs" path="res://assets/ui/buttons/button_disabled_2.png" id="20_aora4"]
-[ext_resource type="Script" uid="uid://bws7of1d1ogb2" path="res://resources/relics/relics_effects/first_hit_relic.gd" id="20_vavxu"]
-[ext_resource type="Script" uid="uid://djahfm8o35be" path="res://resources/relics/relics_effects/unused_reroll_shield_relic.gd" id="21_4crr8"]
+[ext_resource type="Script" uid="uid://b2lbvjoxd7k47" path="res://resources/relics/relics_effects/perfect_shield_absorb_relic.gd" id="21_4crr8"]
 [ext_resource type="Texture2D" uid="uid://cw4sk3bjuf1hk" path="res://assets/ui/panels/panel_6.png" id="21_60sab"]
 [ext_resource type="Texture2D" uid="uid://dkmk53d5mjic0" path="res://assets/ui/panels/player_cam_4.png" id="22_aora4"]
 [ext_resource type="Script" uid="uid://cv3hts36fy0q2" path="res://scripts/ui/combat_vfx.gd" id="30_o0r20"]
@@ -140,18 +139,11 @@ attack_pattern = Array[int]([8, 9, 8, 6, 10, 8, 7, 15])
 animations = SubResource("SpriteFrames_j3ll6")
 metadata/_custom_type_script = "uid://c48xf5y2x8myd"
 
-[sub_resource type="Resource" id="Resource_vavxu"]
-script = ExtResource("20_vavxu")
-reduction = 3
-id = "redu"
-status_name = "redu"
-metadata/_custom_type_script = "uid://bws7of1d1ogb2"
-
 [sub_resource type="Resource" id="Resource_402xp"]
 script = ExtResource("21_4crr8")
-id = "unure"
-status_name = "unure"
-metadata/_custom_type_script = "uid://djahfm8o35be"
+id = "pe"
+status_name = "pe"
+metadata/_custom_type_script = "uid://b2lbvjoxd7k47"
 
 [sub_resource type="SpriteFrames" id="SpriteFrames_7gog2"]
 
@@ -357,7 +349,7 @@ victory_music = ExtResource("12_d3gqo")
 background_music = ExtResource("13_pmb0h")
 boss_music = ExtResource("15_d3gqo")
 boss_roster = Array[ExtResource("9_2lpl0")]([ExtResource("2_7gog2"), ExtResource("10_ognr1"), ExtResource("10_nwi2s"), SubResource("Resource_rbecj"), SubResource("Resource_v24qm"), ExtResource("11_tmhp8"), ExtResource("10_5pitx")])
-dev_relics = Array[ExtResource("19_vavxu")]([SubResource("Resource_vavxu"), SubResource("Resource_402xp")])
+dev_relics = Array[ExtResource("19_vavxu")]([SubResource("Resource_402xp")])
 
 [node name="ColorRect" type="ColorRect" parent="." unique_id=1417675988]
 layout_mode = 1

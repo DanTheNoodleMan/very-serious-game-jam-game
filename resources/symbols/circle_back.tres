@@ -9,5 +9,5 @@ id = "circle_back"
 symbol_name = "Circle Back"
 icon = ExtResource("1_ktewh")
 effect_type = 1
-base_bandwidth = 5
+base_bandwidth = 3
 metadata/_custom_type_script = "uid://b6y6l2gtrmxlo"
