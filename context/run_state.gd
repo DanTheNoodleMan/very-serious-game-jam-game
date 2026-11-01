@@ -7,6 +7,7 @@ signal cash_changed(amount: int)
 signal pool_changed
 signal relics_changed
 
+@export var max_headcount: int = 8
 @export var max_hp: int = 100
 @export var hp: int = 100
 @export var petty_cash: int = 0
@@ -25,6 +26,18 @@ static func create(starter_pool: Array[SymbolData], hp_bonus: int = 0) -> RunSta
 	for s in starter_pool:
 		r.symbol_pool.append(s.duplicate(true)) # deep copy so upgrades never leak between runs
 	return r
+
+func headcount() -> int: return symbol_pool.size()
+func is_full() -> bool: return symbol_pool.size() >= max_headcount
+
+func replace_symbol(old: SymbolData, replacement: SymbolData) -> void:
+	var i := symbol_pool.find(old)
+	if i == -1:
+		symbol_pool.append(replacement)
+	else:
+		symbol_pool[i] = replacement
+	pool_changed.emit()
+
 
 func add_cash(amount: int) -> void:
 	print("YOO")

@@ -30,6 +30,11 @@ var current_state: GameState = GameState.PLAYER_TURN
 @export var dev_starter_pool: Array[SymbolData] = []
 @export var dev_relics: Array[RelicData] = []
 
+## All possible relics to give in rewards, serves as a complete relic pool, FILL IT IN
+# TODO: this is temp for the dev testing, it works and appears in reward screen but its like
+# sequential, so itll show the relic then you take it then it shows cards, think more about how to show it
+@export var relic_pool: Array[RelicData] = []
+
 var combat: CombatContext
 var run: RunState:
 	get:
@@ -41,6 +46,8 @@ var _enemy_display_rest_y: float
 var _slot_machine_rest_y: float
 
 var _has_learned_hold: bool = false
+
+var _reward_test := false
 
 @onready var enemy_display: EnemyDisplay = $EnemyArea
 @onready var player_display: PlayerDisplay = $PlayerArea
@@ -104,7 +111,7 @@ func _ready() -> void:
 	
 	combat.begin_combat() # call relic effects to kick in
 	
-	upgrade_display.upgrade_chosen.connect(_on_upgrade_chosen)
+	upgrade_display.finished.connect(_on_rewards_finished)
 	upgrade_display.visible = false
 	
 	await get_tree().process_frame
@@ -441,48 +448,25 @@ func _transition_to_upgrade() -> void:
 
 func start_upgrade_phase() -> void:
 	current_state = GameState.UPGRADE
-	upgrade_display.show_upgrades(run.symbol_pool, run.base_rerolls)
+	_open_rewards(combat.reward_source, combat.act, combat.department)
 
-	# Start offscreen to the right, then slide in
+func _open_rewards(source: RewardGenerator.Source, act: int, dept: SymbolData.Department) -> void:
+	var gen := RewardGenerator.new(run, ComboDictionary.all_symbols, relic_pool)
+	upgrade_display.show_rewards(run, gen.build(source, act, dept))
 	upgrade_display.position.x = get_viewport().get_visible_rect().size.x + 200
 	upgrade_display.visible = true
 	var t := create_tween()
-	t.tween_property(upgrade_display, "position:x",
-		_upgrade_display_rest_x, 0.4) \
+	t.tween_property(upgrade_display, "position:x", _upgrade_display_rest_x, 0.4) \
 		.set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
 	await t.finished
 
-
-func _on_upgrade_chosen(type: String, data: Variant) -> void:
-	match type:
-		"add":
-			run.add_symbol(data as SymbolData)
-		"remove":
-			run.remove_symbol(data as SymbolData)
-		"reroll":
-			run.base_rerolls += 1
-		"upgrade_normal":
-			var sym := data as SymbolData
-			# Buff the correct specific stat
-			match sym.effect_type:
-				SymbolData.EffectType.DAMAGE: sym.base_impact += 4
-				SymbolData.EffectType.SHIELD: sym.base_bandwidth += 4
-				SymbolData.EffectType.HEAL: sym.base_morale += 4
-			ComboDictionary.dictionary_updated.emit() 
-		"upgrade_multiplier":
-			var sym := data as SymbolData
-			# TODO: make it not hard coded
-			if sym.effect is MultiplyLeftEffect:
-				sym.effect.base_multiplier += 2
-			elif sym.effect is BuffAllEffect:
-				sym.effect.buff_amount += 2
-			ComboDictionary.dictionary_updated.emit()
-	
-	pool_roster.refresh(run.symbol_pool)
+func _on_rewards_finished() -> void:
 	upgrade_display.visible = false
-	# Whoever owns the run loop (Main, or the dev harness below) takes it from here.
+	player_display.update_hp(run.hp)   # heals taken from rewards
+	if _reward_test:
+		_reward_test = false
+		return
 	combat_finished.emit(true, combat.get_cash_reward())
-
 
 func _transition_to_victory() -> void:
 	# "Call ended" on the CEO
@@ -616,6 +600,7 @@ func _build_dev_combat() -> void:
 func _dev_make_combat(r: RunState) -> CombatContext:
 	var c := CombatContext.new(r, boss_roster[_dev_boss_index])
 	c.is_final_boss = _dev_boss_index >= boss_roster.size() - 1
+	if _dev_boss_index == 2: c.reward_source = RewardGenerator.Source.ELITE
 	return c
  
 func _dev_on_combat_finished(won: bool, cash: int) -> void:
@@ -661,3 +646,6 @@ func _unhandled_input(event: InputEvent) -> void:
 		KEY_F3:
 			combat.damage_enemy(9999, true, "debug")   # instant kill, to test end-of-combat relics
 			_check_combat_over()
+		KEY_F4: 
+			_reward_test = true;
+			_open_rewards(RewardGenerator.Source.REST, 1, SymbolData.Department.NONE)

@@ -44,7 +44,8 @@ folder_colors={
 "res://resources/status/": "teal",
 "res://resources/status/status_effects/": "gray",
 "res://resources/symbols/": "yellow",
-"res://resources/symbols/symbols_effects/": "green"
+"res://resources/symbols/symbols_effects/": "green",
+"res://resources/upgrades/": "orange"
 }
 
 [input]

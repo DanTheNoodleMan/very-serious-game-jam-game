@@ -10,15 +10,15 @@ func refresh(pool: Array[SymbolData]) -> void:
 
 	var counts: Dictionary = {}
 	var order: Array[SymbolData] = []
-
 	for sym: SymbolData in pool:
-		if not counts.has(sym.id):
-			counts[sym.id] = 0
+		var key := sym.get_signature()
+		if not counts.has(key):
+			counts[key] = 0
 			order.append(sym)
-		counts[sym.id] += 1
+		counts[key] += 1
 
 	for sym: SymbolData in order:
-		var chip := _make_chip(sym, counts[sym.id])
+		var chip := _make_chip(sym, counts[sym.get_signature()])
 		chip_row.add_child(chip)
 
 	await get_tree().process_frame
@@ -54,6 +54,7 @@ func _make_chip(sym: SymbolData, count: int) -> Control:
 	chip.add_theme_stylebox_override("panel", style)
 	chip.custom_minimum_size = Vector2(26, 26)
 	chip.mouse_filter = Control.MOUSE_FILTER_STOP
+	chip.size_flags_vertical =Control.SIZE_SHRINK_CENTER
 
 	# Wire hover tooltips
 	chip.mouse_entered.connect(func(): _show_tooltip(sym, chip))
@@ -73,6 +74,16 @@ func _make_chip(sym: SymbolData, count: int) -> Control:
 	icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 	icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	canvas.add_child(icon)
+	
+	# 3.1. Leveled up symbols
+	if sym.upgrade_level > 0:
+		var pip := Label.new()
+		pip.text = "+%d" % sym.upgrade_level
+		pip.add_theme_font_override("font", custom_font)
+		pip.add_theme_font_size_override("font_size", 8)
+		pip.add_theme_color_override("font_color", Color("#ffd060"))
+		pip.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		canvas.add_child(pip)
 
 	# 4. Corner Count Badge (Sleek pill pinned to bottom-right)
 	var badge := PanelContainer.new()

@@ -10,6 +10,10 @@
 [ext_resource type="Resource" uid="uid://cprjdjskyhrmx" path="res://resources/enemies/finance_bro.tres" id="6_eb6dy"]
 [ext_resource type="Resource" uid="uid://crf6xkisrsu8p" path="res://resources/enemies/senior_partner.tres" id="7_trceg"]
 [ext_resource type="Resource" uid="uid://b6y7spiycno0s" path="res://resources/enemies/ceo.tres" id="8_a8y0u"]
+[ext_resource type="Script" uid="uid://d1h2n04vt3n1v" path="res://resources/relics/relic_data.gd" id="11_trceg"]
+[ext_resource type="Script" uid="uid://ciujbmnundmps" path="res://resources/relics/relics_effects/cash_bonus_relic.gd" id="12_a8y0u"]
+[ext_resource type="Texture2D" uid="uid://drwy0v1pp845m" path="res://icon.svg" id="12_jkv2x"]
+[ext_resource type="Script" uid="uid://pft555hidasu" path="res://resources/relics/relics_effects/damage_reduction_relic.gd" id="13_jkv2x"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_cvcst"]
 atlas = ExtResource("4_choun")
@@ -91,9 +95,25 @@ attack_pattern = Array[int]([8, 9, 8, 6, 10, 8, 7, 15])
 animations = SubResource("SpriteFrames_j3ll6")
 metadata/_custom_type_script = "uid://c48xf5y2x8myd"
 
+[sub_resource type="Resource" id="Resource_chs6y"]
+script = ExtResource("12_a8y0u")
+description = "get gold"
+id = "pe"
+status_name = "pe"
+icon = ExtResource("12_jkv2x")
+metadata/_custom_type_script = "uid://ciujbmnundmps"
+
+[sub_resource type="Resource" id="Resource_vavxu"]
+script = ExtResource("13_jkv2x")
+description = "rduce damage"
+id = "le"
+status_name = "le"
+metadata/_custom_type_script = "uid://pft555hidasu"
+
 [node name="Main" type="Node" unique_id=887175760]
 script = ExtResource("1_85g3d")
 starter_pool = null
 
 [node name="CombatScene" parent="." unique_id=1819690931 instance=ExtResource("1_ig7tw")]
 boss_roster = Array[ExtResource("2_tipki")]([ExtResource("3_85g3d"), SubResource("Resource_rbecj"), SubResource("Resource_v24qm"), ExtResource("5_ya4ey"), ExtResource("6_eb6dy"), ExtResource("7_trceg"), ExtResource("8_a8y0u")])
+relic_pool = Array[ExtResource("11_trceg")]([SubResource("Resource_chs6y"), SubResource("Resource_vavxu")])

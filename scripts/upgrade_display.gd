@@ -1,89 +1,79 @@
 extends Control
+## Replaces upgrade_display.gd. Shows a queue of RewardOffers one page at a time, as RewardCards.
+## Knows nothing about what an option does; RewardOption applies itself to the RunState.
+## Replacing a symbol (roster full) opens a LayoffModal on top.
+##
+## Scene requirements: %CardContainer (an HBoxContainer is fine now), %HeaderLabel, %SkipButton.
+## There is no card scene any more: RewardCard builds itself in code.
 
-signal upgrade_chosen(type: String, data: Variant)
+signal finished
 
-@export var card_scenes: Array[PackedScene] = []  # 3 UpgradeCard scenes
-@onready var card_container: HBoxContainer = %CardContainer
+@onready var card_container: Container = %CardContainer
 @onready var header_label: RichTextLabel = %HeaderLabel
+@onready var skip_button: Button = %SkipButton
 
-var _current_pool: Array[SymbolData] = []
+var _run: RunState
+var _queue: Array[RewardOffer] = []
+var _offer: RewardOffer
+var _modal: LayoffModal
 
-func show_upgrades(pool: Array[SymbolData], current_rerolls: int) -> void:
-	_current_pool = pool
-	header_label.text = "PERFORMANCE REVIEW"
 
-	# Clear old cards
-	for child in card_container.get_children():
-		child.queue_free()
+func _ready() -> void:
+	skip_button.pressed.connect(_on_skip_pressed)
 
-	var options := _generate_options(pool, current_rerolls)
-	for opt in options:
-		var card = preload("uid://c0grhwl3tyrdh").instantiate()
+
+func show_rewards(run: RunState, offers: Array[RewardOffer]) -> void:
+	_run = run
+	_queue.assign(offers)
+	_next_offer()
+
+
+func _next_offer() -> void:
+	if _queue.is_empty():
+		finished.emit()
+		return
+	_offer = _queue.pop_front()
+	_show_offer(_offer)
+
+
+func _show_offer(offer: RewardOffer) -> void:
+	header_label.text = offer.title
+	skip_button.text = "SKIP (+$%d)" % offer.skip_cash if offer.skip_cash > 0 else "SKIP"
+	skip_button.visible = offer.can_skip
+	_clear_cards()
+	for opt in offer.options:
+		var card := RewardCard.new()
 		card_container.add_child(card)
-		card.setup(opt)
-		card.chosen.connect(_on_card_chosen)
+		card.setup(opt, _run)
+		card.chosen.connect(_on_option_chosen)
 
-func _generate_options(pool: Array[SymbolData], rerolls: int) -> Array[Dictionary]:
-	var opts: Array[Dictionary] = []
 
-	 # which unlockable symbols haven't entered the pool yet, hardcoded for now since i don't have many
-	var unlockable_ids := ["disruptor", "ai", "leverage", "annual_bonus"]
-	var pool_ids := pool.map(func(s): return s.id)
-	var available_unlocks: Array[SymbolData] = []
-	for sym in ComboDictionary.all_symbols:
-		if sym.id in unlockable_ids and sym.id not in pool_ids:
-			available_unlocks.append(sym)
-	available_unlocks.shuffle()
-	
-	# Option 1: Add a new unlockable symbol (if any remain)
-	if available_unlocks.size() > 0:
-		var sym := available_unlocks[0]
-		opts.append({
-			"type": "add", "data": sym,
-			"title": "BRING IN A CONSULTANT",
-			"desc": "Add [" + sym.symbol_name.to_upper() + "] to your roster"
-		})
-	else:
-		# Fallback: add a duplicate of a random existing symbol
-		var sym: SymbolData = pool.pick_random()
-		opts.append({
-			"type": "add", "data": sym,
-			"title": "EXPAND THE TEAM",
-			"desc": "Add another [" + sym.symbol_name.to_upper() + "] — increases its roll chance"
-		})
+func _on_option_chosen(option: RewardOption) -> void:
+	if is_instance_valid(_modal):
+		return                                   # modal already open
+	if option.needs_layoff(_run):
+		_open_layoff(option)
+		return
+	option.apply(_run)
+	_next_offer()
 
-	# Option 2: Upgrade a symbol's base_value
-	if pool.size() > 0:
-		var sym: SymbolData = pool.pick_random()
-		if sym.effect_type != SymbolData.EffectType.MULTIPLIER:
-			opts.append({
-				"type": "upgrade_normal", "data": sym,
-				"title": "AREA OF IMPROVEMENT",
-				"desc": "Upgrade [" + sym.symbol_name.to_upper() + "] — increases its value by 4"
-			})
-		else:
-			opts.append({
-				"type": "upgrade_multiplier", "data": sym,
-				"title": "CAREER COACHING",
-				"desc": "Upgrade [" + sym.symbol_name.to_upper() + "] — increases its value by 2"
-			})
 
-	# Option 3: Option C: Extra reroll OR remove a symbol
-	if pool.size() > 5 and rerolls >= 3:
-		var weakest: SymbolData = pool.pick_random()
-		opts.append({
-			"type": "remove", "data": weakest,
-			"title": "RESTRUCTURE",
-			"desc": "Remove [" + weakest.symbol_name.to_upper() + "] from your roster"
-		})
-	else:
-		opts.append({
-			"type": "reroll", "data": null,
-			"title": "EXTEND THE MEETING",
-			"desc": "Gain +1 REROLL per turn (currently " + str(rerolls) + ")"
-		})
+# Roster is full: pick who the new hire replaces. Closing the modal just returns to the candidates.
+func _open_layoff(new_hire: RewardOption) -> void:
+	_modal = LayoffModal.open(self, _run, new_hire)
+	_modal.picked.connect(func(sym: SymbolData) -> void:
+		new_hire.apply(_run, sym)
+		_next_offer())
 
-	return opts
 
-func _on_card_chosen(type: String, data: Variant) -> void:
-	upgrade_chosen.emit(type, data)
+func _on_skip_pressed() -> void:
+	if is_instance_valid(_modal):
+		return
+	_run.add_cash(_offer.skip_cash)
+	_next_offer()
+
+
+func _clear_cards() -> void:
+	for c in card_container.get_children():
+		card_container.remove_child(c)
+		c.queue_free()

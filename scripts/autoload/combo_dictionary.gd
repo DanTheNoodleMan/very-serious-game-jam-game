@@ -181,7 +181,7 @@ func describe_symbol(sym: SymbolData, short_labels: bool = true, combat: CombatC
 	var val_color := "#ffe066" if bonus > 0 else get_effect_color_hex(sym.effect_type)
 	return "[b][color=%s]%d[/color][/b][color=%s] %s[/color]" % [val_color, base + bonus, get_effect_color_dim_hex(sym.effect_type), lbl]
 
-# ComboDictionary.gd
+
 func build_card_description(sym: SymbolData) -> String:
 	var lines: Array[String] = []
 

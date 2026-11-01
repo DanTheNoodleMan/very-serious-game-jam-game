@@ -10,6 +10,8 @@
 [ext_resource type="FontFile" uid="uid://csmid407kor44" path="res://assets/fonts/Stacked pixel.ttf" id="6_7abct"]
 [ext_resource type="Resource" uid="uid://riarammpdiml" path="res://resources/symbols/nda.tres" id="11_bcb0g"]
 [ext_resource type="Resource" uid="uid://diciesej1gn6x" path="res://resources/symbols/brainstorm.tres" id="11_r2p6a"]
+[ext_resource type="Resource" uid="uid://dnyn4iruiaydi" path="res://resources/symbols/pizza_party.tres" id="12_4gbs2"]
+[ext_resource type="Resource" uid="uid://gp76i7yqmgo0" path="res://resources/symbols/leverage.tres" id="12_bcb0g"]
 [ext_resource type="Resource" uid="uid://2mykwv3odn16" path="res://resources/symbols/stake.tres" id="12_g1le3"]
 
 [node name="SlotMachine" type="Control" unique_id=798385911]
@@ -27,7 +29,7 @@ lock_tex = ExtResource("5_3ucdj")
 
 [node name="SlotMachineLogic" type="Node" parent="." unique_id=669746294]
 script = ExtResource("1_agdmm")
-shared_pool = Array[ExtResource("3_knkoj")]([ExtResource("12_g1le3"), ExtResource("11_r2p6a"), ExtResource("11_bcb0g")])
+shared_pool = Array[ExtResource("3_knkoj")]([ExtResource("12_g1le3"), ExtResource("11_r2p6a"), ExtResource("11_bcb0g"), ExtResource("12_4gbs2"), ExtResource("12_bcb0g")])
 
 [node name="SlotMachineSprite" type="Sprite2D" parent="." unique_id=1014798497]
 

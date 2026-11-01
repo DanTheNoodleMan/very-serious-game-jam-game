@@ -30,6 +30,11 @@ var machine_statuses := StatusContainer.new(StatusContainer.Side.MACHINE)
 ## SymbolData -> { stat: { source: amount } }
 var _symbol_bonuses: Dictionary = {}
 
+### TODO IMPORTANT: main with map will fill these up ###
+var reward_source: RewardGenerator.Source = RewardGenerator.Source.ELITE
+var act := 1
+var department: SymbolData.Department = SymbolData.Department.NONE
+
 func _init(_run: RunState, _enemy: BossData) -> void:
 	run = _run
 	enemy = _enemy

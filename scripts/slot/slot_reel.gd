@@ -6,8 +6,8 @@ signal reel_clicked
 signal hover_changed(is_hovered: bool)
 
 @export var sym_size := 64
-@export var border_texture: Texture2D # NEW: Assign your border PNG here
-@export var border_thickness := 2    # NEW: How far outside the reel the border sits
+@export var border_texture: Texture2D # Assign your border PNG here
+@export var border_thickness := 2    # How far outside the reel the border sits
 @export var nine_patch_margin := 10  # Adjust based on your PNG's border size
 @export var lock_texture: Texture2D
 

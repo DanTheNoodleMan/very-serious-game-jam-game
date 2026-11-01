@@ -55,7 +55,6 @@
 [ext_resource type="Script" uid="uid://57ie8umjxy6y" path="res://scripts/pool_roster.gd" id="38_8o0a2"]
 [ext_resource type="Script" uid="uid://duxj3ox7eyota" path="res://scripts/upgrade_display.gd" id="38_f4pwu"]
 [ext_resource type="Texture2D" uid="uid://cxtc11chnjuw7" path="res://assets/player/player_victory_hat.png" id="38_rbecj"]
-[ext_resource type="PackedScene" uid="uid://c0grhwl3tyrdh" path="res://scenes/upgrade_card.tscn" id="39_tm7qj"]
 [ext_resource type="Script" uid="uid://cu4s7j7675ht2" path="res://scripts/utils/camera_shake.gd" id="41_r20up"]
 [ext_resource type="Texture2D" uid="uid://d1wadlytwoqw7" path="res://assets/ui/panels/pattern.png" id="48_v24qm"]
 
@@ -350,6 +349,7 @@ background_music = ExtResource("13_pmb0h")
 boss_music = ExtResource("15_d3gqo")
 boss_roster = Array[ExtResource("9_2lpl0")]([ExtResource("2_7gog2"), ExtResource("10_ognr1"), ExtResource("10_nwi2s"), SubResource("Resource_rbecj"), SubResource("Resource_v24qm"), ExtResource("11_tmhp8"), ExtResource("10_5pitx")])
 dev_relics = Array[ExtResource("19_vavxu")]([SubResource("Resource_402xp")])
+relic_pool = Array[ExtResource("19_vavxu")]([null])
 
 [node name="ColorRect" type="ColorRect" parent="." unique_id=1417675988]
 layout_mode = 1
@@ -1023,11 +1023,10 @@ anchor_right = 1.0
 anchor_bottom = 0.592
 offset_left = 0.11997986
 offset_top = 14.0
-offset_bottom = -0.11999512
+offset_bottom = 7.880005
 grow_horizontal = 0
 mouse_filter = 2
 script = ExtResource("38_f4pwu")
-card_scenes = Array[PackedScene]([ExtResource("39_tm7qj"), ExtResource("39_tm7qj"), ExtResource("39_tm7qj")])
 
 [node name="HeaderLabel" type="RichTextLabel" parent="UpgradeDisplay" unique_id=301927323]
 unique_name_in_owner = true
@@ -1059,11 +1058,33 @@ offset_bottom = -40.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="CardContainer" type="HBoxContainer" parent="UpgradeDisplay/MarginContainer" unique_id=1317515700]
+[node name="CardContainer" type="HFlowContainer" parent="UpgradeDisplay/MarginContainer" unique_id=1707517453]
 unique_name_in_owner = true
 layout_mode = 2
-theme_override_constants/separation = 20
 alignment = 1
+
+[node name="SkipButton" type="Button" parent="UpgradeDisplay" unique_id=1503141534]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -22.0
+offset_top = -31.0
+offset_right = 22.0
+grow_horizontal = 2
+grow_vertical = 0
+size_flags_horizontal = 3
+mouse_default_cursor_shape = 2
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 6
+theme_override_fonts/font = ExtResource("16_qmjfx")
+theme_override_styles/normal = SubResource("StyleBoxFlat_v24qm")
+theme_override_styles/hover = SubResource("StyleBoxFlat_0j2h3")
+text = "Skip
+"
 
 [node name="Camera2D" type="Camera2D" parent="." unique_id=1143090596 groups=["camera"]]
 unique_name_in_owner = true

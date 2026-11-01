@@ -10,7 +10,10 @@
 [ext_resource type="Resource" uid="uid://gp76i7yqmgo0" path="res://resources/symbols/leverage.tres" id="8_w2d8j"]
 [ext_resource type="Resource" uid="uid://31gp4lfh0a50" path="res://resources/symbols/ai.tres" id="9_8grjo"]
 [ext_resource type="Resource" uid="uid://8qp0aujtua40" path="res://resources/symbols/disruptor.tres" id="10_iwfcf"]
+[ext_resource type="Resource" uid="uid://riarammpdiml" path="res://resources/symbols/nda.tres" id="11_5jadr"]
+[ext_resource type="Resource" uid="uid://2mykwv3odn16" path="res://resources/symbols/stake.tres" id="12_sq1hk"]
+[ext_resource type="Resource" uid="uid://diciesej1gn6x" path="res://resources/symbols/brainstorm.tres" id="13_sq1hk"]
 
 [node name="ComboDictionary" type="Node" unique_id=1376710668]
 script = ExtResource("1_umm07")
-all_symbols = Array[ExtResource("2_eepqi")]([ExtResource("3_w2d8j"), ExtResource("4_8grjo"), ExtResource("5_iwfcf"), ExtResource("6_m7i84"), ExtResource("7_43be6"), ExtResource("8_w2d8j"), ExtResource("9_8grjo"), ExtResource("10_iwfcf")])
+all_symbols = Array[ExtResource("2_eepqi")]([ExtResource("3_w2d8j"), ExtResource("4_8grjo"), ExtResource("5_iwfcf"), ExtResource("6_m7i84"), ExtResource("7_43be6"), ExtResource("8_w2d8j"), ExtResource("9_8grjo"), ExtResource("10_iwfcf"), ExtResource("11_5jadr"), ExtResource("12_sq1hk"), ExtResource("13_sq1hk")])

@@ -1,25 +1,18 @@
 class_name FinePrintEffect extends SymbolEffect
+## Fine Print: shield, plus a counter-hit if the enemy is about to attack.
+## The shield comes from the symbol's own base_bandwidth now, so this only adds the conditional part.
 
-@export var base_bandwidth: int = 2
 @export var counter_impact: int = 4
 
 #TODO update with new enemy intent system
 func apply_effect(my_index: int, ctx: BattleContext) -> void:
-	# 1. Always give the base bandwidth
-	ctx.symbol_results[my_index].bandwidth += base_bandwidth
+	if _enemy_will_attack(ctx):
+		ctx.add_stat(my_index, "impact", counter_impact, ctx.board[my_index].symbol_name)
 	
-	# 2. Check the enemy intent from the context!
-	# (Assuming you have an enum or string for enemy intent in BattleContext)
-	if ctx.enemy_intent == "ATTACK": 
-		ctx.symbol_results[my_index].impact += counter_impact
+
+func _enemy_will_attack(ctx: BattleContext) -> bool:
+	var action := ctx.combat.next_action if ctx.combat != null else null
+	return action != null and action.damage > 0
 
 func get_description() -> String:
-	return "%d Bandwidth. If enemy intends to attack, deals %d Impact." % [base_bandwidth, counter_impact]
-
-func get_contextual_label(my_index: int, ctx: BattleContext) -> String:
-	if ctx.enemy_intent == "ATTACK":
-		# Shows them both stats if the condition is met!
-		return "[color=blue]%d BW[/color] | [color=red]%d IMPACT[/color]" % [base_bandwidth, counter_impact]
-	else:
-		# Just shows the shield if the enemy isn't attacking
-		return "[color=blue]%d BANDWIDTH[/color]" % base_bandwidth
+	return "If the enemy intends to attack, deals [b]%d[/b] Impact." % counter_impact

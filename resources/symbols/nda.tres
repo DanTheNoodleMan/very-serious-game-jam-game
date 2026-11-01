@@ -11,5 +11,4 @@ icon = ExtResource("1_6oeh2")
 effect_type = 1
 department = 4
 base_bandwidth = 3
-flavor_text = "Don't tell anyone what goes on here."
 metadata/_custom_type_script = "uid://b6y6l2gtrmxlo"
